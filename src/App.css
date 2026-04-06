@@ -1,0 +1,16 @@
+.app-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.app-arcade-iframe {
+  position: absolute;
+  top: 0;
+  left: 256px;
+  width: calc(100% - 256px);
+  height: 100%;
+  border: none;
+  z-index: 0;
+}

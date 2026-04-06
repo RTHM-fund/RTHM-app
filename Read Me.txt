@@ -1,0 +1,31 @@
+RTHM App - Setup Guide
+======================
+
+FIRST TIME SETUP (do this once)
+---------------------------------
+
+Windows:
+  Double-click "RTHM Setup.bat"
+  It will automatically install everything and create a desktop shortcut.
+
+Mac:
+  Right-click "RTHM Setup.command" -> Open -> Open
+  (Mac blocks new apps on first run — this only happens once)
+  It will automatically install everything and create a desktop shortcut.
+
+
+LAUNCHING THE APP
+-----------------
+  Double-click "RTHM App" on your desktop.
+  Your browser will open automatically.
+
+
+ADDING TEMPLATES
+----------------
+  Drop .docx files into the matching folder inside Templates/
+  Restart the app and they appear automatically.
+
+
+STOPPING THE APP
+----------------
+  Close the terminal window that opened when you launched.

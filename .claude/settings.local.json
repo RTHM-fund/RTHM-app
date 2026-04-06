@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Bash(dir \"C:\\\\Program Files\\\\LibreOffice\")",
+      "Bash(dir \"C:\\\\Program Files \\(x86\\)\\\\LibreOffice\")",
+      "Bash(npm run:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(powershell -Command \"Rename-Item -Path 'C:\\\\Users\\\\richa\\\\Dropbox\\\\RTHM\\\\4. Operations\\\\RTHM Form Filler' -NewName 'RTHM App'\" 2>&1)",
+      "Bash(python -c \"from PIL import Image; print\\(''PIL ok''\\)\")",
+      "Bash(magick --version)",
+      "Bash(convert --version)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(npm --version)",
+      "Bash(powershell -NoProfile -Command \"\n\\\\$ws = New-Object -ComObject WScript.Shell\n\\\\$s = \\\\$ws.CreateShortcut\\(\\\\$env:USERPROFILE + '\\\\Desktop\\\\RTHM App.lnk'\\)\n\\\\$s.TargetPath = 'C:\\\\Users\\\\richa\\\\Dropbox\\\\RTHM\\\\4. Operations\\\\RTHM App\\\\RTHM Launch.bat'\n\\\\$s.WorkingDirectory = 'C:\\\\Users\\\\richa\\\\Dropbox\\\\RTHM\\\\4. Operations\\\\RTHM App'\n\\\\$s.IconLocation = 'C:\\\\Users\\\\richa\\\\Dropbox\\\\RTHM\\\\4. Operations\\\\RTHM App\\\\App Files\\\\public\\\\icon.ico'\n\\\\$s.Save\\(\\)\nRemove-Item -Path \\\\$env:LOCALAPPDATA\\\\IconCache.db -Force -ErrorAction SilentlyContinue\nStop-Process -Name explorer -Force\nStart-Process explorer\n\")",
+      "Bash(\"C:\\\\Users\\\\richa\\\\Dropbox\\\\RTHM\\\\4. Operations\\\\RTHM App\\\\App Files\\\\data\\\\deals.json\")",
+      "Bash(powershell -NoProfile -Command \"Set-Content -Path 'C:\\\\Users\\\\richa\\\\Dropbox\\\\RTHM\\\\4. Operations\\\\RTHM App\\\\App Files\\\\node_modules' -Stream 'com.dropbox.ignored' -Value '1'\")",
+      "Bash(/tmp/calc_test.txt:*)",
+      "Read(//tmp/**)",
+      "Bash(python3:*)",
+      "Bash(find 'C:\\\\Users\\\\richa\\\\Dropbox\\\\RTHM\\\\4. Operations\\\\RTHM App\\\\App Files\\\\src' -type f \\\\\\(-name *.jsx -o -name *.js -o -name *.css \\\\\\))",
+      "Bash(grep -n font-weight.*!important 'C:\\\\Users\\\\richa\\\\Dropbox\\\\RTHM\\\\4. Operations\\\\RTHM App\\\\App Files\\\\src\\\\components\\\\DealsPage.css')"
+    ]
+  }
+}

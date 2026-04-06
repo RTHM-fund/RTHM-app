@@ -1,0 +1,280 @@
+.invoice-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ── Header ── */
+.invoice-header {
+  padding: 24px 40px 20px;
+  background: var(--white);
+  border-bottom: 1px solid var(--paper-darker);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.invoice-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoice-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: -0.2px;
+}
+
+.invoice-category {
+  font-size: 11px;
+  color: var(--primary-mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.invoice-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 36px 40px 60px;
+}
+
+.invoice-error {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: var(--error);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* ── Fields (self-contained — no dependency on RPAForm.css) ── */
+.invoice-fields {
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.invoice-fields .field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.invoice-fields .field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.invoice-fields .field-input {
+  padding: 10px 14px;
+  border: 1.5px solid var(--paper-darker);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.invoice-fields .field-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(107,33,217,0.1);
+}
+
+.invoice-fields .export-btn {
+  padding: 12px 28px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  transition: all 0.15s ease;
+  align-self: flex-start;
+}
+
+.invoice-fields .export-btn:hover:not(.disabled):not(.saving) {
+  background: var(--primary-dark);
+  animation: btn-lift 0.4s ease;
+  box-shadow: 0 4px 16px rgba(107,33,217,0.3);
+}
+
+.invoice-fields .export-btn.disabled {
+  background: var(--paper-darker);
+  color: var(--primary-mid);
+  cursor: not-allowed;
+}
+
+/* ── Combo input (type-or-pick dropdown) ── */
+.combo-input-wrapper {
+  position: relative;
+}
+
+.combo-input-wrapper .field-input {
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B6580' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.combo-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border: 1.5px solid var(--paper-darker);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.combo-option {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.combo-option:hover,
+.combo-option--active {
+  background: var(--primary-faint);
+}
+
+.combo-option:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+/* ── Section divider ── */
+.invoice-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-top: 8px;
+}
+
+/* ── Line items count ── */
+.line-items-count-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.line-items-count {
+  width: 48px;
+  padding: 4px 4px;
+  border: 1.5px solid var(--paper-darker);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--ink);
+  outline: none;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.line-items-count:focus {
+  border-color: var(--primary);
+}
+
+.line-items-count::-webkit-inner-spin-button,
+.line-items-count::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ── Line item rows ── */
+.line-items-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.line-item-headers {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 100px;
+  gap: 8px;
+  padding: 0 0 4px;
+}
+
+.line-item-header {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.line-item-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 100px;
+  gap: 8px;
+  align-items: center;
+}
+
+.line-item-row .field-input {
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+/* ── Total ── */
+.invoice-total-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 100px;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1.5px solid var(--paper-darker);
+  align-items: center;
+}
+
+.invoice-total-label {
+  grid-column: 3;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+}
+
+.invoice-total-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* ── Notes ── */
+.invoice-notes {
+  resize: none;
+  overflow: hidden;
+  min-height: 40px;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.5;
+}
+
+/* ── Export row ── */
+.invoice-export-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}

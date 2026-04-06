@@ -1,0 +1,5 @@
+node_modules/
+dist/
+server/token.json
+server/credentials.json
+server/monday_config.json

@@ -1,0 +1,18 @@
+{
+  "Skyline": {
+    "B2B Entity": "Skyline Capital LLC",
+    "B2B Address": "TEMP",
+    "B2B Partner": "Skyline",
+    "B2B Website": "TEST",
+    "B2B Signer": "Test Name",
+    "B2B Title": "Owner"
+  },
+  "TopValley": {
+    "B2B Entity": "",
+    "B2B Address": "",
+    "B2B Partner": "TopValley",
+    "B2B Website": "",
+    "B2B Signer": "",
+    "B2B Title": ""
+  }
+}

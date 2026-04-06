@@ -1,0 +1,232 @@
+.agreements-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.agreements-header {
+  padding: 24px 40px 20px;
+  background: var(--white);
+  border-bottom: 1px solid var(--paper-darker);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.agreements-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.agreements-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.2px;
+}
+
+.agreements-partner {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 18px;
+  cursor: context-menu;
+  align-self: center;
+}
+
+.partner-modal {
+  width: 420px;
+}
+
+.partner-modal .modal-form {
+  padding: 24px;
+}
+
+.agreements-sub {
+  font-size: 11px;
+  color: var(--primary-mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.agreements-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 36px 40px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.agreements-new-btn {
+  padding: 10px 22px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  transition: all 0.15s;
+}
+
+.agreements-new-btn:hover {
+  background: var(--primary-dark);
+  animation: btn-lift 0.4s ease;
+  box-shadow: 0 4px 16px rgba(82,0,190,0.25);
+}
+
+.agreements-table-wrap {
+  border: 1px solid var(--paper-darker);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.agreements-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.agreements-table thead {
+  background: var(--paper);
+}
+
+.agreements-table th {
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border-bottom: 1px solid var(--paper-darker);
+}
+
+.agreements-table td {
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  border-bottom: 1px solid var(--paper-darker);
+}
+
+.agreements-table tbody tr:last-child td { border-bottom: none; }
+
+.agreements-table tbody tr {
+  transition: background 0.1s;
+}
+
+.agreements-table tbody tr:hover {
+  background: rgba(186, 156, 252, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(218, 206, 253, 0.5);
+}
+
+.agreements-row-pending td {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.agreements-td-name {
+  font-weight: 600;
+}
+
+.agreements-edit-btn {
+  padding: 5px 14px;
+  background: none;
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  transition: all 0.15s;
+}
+
+.agreements-edit-btn:hover {
+  background: var(--primary);
+  color: white;
+  animation: btn-lift 0.4s ease;
+}
+
+.agreements-export-btn {
+  padding: 5px 14px;
+  background: none;
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  transition: all 0.15s;
+}
+
+.agreements-export-btn:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  animation: btn-lift 0.4s ease;
+}
+
+.agreements-export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.agreements-delete-btn {
+  padding: 5px 14px;
+  background: none;
+  border: 1.5px solid var(--error);
+  border-radius: var(--radius);
+  color: var(--error);
+  font-size: 12px;
+  font-weight: 600 !important;
+  transition: all 0.15s;
+}
+
+.agreements-delete-btn:hover {
+  background: var(--error);
+  color: white;
+  animation: btn-lift 0.4s ease;
+}
+
+/* Type picker modal */
+.deal-sheet-modal .modal-form {
+  padding-bottom: 24px;
+}
+
+.agreements-type-modal {
+  width: 360px;
+}
+
+.agreements-type-list {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agreements-type-btn {
+  padding: 12px 20px;
+  background: none;
+  border: 1.5px solid var(--paper-darker);
+  text-transform: none;
+  font-size: 13px;
+  font-weight: 600 !important;
+  color: var(--ink);
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.agreements-type-btn:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  animation: btn-lift 0.4s ease;
+}
+
+.agreements-type-btn:disabled {
+  background: none;
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}

@@ -1,0 +1,148 @@
+.field-deal-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.field-deal-row .field-input {
+  flex: 1;
+}
+
+.deal-sheet-table-modal {
+  width: auto;
+  max-width: 95vw;
+}
+
+.modal-table-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 16px 16px 8px;
+  margin: 0;
+}
+
+.modal-table-label:first-child {
+  padding-top: 8px;
+}
+
+.deal-sheet-table {
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.deal-sheet-table.rthm-table {
+  width: auto;
+}
+
+.deal-sheet-table th:first-child,
+.deal-sheet-table td:first-child {
+  width: auto;
+  padding-left: 16px;
+}
+
+.deal-sheet-table td {
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.field-group--toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 515px;
+}
+
+.field-checkbox {
+  accent-color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+}
+
+.income-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.income-table th {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  padding: 6px 8px;
+  text-align: center;
+  border-bottom: 1.5px solid var(--paper-darker);
+}
+
+.income-table th:first-child {
+  text-align: left;
+}
+
+.income-table thead tr:first-child th {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.income-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink);
+  padding: 6px 8px 6px 0;
+  white-space: nowrap;
+}
+
+.income-cell {
+  text-align: center;
+  padding: 4px 4px;
+}
+
+.income-cell .rate-input {
+  width: 40px;
+  padding: 4px 4px;
+  border: 1.5px solid var(--paper-darker);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--ink);
+  outline: none;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.income-cell .rate-input:focus {
+  border-color: var(--primary);
+}
+
+.income-cell .rate-input::-webkit-inner-spin-button,
+.income-cell .rate-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.income-cell .rate-symbol {
+  margin-left: 2px;
+  font-size: 11px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.offer-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.offers-header {
+  padding: 24px 40px 20px;
+  background: var(--white);
+  border-bottom: 1px solid var(--paper-darker);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}

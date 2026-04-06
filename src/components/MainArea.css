@@ -1,0 +1,79 @@
+.main-area {
+  flex: 1;
+  overflow-y: auto;
+  background: linear-gradient(to bottom, #DACEFD 0%, #FAFAFA 75%);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-area-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-area--arcade {
+  background: transparent;
+}
+
+.main-area--arcade * {
+  pointer-events: none;
+}
+
+.main-area--arcade .deals-page-header,
+.main-area--arcade .valuation-header,
+.main-area--arcade .agreements-header,
+.main-area--arcade .rpa-header,
+.main-area--arcade .offers-header {
+  pointer-events: auto;
+}
+
+.main-area--arcade button,
+.main-area--arcade input,
+.main-area--arcade select,
+.main-area--arcade textarea,
+.main-area--arcade a {
+  pointer-events: auto;
+}
+
+
+/* ── Empty state ── */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.empty-hint {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--primary-mid);
+  letter-spacing: 0.01em;
+}
+
+/* ── Form panel slide-in ── */
+.form-panel {
+  height: 100%;
+  overflow-y: auto;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.2s ease forwards;
+}

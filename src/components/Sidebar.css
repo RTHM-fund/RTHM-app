@@ -1,0 +1,178 @@
+.sidebar {
+  position: relative;
+  z-index: 1;
+  width: 256px;
+  min-width: 256px;
+  background: var(--sidebar-bg) url('/sidebar-bg.png') center top / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-logo {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+/* ── Nav ── */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+/* Top-level nav item (Deal Manager) */
+.nav-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px 10px 18px;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  border-left: 2px solid transparent;
+}
+
+.nav-item:hover {
+  background: var(--sidebar-hover);
+  color: var(--white);
+}
+
+.nav-item.active {
+  color: var(--white);
+  background: rgba(167,139,250,0.08);
+  border-left-color: var(--sidebar-active);
+}
+
+/* Static section label */
+.sidebar-section-label {
+  padding: 16px 20px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+.sidebar-category {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  color: var(--sidebar-text);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  border-left: 2px solid transparent;
+}
+
+.category-toggle:hover {
+  background: var(--sidebar-hover);
+  color: var(--white);
+}
+
+.category-toggle.open {
+  color: var(--white);
+}
+
+.category-label {
+  flex: 1;
+}
+
+.category-chevron {
+  font-size: 10px;
+  opacity: 0.65;
+}
+
+/* ── Templates inside category ── */
+.category-templates {
+  padding: 2px 0 6px 0;
+}
+
+.template-empty {
+  display: block;
+  padding: 6px 28px;
+  font-size: 11px;
+  color: var(--sidebar-text);
+  font-style: italic;
+}
+
+.template-item {
+  display: block;
+  width: 100%;
+  padding: 8px 20px 8px 32px;
+  background: transparent;
+  border: none;
+  color: var(--sidebar-text);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
+}
+
+.template-item:hover:not(.static) {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+  border-left-color: rgba(167,139,250,0.65);
+}
+
+.template-item.static {
+  cursor: default;
+}
+
+.template-item.active {
+  color: var(--white);
+  border-left-color: var(--sidebar-active);
+  background: rgba(167,139,250,0.08);
+  font-weight: 500;
+}
+
+/* ── Sidebar font-weight lockdown (immune to global button overrides) ── */
+.nav-item { font-weight: 700 !important; font-size: 13px !important; border-radius: 0 !important; }
+.category-toggle { font-weight: 500 !important; border-radius: 0 !important; }
+.template-item { font-weight: 500 !important; border-radius: 0 !important; font-size: 11px !important; }
+
+/* ── Footer ── */
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-wordmark {
+  font-size: 10px;
+  color: var(--sidebar-text);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
