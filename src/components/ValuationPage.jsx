@@ -283,7 +283,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
             </thead>
             <tbody>
               {prUpliftRows.map(({ term, totalDealValue, advanceAmount, marketingBudget, rate, margin, marketingBudgetRaw, rasAdvance, rthmAdvance }) => {
-                const marginTip = `(${fmt(rasAdvance)} × 20% × 67% ÷ 3) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)})) − (${marginRate}% × ${fmt(advanceAmount)})`
+                const marginTip = `(${fmt(rasAdvance)} × 20% × 67% × 2.5 ÷ 3) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)})) − (${marginRate}% × ${fmt(advanceAmount)})`
                 const totalTip = `${fmt(advanceAmount)} + ${fmt(marketingBudget)}`
                 const advTip = `${fmt(rthmAdvance)} × 80%`
                 const mktTip = `${fmt(rasAdvance)} × 20% × 67% × 2.5 = ${fmt(Math.round(marketingBudgetRaw))} → round up to ${fmt(marketingBudget)}`

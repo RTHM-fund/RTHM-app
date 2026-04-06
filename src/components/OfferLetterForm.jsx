@@ -614,7 +614,6 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                       const prAdvTip = `${fmtV(row.advanceAmount)} × 80%`
                       const mktRaw = row.rasAdvance * 0.2 * 0.67 * 2.5
                       const mktTip = `${fmtV(row.rasAdvance)} × 20% × 67% × 2.5 = ${fmtV(Math.round(mktRaw))} → round up to ${fmtV(row.marketingBudget)}`
-                      const advTip = `${fmtV(row.recoupAmount)} × ${row.recoupRate}%`
                       return (
                       <tr
                         key={'pr-' + rIdx}

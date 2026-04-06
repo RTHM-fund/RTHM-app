@@ -3,7 +3,7 @@ const cors = require('cors')
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
-const { execSync, spawnSync, spawn } = require('child_process')
+const { spawnSync, spawn } = require('child_process')
 const mammoth = require('mammoth')
 const PizZip = require('pizzip')
 const Docxtemplater = require('docxtemplater')
@@ -251,6 +251,28 @@ app.get('/api/templates', (req, res) => {
 })
 
 // GET /api/fields/:category/:filename — extract {{fields}} from a docx
+const fieldsCache = {}
+
+async function extractFields(filepath) {
+  const stat = fs.statSync(filepath)
+  if (stat.size < 1000) {
+    throw new Error('Template file may not be fully synced. If using Dropbox, right-click the Templates folder and select "Make Available Offline".')
+  }
+  const result = await mammoth.extractRawText({ path: filepath })
+  const regex = /\{\{([^}]+)\}\}/g
+  const seen = new Set()
+  const fields = []
+  let match
+  while ((match = regex.exec(result.value)) !== null) {
+    const field = match[1].trim()
+    if (!seen.has(field) && !field.startsWith('#') && !field.startsWith('/')) {
+      seen.add(field)
+      fields.push(field)
+    }
+  }
+  return fields
+}
+
 app.get('/api/fields/:category/:filename', async (req, res) => {
   try {
     const { category, filename } = req.params
@@ -260,22 +282,20 @@ app.get('/api/fields/:category/:filename', async (req, res) => {
       return res.status(404).json({ error: 'Template not found' })
     }
 
-    const result = await mammoth.extractRawText({ path: filepath })
-    const text = result.value
-
-    // Extract {{Field Name}} placeholders in doc order, deduplicated
-    const regex = /\{\{([^}]+)\}\}/g
-    const seen = new Set()
-    const fields = []
-    let match
-    while ((match = regex.exec(text)) !== null) {
-      const field = match[1].trim()
-      if (!seen.has(field) && !field.startsWith('#') && !field.startsWith('/')) {
-        seen.add(field)
-        fields.push(field)
-      }
+    const cacheKey = filepath
+    if (fieldsCache[cacheKey]) {
+      return res.json({ fields: fieldsCache[cacheKey] })
     }
 
+    let fields
+    try {
+      fields = await extractFields(filepath)
+    } catch {
+      await new Promise(r => setTimeout(r, 2000))
+      fields = await extractFields(filepath)
+    }
+
+    fieldsCache[cacheKey] = fields
     res.json({ fields })
   } catch (err) {
     console.error('Field extraction error:', err)
@@ -952,18 +972,23 @@ app.delete('/api/deals/:index', (req, res) => {
 })
 
 let shutdownTimer = null
+let activeConnections = 0
 
 app.get('/api/heartbeat', (req, res) => {
   res.set({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' })
   res.flushHeaders()
 
+  activeConnections++
   if (shutdownTimer) { clearTimeout(shutdownTimer); shutdownTimer = null }
 
   const keepAlive = setInterval(() => res.write(': ping\n\n'), 15000)
 
   req.on('close', () => {
     clearInterval(keepAlive)
-    shutdownTimer = setTimeout(() => process.exit(0), 3000)
+    activeConnections--
+    if (activeConnections <= 0) {
+      shutdownTimer = setTimeout(() => process.exit(0), 3000)
+    }
   })
 })
 
