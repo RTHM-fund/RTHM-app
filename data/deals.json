@@ -30,23 +30,53 @@
       "rates": {
         "12 months": 72,
         "36 months": 62,
-        "60 months": 52,
+        "60 months": "52",
         "84 months": 42
       },
       "commission": 4,
-      "recoupLocked": true
+      "recoupLocked": true,
+      "b2bMarginRate": 5
     },
     "agreements": [
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Luh Loaded Rerun.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Luh Loaded Rerun.docx",
-        "createdAt": "2026-04-02T19:17:58.276Z"
+        "createdAt": "2026-04-06T22:52:50.550Z"
+      },
+      {
+        "type": "RTHM Offer Letter",
+        "fileName": "RTHM Offer Letter_Luh Loaded Rerun.docx",
+        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Offer Letter_Luh Loaded Rerun.docx",
+        "createdAt": "2026-04-07T00:37:37.392Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_Luh Loaded Rerun.docx",
+        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM RPA_Luh Loaded Rerun.docx",
+        "createdAt": "2026-04-07T00:39:27.078Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_Luh Loaded Rerun.docx",
+        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM x RAS RPA_Luh Loaded Rerun.docx",
+        "createdAt": "2026-04-07T00:39:27.176Z"
       }
     ],
     "platform": "DistroKid / Venice",
     "royaltyType": "Distribution",
-    "dealType": "Individual"
+    "dealType": "Individual",
+    "lockedDeal": {
+      "advanceAmount": 10920,
+      "recoupRate": 42,
+      "term": "84 months",
+      "recoupAmount": 26000,
+      "rasAdvance": 13400,
+      "marketingBudget": 5000,
+      "prAdvance": 8736,
+      "prTotal": 13736,
+      "legalName": "Collier Starks"
+    }
   },
   {
     "name": "SuperFriendz",
@@ -77,20 +107,21 @@
     "importedAt": "2026-04-02T19:18:44.982Z",
     "valuationState": {
       "rates": {
-        "12 months": 70,
+        "12 months": "0",
         "36 months": 60,
         "60 months": 0,
         "84 months": 48
       },
       "commission": 4,
-      "recoupLocked": true
+      "recoupLocked": true,
+      "b2bMarginRate": 5
     },
     "agreements": [
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_SuperFriendz.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_SuperFriendz.docx",
-        "createdAt": "2026-04-02T19:22:57.527Z"
+        "createdAt": "2026-04-06T22:55:37.567Z"
       }
     ],
     "platform": "Kobalt",
@@ -126,20 +157,21 @@
     "importedAt": "2026-04-02T19:24:38.925Z",
     "valuationState": {
       "rates": {
-        "12 months": 70,
-        "36 months": 60,
-        "60 months": 50,
-        "84 months": 45
+        "12 months": "74",
+        "36 months": "64",
+        "60 months": "54",
+        "84 months": "48"
       },
       "commission": 4,
-      "recoupLocked": true
+      "recoupLocked": true,
+      "b2bMarginRate": 5
     },
     "agreements": [
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Sada Baby.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Sada Baby.docx",
-        "createdAt": "2026-04-02T19:24:54.943Z"
+        "createdAt": "2026-04-06T23:06:37.202Z"
       }
     ],
     "platform": "TuneCore",
@@ -178,7 +210,7 @@
         "12 months": 74,
         "36 months": 64,
         "60 months": 54,
-        "84 months": 50
+        "84 months": "47"
       },
       "commission": 4,
       "recoupLocked": true,
@@ -189,7 +221,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Swag surfin.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Swag surfin.docx",
-        "createdAt": "2026-04-02T19:30:46.592Z"
+        "createdAt": "2026-04-06T23:07:22.959Z"
       }
     ],
     "platform": "UMG",
@@ -239,7 +271,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Otega.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Otega.docx",
-        "createdAt": "2026-04-02T21:22:14.485Z"
+        "createdAt": "2026-04-06T23:22:24.287Z"
       },
       {
         "type": "RTHM Offer Letter",
@@ -251,7 +283,7 @@
         "type": "Skyline Deal Sheet",
         "fileName": "Skyline Deal Sheet_Otega.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Otega.docx",
-        "createdAt": "2026-04-04T10:19:52.402Z"
+        "createdAt": "2026-04-06T23:22:24.287Z"
       }
     ],
     "platform": "DistroKid",
@@ -299,7 +331,7 @@
         "12 months": 74,
         "36 months": 64,
         "60 months": 54,
-        "84 months": 47
+        "84 months": "48"
       },
       "commission": 4,
       "recoupLocked": true,
@@ -310,13 +342,13 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_The Sauce Familia Label.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_The Sauce Familia Label.docx",
-        "createdAt": "2026-04-02T21:21:54.418Z"
+        "createdAt": "2026-04-06T23:30:50.530Z"
       },
       {
         "type": "Skyline Deal Sheet",
         "fileName": "Skyline Deal Sheet_The Sauce Familia Label.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_The Sauce Familia Label.docx",
-        "createdAt": "2026-04-04T10:19:09.153Z"
+        "createdAt": "2026-04-06T23:30:50.530Z"
       }
     ],
     "platform": "Create Music Group",
@@ -356,7 +388,7 @@
         "12 months": 74,
         "36 months": 64,
         "60 months": 54,
-        "84 months": 47
+        "84 months": "48"
       },
       "commission": 4,
       "recoupLocked": true,
@@ -367,18 +399,25 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Sauce Walka.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Sauce Walka.docx",
-        "createdAt": "2026-04-04T18:38:06.866Z"
+        "createdAt": "2026-04-06T23:32:36.801Z"
       },
       {
         "type": "RTHM Offer Letter",
         "fileName": "RTHM Offer Letter_Sauce Walka.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Offer Letter_Sauce Walka.docx",
         "createdAt": "2026-04-04T18:41:02.088Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Sauce Walka.docx",
+        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Sauce Walka.docx",
+        "createdAt": "2026-04-06T23:32:36.801Z"
       }
     ],
     "platform": "Create Music Group",
     "royaltyType": "Distribution",
-    "dealType": "B2B"
+    "dealType": "B2B",
+    "b2bPartner": "Skyline"
   },
   {
     "name": "Wande Coal",
@@ -412,7 +451,7 @@
         "12 months": 74,
         "36 months": 64,
         "60 months": 54,
-        "84 months": 45
+        "84 months": "46"
       },
       "commission": 8,
       "recoupLocked": true,
@@ -423,62 +462,12 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Wande Coal.docx",
         "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Wande Coal.docx",
-        "createdAt": "2026-04-04T19:22:55.565Z"
+        "createdAt": "2026-04-06T23:23:45.755Z"
       }
     ],
     "platform": "DistroKid",
     "royaltyType": "Distribution",
     "dealType": "Individual",
     "folderPath": null
-  },
-  {
-    "name": "LeTreez",
-    "platform": "SOCAN",
-    "initialQuote": {
-      "AC": 19500,
-      "AD": 21500,
-      "AE": 37000,
-      "AF": 48900,
-      "AG": 45600,
-      "AH": 68800,
-      "AI": 50000,
-      "AJ": 84000
-    },
-    "percent": null,
-    "variableQuote": {
-      "AP": 14040,
-      "AQ": 15480,
-      "AR": 26640,
-      "AS": 35208,
-      "AT": 32832,
-      "AU": 49536,
-      "AV": 36000,
-      "AW": 60480
-    },
-    "dealType": "Individual",
-    "royaltyType": "Publishing",
-    "commission": "4",
-    "mondayItemId": "11676397580",
-    "mondayBoardId": 18397562279,
-    "importedAt": "2026-04-06T00:51:59.034Z",
-    "valuationState": {
-      "rates": {
-        "12 months": "50",
-        "36 months": "50",
-        "60 months": "50",
-        "84 months": "50"
-      },
-      "commission": 4,
-      "recoupLocked": false,
-      "b2bMarginRate": 5
-    },
-    "agreements": [
-      {
-        "type": "Deal Sheet",
-        "fileName": "RTHM Deal Sheet_LeTreez.docx",
-        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_LeTreez.docx",
-        "createdAt": "2026-04-06T00:52:47.805Z"
-      }
-    ]
   }
 ]

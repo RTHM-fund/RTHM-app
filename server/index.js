@@ -11,7 +11,9 @@ const { google } = require('googleapis')
 
 const CREDENTIALS = require('./credentials.json').installed
 const MONDAY_TOKEN = require('./monday_config.json').api_token
-const DROPBOX_RTHM = path.join(os.homedir(), 'Dropbox', 'RTHM')
+// Derive RTHM root from this file's location — works with any Dropbox account/path.
+// server/index.js lives at <DROPBOX>/RTHM/4. Operations/RTHM App/App Files/server/index.js
+const DROPBOX_RTHM = path.resolve(__dirname, '..', '..', '..', '..')
 const TEMP_AGREEMENTS_DIR = path.join(DROPBOX_RTHM, '1. RTHM Fund', '2. Offers', 'Temp Agreements')
 const DEAL_SHEETS_DIR = path.join(DROPBOX_RTHM, '1. RTHM Fund', '2. Offers', 'Deal Sheets')
 const MATERIALS_ROOT = path.join(DROPBOX_RTHM, '1. RTHM Fund', '3. Deal Materials')
