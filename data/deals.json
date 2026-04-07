@@ -469,5 +469,112 @@
     "royaltyType": "Distribution",
     "dealType": "Individual",
     "folderPath": null
+  },
+  {
+    "name": "Nate B",
+    "platform": "BMI",
+    "initialQuote": {
+      "AC": 35800,
+      "AD": 40100,
+      "AE": 82700,
+      "AF": 112800,
+      "AG": 109400,
+      "AH": 177400,
+      "AI": 124700,
+      "AJ": 235300
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "11686155759",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-07T02:35:02.563Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": "48"
+      },
+      "commission": 4,
+      "b2bMarginRate": 0,
+      "recoupLocked": true
+    },
+    "b2bPartner": "TopValley",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Nate B.docx",
+        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Nate B.docx",
+        "createdAt": "2026-04-07T02:35:48.988Z"
+      },
+      {
+        "type": "TopValley Deal Sheet",
+        "fileName": "TopValley Deal Sheet_Nate B.docx",
+        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\TopValley Deal Sheet_Nate B.docx",
+        "createdAt": "2026-04-07T02:35:48.988Z"
+      }
+    ]
+  },
+  {
+    "name": "Foti Massimiliano",
+    "platform": "BMI",
+    "initialQuote": {
+      "AC": 45700,
+      "AD": 51300,
+      "AE": 104200,
+      "AF": 142200,
+      "AG": 136600,
+      "AH": 220900,
+      "AI": 155700,
+      "AJ": 293300
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "11686198486",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-07T02:48:13.156Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "74",
+        "36 months": "64",
+        "60 months": "54",
+        "84 months": "48"
+      },
+      "commission": 3,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Foti Massimiliano.docx",
+        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Foti Massimiliano.docx",
+        "createdAt": "2026-04-07T02:48:59.559Z"
+      }
+    ]
   }
 ]
