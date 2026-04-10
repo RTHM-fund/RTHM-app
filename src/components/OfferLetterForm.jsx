@@ -163,7 +163,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
   }
 
   useEffect(() => {
-    if (selectedDealIdx === null || !deals.length) return
+    if (selectedDealIdx === null || !deals.length || loading) return
     const deal = deals[selectedDealIdx]
     if (!deal) return
     const rt = deal.royaltyType || ''
@@ -199,7 +199,37 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
 
     setValues(prev => ({ ...prev, ...updates }))
     setRawAmounts(prev => ({ ...prev, ...rawUpdates }))
-  }, [selectedDealIdx, deals, showFutures])
+  }, [selectedDealIdx, deals, showFutures, loading])
+
+  useEffect(() => {
+    if (selectedDealIdx === null) return
+    setShowMarketing(false)
+    setShowFutures(false)
+    setShowDistro(false)
+    setSelectedRow(null)
+    setLockedRow(null)
+    setDealSheetTables(null)
+    setStructuredRows(null)
+    setPrRows(null)
+    setShowPR(false)
+    setValues(prev => ({
+      ...prev,
+      'Advance Amount': '',
+      'Term': '',
+      'Recoup Rate': '',
+      'Recoup Amount': '',
+      'Marketing Budget': '',
+    }))
+    setRawAmounts(prev => {
+      const next = { ...prev }
+      delete next['Advance Amount']
+      delete next['Term']
+      delete next['Recoup Rate']
+      delete next['Recoup Amount']
+      delete next['Marketing Budget']
+      return next
+    })
+  }, [selectedDealIdx])
 
   const parseAmt = raw => parseFloat((raw || '').replace(/[^0-9.]/g, '')) || 0
   const totalDeal = parseAmt(rawAmounts['Advance Amount'])
@@ -337,11 +367,19 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
       'Recoup Amount': '$' + Math.round(row.recoupAmount).toLocaleString('en-US'),
     }))
 
-    if (row.marketingBudget > 0) {
+    if (isPR) {
       setShowMarketing(true)
       const mktDigits = String(row.marketingBudget)
       setRawAmounts(prev => ({ ...prev, 'Marketing Budget': mktDigits }))
       setValues(prev => ({ ...prev, 'Marketing Budget': '$' + Math.round(row.marketingBudget).toLocaleString('en-US') }))
+    } else {
+      setShowMarketing(false)
+      setRawAmounts(prev => {
+        const next = { ...prev }
+        delete next['Marketing Budget']
+        return next
+      })
+      setValues(prev => ({ ...prev, 'Marketing Budget': '' }))
     }
 
     try {

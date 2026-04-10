@@ -2,58 +2,35 @@
 
 ## Accomplished This Session
 
-### Invoice Template Feature (New)
-- Template with `{{#items}}` loop, FROM/TO/payment placeholders
-- InvoiceForm.jsx: ComboInput, RTHM entity auto-fill, line items auto-calc, notes with bullet points, PDF export to Downloads
-- Server endpoint POST /api/save/invoice
+### Bug Fix 1 — OfferLetterForm income fields empty in generated docs
+`src/components/OfferLetterForm.jsx` — Race condition between two async fetches on mount caused income sharing percentages (DA1/DR1/AA1/AR1 etc.) to be empty in generated offer letter documents. The deals fetch resolved first, DR/DA effect set income fields, then the fields fetch resolved and did `setValues(init)` (full replace), wiping the income values. DR/DA effect didn't re-fire because no deps changed.
+**Fix:** Added `loading` as a guard (`|| loading`) and dependency to the DR/DA useEffect (line 166, 202). Income computation now waits for the fields fetch to complete, so `setValues(init)` always executes first and income values always come last.
 
-### Monday.com Integration Expanded
-- B2B Partner Push: dropdown column fuzzy match, hooked into Deal Sheet creation + PATCH b2b-partner
-- Commission/Margin Push: to Monday Commission column when recoup locked
+### Bug Fix 2 — Marketing auto-select condition was always true
+`src/components/OfferLetterForm.jsx` — `handleConfirmRow` checked `row.marketingBudget > 0` to decide whether to auto-select Marketing. But the server computes `marketingBudget` for ALL `structuredRows` (not just PR rows) at `server/index.js:656`, so the condition was always true regardless of which table the user picked from. Marketing auto-selected even when picking a regular RTHM Valuation row.
+**Fix:** Changed condition from `row.marketingBudget > 0` to `isPR` (line 370). Marketing now only auto-selects when picking from the PR Uplift table, and deselects when picking from the RTHM Valuation table.
 
-### Valuation Page Updates
-- Commission/Margin locked when recoup set, editable via Edit Recoup
-- "B2B Margin" → "Margin"
-- Swapped RTHM Advance and RAS Recoup columns
-- Tables auto-size (align-items: flex-start on section, flex: 0 0 auto on tables-row)
+### Code Review (/simplify)
+Ran full codebase review with three parallel agents (code reuse, quality, efficiency). Result: **codebase is clean.** No dead imports, unused variables, orphaned files, unreachable code paths, or dead CSS. All suggestions were optimizations or refactors — none qualified as dead code removal under the maximum-safety constraint.
 
-### PR Uplift Table (Offer Letter Modal)
-- Reordered: Term → Total Deal → Advance Amount → Marketing Budget → Recoup Rate → Recoup Amount
-
-### Math Tooltips (Global `.calc-tip` in index.css)
-- All calculated values across ValuationPage, OfferLetterForm, RPAForm, InvoiceForm
-
-### Cross-Platform + Multi-User
-- Dynamic DROPBOX_RTHM, resolveAgreementPath(), relative folderPath
-- RTHM Launch.command uses $HOME/Dropbox path
-- postinstall.js auto-chmod's .command files on Mac
-- Setup.command icon uses NSWorkspace API
-
-### Server Reliability
-- Heartbeat: tracks activeConnections, only shuts down when all tabs closed
-- Field extraction: cache + retry with 2s delay for Dropbox sync
-- Removed dead execSync import
-
-### Cleanup
-- Removed all green notification boxes
-- .margin-tip → global .calc-tip
-- Dead variables removed (m1, m2, advTip, execSync)
-
-### Git
-- Local git repo initialized, initial commit
-
-### Known Mac Issue
-- Logos/images don't display if Dropbox smart sync has public/ files as cloud-only
-- Fix: right-click public/ folder in Finder → Make Available Offline
-- Not a code bug — Dropbox serving placeholder files instead of actual content
+### Previous session fixes (already committed as 757ad46)
+- B2B margin display on ValuationPage (marginRate term dropped for B2B)
+- OfferLetterForm stale state (handleConfirmRow else branch + selectedDealIdx reset useEffect)
 
 ---
 
 ## Current State
-App fully functional. Cross-platform (Windows/Mac). Zero code bugs. Clean build, zero dead code.
+
+- **Working path:** `C:\Users\richa\RTHM Dropbox\RTHM Fund\RTHM\4. Operations\RTHM App`
+- **App:** fully functional, all known bugs fixed
+- **Codebase:** reviewed and clean — no dead code
+- **New B2B templates** (Earl Jam, Skyline, TopValley) verified working
+- **CLAUDE.md:** updated with git-status-on-save-session directive + corrected Dropbox path (lives outside git repo, saved to disk only)
 
 ---
 
 ## What's Next
-- Mac: make public/ and Templates/ folders "Available Offline" in Dropbox
-- Live multi-user testing
+
+1. **Offer letter page breaks** — user will manually add hard page breaks (Ctrl+Enter) in Word templates before FAQ section. No code needed.
+2. **b2b-partners.json data gap** — Earl Jam missing, TopValley/Skyline have placeholder data. Not blocking deal sheets/offer letters, only matters for RPA generation.
+3. **v2 development** — Part 2 of royalty finance workflow. Specs not yet discussed. Spec-first workflow applies.

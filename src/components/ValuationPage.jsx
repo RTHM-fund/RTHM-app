@@ -160,7 +160,9 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     const rasRecoup = parseFloat(source[recoupCol]) || 0
     const rate = parseFloat(rates[term]) || 0
     const rthmAdvance = Math.round(rasRecoup * (rate / 100))
-    const margin = Math.round(rasAdvance - rthmAdvance - rthmAdvance * (marginRate / 100))
+    const margin = dealType === 'B2B'
+      ? Math.round(rasAdvance - rthmAdvance)
+      : Math.round(rasAdvance - rthmAdvance - rthmAdvance * (marginRate / 100))
     return { term, rasAdvance, rasRecoup, rate, rthmAdvance, margin }
   })
 
@@ -171,7 +173,9 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     const totalDealValue = advanceAmount + marketingBudget
     const margin1 = marketingBudgetRaw / 3
     const margin2 = 0.8 * (rasAdvance - rthmAdvance)
-    const margin = Math.round(margin1 + margin2 - (marginRate / 100) * advanceAmount)
+    const margin = dealType === 'B2B'
+      ? Math.round(margin1 + margin2)
+      : Math.round(margin1 + margin2 - (marginRate / 100) * advanceAmount)
     return { term, totalDealValue, advanceAmount, marketingBudget, marketingBudgetRaw, rate, margin, rasAdvance, rthmAdvance }
   }) : []
 
@@ -217,7 +221,9 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
             </thead>
             <tbody>
               {valuationRows.map(({ term, rasAdvance, rasRecoup, rate, rthmAdvance, margin }) => {
-                const marginTip = `${fmt(rasAdvance)} − ${fmt(rthmAdvance)} − (${fmt(rthmAdvance)} × ${marginRate}%)`
+                const marginTip = dealType === 'B2B'
+                  ? `${fmt(rasAdvance)} − ${fmt(rthmAdvance)}`
+                  : `${fmt(rasAdvance)} − ${fmt(rthmAdvance)} − (${fmt(rthmAdvance)} × ${marginRate}%)`
                 const advTip = `${fmt(rasRecoup)} × ${rate}%`
                 return (
                   <tr key={term}>
@@ -283,7 +289,9 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
             </thead>
             <tbody>
               {prUpliftRows.map(({ term, totalDealValue, advanceAmount, marketingBudget, rate, margin, marketingBudgetRaw, rasAdvance, rthmAdvance }) => {
-                const marginTip = `(${fmt(rasAdvance)} × 20% × 67% × 2.5 ÷ 3) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)})) − (${marginRate}% × ${fmt(advanceAmount)})`
+                const marginTip = dealType === 'B2B'
+                  ? `(${fmt(rasAdvance)} × 20% × 67% × 2.5 ÷ 3) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)}))`
+                  : `(${fmt(rasAdvance)} × 20% × 67% × 2.5 ÷ 3) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)})) − (${marginRate}% × ${fmt(advanceAmount)})`
                 const totalTip = `${fmt(advanceAmount)} + ${fmt(marketingBudget)}`
                 const advTip = `${fmt(rthmAdvance)} × 80%`
                 const mktTip = `${fmt(rasAdvance)} × 20% × 67% × 2.5 = ${fmt(Math.round(marketingBudgetRaw))} → round up to ${fmt(marketingBudget)}`

@@ -495,7 +495,7 @@
       "AW": null
     },
     "dealType": "B2B",
-    "royaltyType": "Publishing",
+    "royaltyType": "Both",
     "commission": "4",
     "mondayItemId": "11686155759",
     "mondayBoardId": 18397562279,
@@ -508,22 +508,22 @@
         "84 months": "48"
       },
       "commission": 4,
-      "b2bMarginRate": 0,
+      "b2bMarginRate": 10,
       "recoupLocked": true
     },
-    "b2bPartner": "TopValley",
+    "b2bPartner": "Earl Jam",
     "agreements": [
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Nate B.docx",
-        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Nate B.docx",
-        "createdAt": "2026-04-07T02:35:48.988Z"
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Nate B.docx",
+        "createdAt": "2026-04-08T20:16:22.168Z"
       },
       {
-        "type": "TopValley Deal Sheet",
-        "fileName": "TopValley Deal Sheet_Nate B.docx",
-        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\TopValley Deal Sheet_Nate B.docx",
-        "createdAt": "2026-04-07T02:35:48.988Z"
+        "type": "Earl Jam Deal Sheet",
+        "fileName": "Earl Jam Deal Sheet_Nate B.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Nate B.docx",
+        "createdAt": "2026-04-08T20:16:22.168Z"
       }
     ]
   },
@@ -564,7 +564,7 @@
         "60 months": "54",
         "84 months": "48"
       },
-      "commission": 3,
+      "commission": 4,
       "b2bMarginRate": 5,
       "recoupLocked": true
     },
@@ -572,8 +572,293 @@
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Foti Massimiliano.docx",
-        "filePath": "C:\\Users\\richa\\Dropbox\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Foti Massimiliano.docx",
-        "createdAt": "2026-04-07T02:48:59.559Z"
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Foti Massimiliano.docx",
+        "createdAt": "2026-04-08T01:04:51.138Z"
+      }
+    ]
+  },
+  {
+    "name": "Luuh Jam",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 8600,
+      "AD": 9800,
+      "AE": 18200,
+      "AF": 25000,
+      "AG": 23300,
+      "AH": 37600,
+      "AI": 26000,
+      "AJ": 48200
+    },
+    "percent": 90,
+    "variableQuote": {
+      "AP": 7740,
+      "AQ": 8820,
+      "AR": 16380,
+      "AS": 22500,
+      "AT": 20970,
+      "AU": 33840,
+      "AV": 23400,
+      "AW": 43380
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11697072730",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-08T03:06:05.492Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": "48"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Luuh Jam.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Luuh Jam.docx",
+        "createdAt": "2026-04-08T03:06:26.962Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Luuh Jam.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Luuh Jam.docx",
+        "createdAt": "2026-04-08T03:06:26.962Z"
+      }
+    ]
+  },
+  {
+    "name": "Sky High",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 16000,
+      "AD": 18300,
+      "AE": 35000,
+      "AF": 48000,
+      "AG": 44800,
+      "AH": 72200,
+      "AI": 49900,
+      "AJ": 92100
+    },
+    "percent": 90,
+    "variableQuote": {
+      "AP": 14400,
+      "AQ": 16470,
+      "AR": 31500,
+      "AS": 43200,
+      "AT": 40320,
+      "AU": 64980,
+      "AV": 44910,
+      "AW": 82890
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11697076933",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-08T03:08:54.779Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": "48"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Sky High.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Sky High.docx",
+        "createdAt": "2026-04-08T03:09:17.216Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Sky High.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Sky High.docx",
+        "createdAt": "2026-04-08T03:09:17.216Z"
+      }
+    ]
+  },
+  {
+    "name": "CALMWAVES",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 231300,
+      "AD": 261400,
+      "AE": 508000,
+      "AF": 695000,
+      "AG": 663500,
+      "AH": 1076300,
+      "AI": 750000,
+      "AJ": 1415000
+    },
+    "percent": 90,
+    "variableQuote": {
+      "AP": 208170,
+      "AQ": 235260,
+      "AR": 457200,
+      "AS": 625500,
+      "AT": 597150,
+      "AU": 968670,
+      "AV": 675000,
+      "AW": 1273500
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11697066653",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-08T03:10:11.017Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": "47"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_CALMWAVES.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_CALMWAVES.docx",
+        "createdAt": "2026-04-08T03:10:32.496Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_CALMWAVES.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_CALMWAVES.docx",
+        "createdAt": "2026-04-08T03:10:32.496Z"
+      }
+    ]
+  },
+  {
+    "name": "$K (Family First Records)",
+    "platform": "Orchard",
+    "initialQuote": {
+      "AC": 4600,
+      "AD": 5400,
+      "AE": 10100,
+      "AF": 14400,
+      "AG": 12800,
+      "AH": 21800,
+      "AI": 14200,
+      "AJ": 27900
+    },
+    "percent": 15,
+    "variableQuote": {
+      "AP": 3910,
+      "AQ": 4590,
+      "AR": 8585,
+      "AS": 12240,
+      "AT": 10880,
+      "AU": 18530,
+      "AV": 12070,
+      "AW": 23715
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11697079021",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-08T03:11:39.129Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": "47"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_$K (Family First Records).docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_$K (Family First Records).docx",
+        "createdAt": "2026-04-08T03:12:00.027Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_$K (Family First Records).docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_$K (Family First Records).docx",
+        "createdAt": "2026-04-08T03:12:00.027Z"
+      }
+    ]
+  },
+  {
+    "name": "Awakeafterdark",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 8800,
+      "AD": 10000,
+      "AE": 16300,
+      "AF": 22500,
+      "AG": 19900,
+      "AH": 32200,
+      "AI": 21700,
+      "AJ": 39900
+    },
+    "percent": 90,
+    "variableQuote": {
+      "AP": 7920,
+      "AQ": 9000,
+      "AR": 14670,
+      "AS": 20250,
+      "AT": 17910,
+      "AU": 28980,
+      "AV": 19530,
+      "AW": 35910
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11697086490",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-08T03:14:41.240Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": "48"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Awakeafterdark.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Awakeafterdark.docx",
+        "createdAt": "2026-04-08T03:14:59.894Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Awakeafterdark.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Awakeafterdark.docx",
+        "createdAt": "2026-04-08T03:14:59.894Z"
       }
     ]
   }
