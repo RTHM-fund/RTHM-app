@@ -62,3 +62,14 @@ Full spec reference: `docs/v2_specs.md` (in repo) + `royalty_merger.py` + `Royal
 **Modularity rule:** Deal Manager is not touched as part of v2 work. Cross-integration = v3.
 
 **Dispatch ready:** any new Claude session pointed at the GitHub repo will read CLAUDE.md, `_claude_progress.md`, and `docs/v2_specs.md` at start, then continue.
+
+---
+
+## How to continue on phone
+
+1. Open **claude.ai/code** in phone browser (Safari/Chrome, NOT the Claude chat app)
+2. Connect GitHub → authorize Claude GitHub App for `RTHM-fund/RTHM-app` (one-time)
+3. Start new chat in that repo
+4. First message: *"continue v2 work"*
+
+CLAUDE.md auto-loads in every session and tells Claude to read the progress file + spec, so context picks up immediately.
