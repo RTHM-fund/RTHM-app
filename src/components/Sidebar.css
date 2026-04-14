@@ -62,6 +62,10 @@
   border-left-color: var(--sidebar-active);
 }
 
+.nav-item--spaced {
+  margin-top: 6px;
+}
+
 /* Static section label */
 .sidebar-section-label {
   padding: 16px 20px 6px;

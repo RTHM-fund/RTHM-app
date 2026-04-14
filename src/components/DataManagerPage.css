@@ -1,0 +1,122 @@
+.data-manager-page {
+  padding: 40px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.data-manager-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.data-manager-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--primary);
+}
+
+.data-manager-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.data-manager-count-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--primary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.data-manager-import-btn {
+  padding: 10px 22px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 0.03em;
+  transition: all 0.15s;
+}
+
+.data-manager-import-btn:hover {
+  background: var(--primary-dark);
+  animation: btn-lift 0.4s ease;
+  box-shadow: 0 4px 16px rgba(82,0,190,0.25);
+}
+
+.data-manager-table-wrap {
+  border: 1px solid var(--paper-darker);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.data-manager-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-manager-table thead {
+  background: var(--paper);
+}
+
+.data-manager-table th {
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border-bottom: 1px solid var(--paper-darker);
+}
+
+.data-manager-table td {
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  border-bottom: 1px solid var(--paper-darker);
+}
+
+.data-manager-table tbody tr:last-child td { border-bottom: none; }
+
+.data-manager-table tbody tr {
+  transition: background 0.1s;
+}
+
+.data-manager-table tbody tr:hover {
+  background: rgba(186, 156, 252, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(218, 206, 253, 0.5);
+}
+
+.data-manager-table .data-manager-td-name {
+  font-weight: 600;
+}
+
+.data-manager-delete-btn {
+  padding: 5px 14px;
+  background: none;
+  border: 1.5px solid var(--error);
+  border-radius: var(--radius);
+  color: var(--error);
+  font-size: 12px;
+  font-weight: 600 !important;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.15s;
+}
+
+.data-manager-delete-btn:hover {
+  background: var(--error);
+  color: white;
+  animation: btn-lift 0.4s ease;
+}

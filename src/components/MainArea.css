@@ -26,7 +26,8 @@
 .main-area--arcade .valuation-header,
 .main-area--arcade .agreements-header,
 .main-area--arcade .rpa-header,
-.main-area--arcade .offers-header {
+.main-area--arcade .offers-header,
+.main-area--arcade .data-manager-header {
   pointer-events: auto;
 }
 

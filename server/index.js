@@ -17,6 +17,7 @@ const DROPBOX_RTHM = path.resolve(__dirname, '..', '..', '..', '..')
 const TEMP_AGREEMENTS_DIR = path.join(DROPBOX_RTHM, '1. RTHM Fund', '2. Offers', 'Temp Agreements')
 const DEAL_SHEETS_DIR = path.join(DROPBOX_RTHM, '1. RTHM Fund', '2. Offers', 'Deal Sheets')
 const MATERIALS_ROOT = path.join(DROPBOX_RTHM, '1. RTHM Fund', '3. Deal Materials')
+const DATA_ROOT = path.join(DROPBOX_RTHM, '1. RTHM Fund', '1. Data')
 const MONDAY_BOARD_ID = 18397562279
 const MONDAY_GROUP_ID = 'new_group29179'
 const MONDAY_TYPE_COL = 'color_mm00qwp6'
@@ -507,7 +508,7 @@ app.post('/api/deals/:index/pick-folder', (req, res) => {
     let folderPath
     if (os.platform() === 'win32') {
       const result = spawnSync('powershell', ['-STA', '-Command',
-        `Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Application]::EnableVisualStyles(); $f = New-Object System.Windows.Forms.FolderBrowserDialog; $f.Description = "Select Deal Materials folder"; $f.SelectedPath = "${MATERIALS_ROOT.replace(/\\/g, '\\\\')}"; $owner = New-Object System.Windows.Forms.Form; $owner.TopMost = $true; $owner.Visible = $false; if ($f.ShowDialog($owner) -eq "OK") { $f.SelectedPath } else { "" }`
+        `$s = New-Object -ComObject Shell.Application; $f = $s.BrowseForFolder(0, 'Select Deal Materials folder', 0x40, '${MATERIALS_ROOT.replace(/'/g, "''")}'); if ($f) { $f.Self.Path } else { '' }`
       ], { encoding: 'utf8', timeout: 60000 })
       folderPath = result.stdout?.trim()
     } else {
@@ -968,6 +969,32 @@ app.delete('/api/deals/:index', (req, res) => {
     existing.splice(idx, 1)
     writeDeals(existing)
     res.json({ ok: true })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ═══════════════════════════════════════════════════
+// DATA MANAGER
+// ═══════════════════════════════════════════════════
+
+// POST /api/data/pick-folder — open native folder picker, return selected path
+app.post('/api/data/pick-folder', (req, res) => {
+  try {
+    let folderPath
+    if (os.platform() === 'win32') {
+      const result = spawnSync('powershell', ['-STA', '-Command',
+        `$s = New-Object -ComObject Shell.Application; $f = $s.BrowseForFolder(0, 'Select folder containing royalty statements', 0x240, '${DATA_ROOT.replace(/'/g, "''")}'); if ($f) { $f.Self.Path } else { '' }`
+      ], { encoding: 'utf8', timeout: 60000 })
+      folderPath = result.stdout?.trim()
+    } else {
+      const result = spawnSync('osascript', ['-e', `POSIX path of (choose folder with prompt "Select folder containing royalty statements" default location POSIX file "${DATA_ROOT}")`],
+        { encoding: 'utf8', timeout: 60000 })
+      folderPath = result.stdout?.trim().replace(/\/$/, '')
+    }
+
+    if (!folderPath) return res.json({ cancelled: true })
+    res.json({ ok: true, folderPath })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

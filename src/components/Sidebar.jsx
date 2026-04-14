@@ -20,7 +20,14 @@ export default function Sidebar({ categories, selectedTemplate, onSelectTemplate
 
       <nav className="sidebar-nav">
         <button
-          className={`nav-item ${activePage === 'deals' ? 'active' : ''}`}
+          className={`nav-item ${activePage === 'dataManager' ? 'active' : ''}`}
+          onClick={() => { onSetPage('dataManager'); setOpenCategory(null); onClearTemplate() }}
+        >
+          Data Manager
+        </button>
+
+        <button
+          className={`nav-item nav-item--spaced ${activePage === 'deals' ? 'active' : ''}`}
           onClick={() => { onSetPage('deals'); setOpenCategory(null); onClearTemplate() }}
         >
           Deal Manager

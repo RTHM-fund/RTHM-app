@@ -5,6 +5,7 @@ import InvoiceForm from './InvoiceForm.jsx'
 import DealsPage from './DealsPage.jsx'
 import ValuationPage from './ValuationPage.jsx'
 import AgreementsPage from './AgreementsPage.jsx'
+import DataManagerPage from './DataManagerPage.jsx'
 import './MainArea.css'
 
 const RPA_CATEGORY = 'Royalty Purchase Agreements'
@@ -17,7 +18,7 @@ export default function MainArea({ activePage, selectedTemplate, prefillData, se
 
   function handleContextMenu(e) {
     e.preventDefault()
-    if (arcadeMode && !e.target.closest('.deals-page-header, .valuation-header, .agreements-header, .rpa-header, .offers-header, .invoice-header')) return
+    if (arcadeMode && !e.target.closest('.deals-page-header, .valuation-header, .agreements-header, .rpa-header, .offers-header, .invoice-header, .data-manager-header')) return
     const now = Date.now()
     if (now - lastRightClick.current < 400) {
       rightClickCount.current += 1
@@ -52,6 +53,7 @@ export default function MainArea({ activePage, selectedTemplate, prefillData, se
     )
   }
 
+  if (activePage === 'dataManager') return wrap(<DataManagerPage />)
   if (activePage === 'deals') return wrap(<DealsPage onOpenValuation={onOpenValuation} onOpenAgreements={onOpenAgreements} valuationStates={valuationStates} />)
   if (activePage === 'valuation') return wrap(<ValuationPage deal={selectedDeal} dealIndex={selectedDealIndex} onBack={onGoBack} onOpenAgreements={onOpenAgreements} valuationState={valuationState} onUpdateValuationState={onUpdateValuationState} />)
   if (activePage === 'agreements') return wrap(<AgreementsPage deal={selectedDeal} dealIndex={selectedDealIndex} onBack={onGoBack} onNavigateToOfferLetter={onNavigateToOfferLetter} onNavigateToRPA={onNavigateToRPA} />)

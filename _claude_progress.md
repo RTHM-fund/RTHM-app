@@ -2,35 +2,53 @@
 
 ## Accomplished This Session
 
-### Bug Fix 1 — OfferLetterForm income fields empty in generated docs
-`src/components/OfferLetterForm.jsx` — Race condition between two async fetches on mount caused income sharing percentages (DA1/DR1/AA1/AR1 etc.) to be empty in generated offer letter documents. The deals fetch resolved first, DR/DA effect set income fields, then the fields fetch resolved and did `setValues(init)` (full replace), wiping the income values. DR/DA effect didn't re-fire because no deps changed.
-**Fix:** Added `loading` as a guard (`|| loading`) and dependency to the DR/DA useEffect (line 166, 202). Income computation now waits for the fields fetch to complete, so `setValues(init)` always executes first and income values always come last.
+### V2 Scaffolding — Data Manager Page
+Built the skeleton for v2 royalty analysis pipeline. V1 is locked (commit `91b925c`). V2 built as a separate **Data Manager** module that stays fully independent from Deal Manager until v3 integration.
 
-### Bug Fix 2 — Marketing auto-select condition was always true
-`src/components/OfferLetterForm.jsx` — `handleConfirmRow` checked `row.marketingBudget > 0` to decide whether to auto-select Marketing. But the server computes `marketingBudget` for ALL `structuredRows` (not just PR rows) at `server/index.js:656`, so the condition was always true regardless of which table the user picked from. Marketing auto-selected even when picking a regular RTHM Valuation row.
-**Fix:** Changed condition from `row.marketingBudget > 0` to `isPR` (line 370). Marketing now only auto-selects when picking from the PR Uplift table, and deselects when picking from the RTHM Valuation table.
+- **Sidebar:** added "Data Manager" button above "Deal Manager", same style. Spacing between DATA MANAGER and DEAL MANAGER matches the gap between DEAL MANAGER and TEMPLATES (26px total via `.nav-item--spaced { margin-top: 6px; }`).
+- **DataManagerPage.jsx + .css:** new component with header, count badge, "+ Import Data" button, empty state, and table placeholder (Dataset Name, Platform, Files, Rows, Date Range, Delete). Styles pixel-identical to DealsPage.
+- **MainArea.jsx/css:** added `dataManager` page route, arcade toggle selector includes `.data-manager-header`.
+- **V2 specs in Claude memory:** `memory/v2_specs.md` (full pipeline spec) + `memory/architecture_modularity.md` (modularity rule: Data Manager and Deal Manager stay independent until v3).
 
-### Code Review (/simplify)
-Ran full codebase review with three parallel agents (code reuse, quality, efficiency). Result: **codebase is clean.** No dead imports, unused variables, orphaned files, unreachable code paths, or dead CSS. All suggestions were optimizations or refactors — none qualified as dead code removal under the maximum-safety constraint.
+### Server endpoint — `/api/data/pick-folder`
+Opens native folder picker on Windows and macOS. Uses `Shell.Application.BrowseForFolder` on Windows with flag `0x240` (`BIF_NEWDIALOGSTYLE | BIF_NONEWFOLDERBUTTON` — no "Make New Folder" button). Root path: `DATA_ROOT = RTHM/1. RTHM Fund/1. Data` (derived dynamically from `__dirname`, works on any device). Returns `{ ok, folderPath }` or `{ cancelled: true }`. Doesn't persist anywhere yet — frontend stores selection in local state only.
 
-### Previous session fixes (already committed as 757ad46)
-- B2B margin display on ValuationPage (marginRate term dropped for B2B)
-- OfferLetterForm stale state (handleConfirmRow else branch + selectedDealIdx reset useEffect)
+### Deal Materials folder picker — upgraded
+- **Windows:** switched from `System.Windows.Forms.FolderBrowserDialog` (ignores `SelectedPath` reliably) to `Shell.Application.BrowseForFolder` with flag `0x40` (`BIF_NEWDIALOGSTYLE`, keeps "Make New Folder" button). Dialog opens rooted at `MATERIALS_ROOT`.
+- **macOS:** unchanged osascript (already worked).
+
+### Cleanup
+- Removed unused `useEffect` import in DataManagerPage.jsx.
+- Removed stray blank line after `DATA_ROOT` in server/index.js.
+- Removed all dead code from earlier picker-fix attempts (helper functions, C# scroll hack, temp PS scripts).
 
 ---
 
 ## Current State
 
 - **Working path:** `C:\Users\richa\RTHM Dropbox\RTHM Fund\RTHM\4. Operations\RTHM App`
-- **App:** fully functional, all known bugs fixed
-- **Codebase:** reviewed and clean — no dead code
-- **New B2B templates** (Earl Jam, Skyline, TopValley) verified working
-- **CLAUDE.md:** updated with git-status-on-save-session directive + corrected Dropbox path (lives outside git repo, saved to disk only)
+- **App:** fully functional. V1 behavior intact. V2 Data Manager page with working folder picker.
+- **Uncommitted changes** (see git status below).
+- **Server must restart** after code changes to pick up new endpoints.
 
 ---
 
-## What's Next
+## What's Next — V2 Roadmap
 
-1. **Offer letter page breaks** — user will manually add hard page breaks (Ctrl+Enter) in Word templates before FAQ section. No code needed.
-2. **b2b-partners.json data gap** — Earl Jam missing, TopValley/Skyline have placeholder data. Not blocking deal sheets/offer letters, only matters for RPA generation.
-3. **v2 development** — Part 2 of royalty finance workflow. Specs not yet discussed. Spec-first workflow applies.
+**Step 1 of merger pipeline is underway.** Folder picker UI is done but does nothing yet after folder selection. Next pieces:
+
+1. **File discovery** — after user picks folder, scan for CSV/XLS/XLSX files (skip "merged", "summary", "basic", and `~$` temp files), show list in UI.
+2. **Column standardization** — read each file, normalize column names, show union of columns.
+3. **Earnings column selection** — user picks which column is earnings → rename to `royalty_amount`. Auto-detect common names.
+4. **Date extraction** — from filename first (with learning for ambiguous), fallback to picking date columns.
+5. **Include/exclude columns** — user selects which columns to keep.
+6. **Merge + persist** — combine into one dataset, save it (artist/distributor-scoped).
+7. **Pivot engine** — Track × Date → royalty_amount.
+8. **Projection model** — baseline/floor/decay (k0, k_inf, gamma), 90-period forecast. Full math in `memory/v2_specs.md`.
+9. **Advance/IRR calculator** — 7 scenarios (18m/24m/36m/48m/60m/Bespoke/Req-months), cash flows, XIRR, recoupment.
+
+Full spec reference: `royalty_merger.py` + `Royalty_Summary_MASTER.xlsm` in `C:\Users\richa\Downloads`. Specs also in Claude memory (`memory/v2_specs.md`).
+
+**Modularity rule:** Deal Manager is not touched as part of v2 work. Cross-integration = v3.
+
+**Session continues on dispatch.**

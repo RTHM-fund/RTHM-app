@@ -76,7 +76,8 @@
       "prAdvance": 8736,
       "prTotal": 13736,
       "legalName": "Collier Starks"
-    }
+    },
+    "folderPath": "1. RTHM Fund\\3. Deal Materials\\1. Current\\Luh Loaded"
   },
   {
     "name": "SuperFriendz",
@@ -861,5 +862,463 @@
         "createdAt": "2026-04-08T03:14:59.894Z"
       }
     ]
+  },
+  {
+    "name": "Kasper & Anders",
+    "platform": "Empire Pub",
+    "initialQuote": {
+      "AC": 23700,
+      "AD": 27200,
+      "AE": 48400,
+      "AF": 66000,
+      "AG": 60700,
+      "AH": 96500,
+      "AI": 67600,
+      "AJ": 123500
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "11735383862",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-13T16:02:57.868Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "74",
+        "36 months": "64",
+        "60 months": "54",
+        "84 months": "48"
+      },
+      "commission": 5,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Kasper & Anders.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Kasper & Anders.docx",
+        "createdAt": "2026-04-13T16:04:21.341Z"
+      }
+    ]
+  },
+  {
+    "name": "GENT!",
+    "platform": "BMI",
+    "initialQuote": {
+      "AC": 16300,
+      "AD": 18200,
+      "AE": 29200,
+      "AF": 37900,
+      "AG": 36000,
+      "AH": 54400,
+      "AI": 39700,
+      "AJ": 68400
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "11735431818",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-13T16:05:17.460Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "74",
+        "36 months": "64",
+        "60 months": "54",
+        "84 months": "48"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_GENT!.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_GENT!.docx",
+        "createdAt": "2026-04-13T16:05:34.917Z"
+      }
+    ]
+  },
+  {
+    "name": "Jungeli",
+    "platform": "Universal (masters)",
+    "initialQuote": {
+      "AC": 195400,
+      "AD": 221500,
+      "AE": 452100,
+      "AF": 620100,
+      "AG": 600000,
+      "AH": 973400,
+      "AI": 685300,
+      "AJ": 1286800
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11735469060",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-13T16:07:30.747Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "77",
+        "36 months": "67",
+        "60 months": "57",
+        "84 months": "49"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Jungeli.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Jungeli.docx",
+        "createdAt": "2026-04-13T16:11:43.409Z"
+      }
+    ]
+  },
+  {
+    "name": "Mr.rp10",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 8900,
+      "AD": 10200,
+      "AE": 19000,
+      "AF": 26000,
+      "AG": 24300,
+      "AH": 39200,
+      "AI": 27200,
+      "AJ": 50200
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11735572731",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-13T16:13:07.440Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "75",
+        "36 months": "65",
+        "60 months": "55",
+        "84 months": "50"
+      },
+      "commission": 4,
+      "b2bMarginRate": 8,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Mr.rp10.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Mr.rp10.docx",
+        "createdAt": "2026-04-13T16:51:37.778Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Mr.rp10.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Mr.rp10.docx",
+        "createdAt": "2026-04-13T16:51:37.778Z"
+      }
+    ]
+  },
+  {
+    "name": "Fetch Publishing",
+    "platform": "MLC",
+    "initialQuote": {
+      "AC": 83600,
+      "AD": 94400,
+      "AE": 169300,
+      "AF": 228700,
+      "AG": 212400,
+      "AH": 334100,
+      "AI": 234000,
+      "AJ": 416800
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "11735644381",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-13T16:17:17.708Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "77",
+        "36 months": "67",
+        "60 months": "57",
+        "84 months": "51"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Earl Jam",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Fetch Publishing.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Fetch Publishing.docx",
+        "createdAt": "2026-04-13T16:19:39.700Z"
+      },
+      {
+        "type": "Earl Jam Deal Sheet",
+        "fileName": "Earl Jam Deal Sheet_Fetch Publishing.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Fetch Publishing.docx",
+        "createdAt": "2026-04-13T16:19:39.700Z"
+      }
+    ]
+  },
+  {
+    "name": "lilmal357",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 7900,
+      "AD": 9000,
+      "AE": 16100,
+      "AF": 21900,
+      "AG": 20200,
+      "AH": 32000,
+      "AI": 22300,
+      "AJ": 40000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11735680080",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-13T16:21:32.169Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": 50
+      },
+      "commission": 4,
+      "b2bMarginRate": 8,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_lilmal357.docx",
+        "createdAt": "2026-04-13T16:53:20.339Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_lilmal357.docx",
+        "createdAt": "2026-04-13T16:53:20.339Z"
+      }
+    ]
+  },
+  {
+    "name": "Richie Rozay",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 16400,
+      "AD": 18700,
+      "AE": 37300,
+      "AF": 51800,
+      "AG": 49200,
+      "AH": 81100,
+      "AI": 55900,
+      "AJ": 107000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11735725128",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-13T16:24:01.263Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": "48"
+      },
+      "commission": 4,
+      "b2bMarginRate": 8,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Richie Rozay.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Richie Rozay.docx",
+        "createdAt": "2026-04-13T16:54:15.838Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Richie Rozay.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Richie Rozay.docx",
+        "createdAt": "2026-04-13T16:54:15.838Z"
+      }
+    ]
+  },
+  {
+    "name": "LeTreez",
+    "platform": "SOCAN",
+    "initialQuote": {
+      "AC": 19500,
+      "AD": 21500,
+      "AE": 37000,
+      "AF": 48900,
+      "AG": 45600,
+      "AH": 68800,
+      "AI": 50000,
+      "AJ": 84000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "11747681773",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-04-14T17:23:44.009Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 70,
+        "36 months": 60,
+        "60 months": 50,
+        "84 months": "45"
+      },
+      "commission": 2,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_LeTreez.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_LeTreez.docx",
+        "createdAt": "2026-04-14T17:33:20.084Z"
+      },
+      {
+        "type": "RTHM Offer Letter",
+        "fileName": "RTHM Offer Letter_LeTreez.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Offer Letter_LeTreez.docx",
+        "createdAt": "2026-04-14T17:34:05.241Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_LeTreez.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM x RAS RPA_LeTreez.docx",
+        "createdAt": "2026-04-14T17:40:35.789Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_LeTreez.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM RPA_LeTreez.docx",
+        "createdAt": "2026-04-14T17:40:36.070Z"
+      }
+    ],
+    "lockedDeal": {
+      "advanceAmount": 37800,
+      "recoupRate": 45,
+      "term": "84 months",
+      "recoupAmount": 84000,
+      "rasAdvance": 50000,
+      "marketingBudget": 17000,
+      "prAdvance": 30240,
+      "prTotal": 47240,
+      "legalName": "Louis Lépine"
+    },
+    "folderPath": "1. RTHM Fund\\3. Deal Materials\\1. Current\\LeTreez"
   }
 ]
