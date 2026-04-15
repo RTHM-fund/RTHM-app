@@ -3,7 +3,7 @@
 ## Accomplished This Session
 
 ### V2 Scaffolding — Data Manager Page
-Built the skeleton for v2 royalty analysis pipeline. V1 is locked (commit `91b925c`). V2 built as a separate **Data Manager** module that stays fully independent from Deal Manager until v3 integration.
+Built the skeleton for v2 royalty analysis pipeline. V1 is locked (tag `v1.0`). V2 built as a separate **Data Manager** module that stays fully independent from Deal Manager until v3 integration.
 
 - **Sidebar:** added "Data Manager" button above "Deal Manager", same style. Spacing between DATA MANAGER and DEAL MANAGER matches the gap between DEAL MANAGER and TEMPLATES (26px total via `.nav-item--spaced { margin-top: 6px; }`).
 - **DataManagerPage.jsx + .css:** new component with header, count badge, "+ Import Data" button, empty state, and table placeholder (Dataset Name, Platform, Files, Rows, Date Range, Delete). Styles pixel-identical to DealsPage.
@@ -16,30 +16,27 @@ Opens native folder picker on Windows and macOS. Uses `Shell.Application.BrowseF
 - **Windows:** switched from `System.Windows.Forms.FolderBrowserDialog` (ignores `SelectedPath` reliably) to `Shell.Application.BrowseForFolder` with flag `0x40` (`BIF_NEWDIALOGSTYLE`, keeps "Make New Folder" button). Dialog opens rooted at `MATERIALS_ROOT`.
 - **macOS:** unchanged osascript (already worked).
 
-### Repo portability — set up for dispatch
-- Created `App Files/CLAUDE.md` (copy of parent CLAUDE.md, now inside the repo so it travels with git).
-- Created `App Files/docs/v2_specs.md` — full v2 pipeline spec (statement merger, projection model, advance/IRR calc, modularity rule). Mirrors the local Claude memory file.
-- Updated CLAUDE.md to instruct future sessions to read `_claude_progress.md` AND `docs/v2_specs.md` at start.
-- Added GitHub remote: `https://github.com/RTHM-fund/RTHM-app` (private repo).
-- Pushed full history including v1.0 tag.
-- **Push required removing `public/floor796.html` (174MB arcade easter egg) from git history** — exceeded GitHub's 100MB per-file limit. Used `git filter-branch` with `--index-filter`. File is now in `.gitignore`. Restored to local working tree from `refs/original/refs/heads/master` after filter-branch deleted it.
+### GitHub backup
+- Created `App Files/CLAUDE.md` (copy of parent CLAUDE.md) so project rules live inside the repo.
+- Created `App Files/docs/v2_specs.md` — full v2 pipeline spec (statement merger, projection model, advance/IRR calc, modularity rule).
+- Added GitHub remote `https://github.com/RTHM-fund/RTHM-app` (private). Everything pushed including v1.0 tag.
+- `public/floor796.html` (174MB arcade easter egg) added to `.gitignore` and removed from git history — exceeded GitHub's 100MB per-file limit. File stays on local disk; arcade mode still works locally.
 
 ### Cleanup
 - Removed unused `useEffect` import in DataManagerPage.jsx.
 - Removed stray blank line after `DATA_ROOT` in server/index.js.
-- Removed all dead code from earlier picker-fix attempts (helper functions, C# scroll hack, temp PS scripts).
+- Removed all dead code from earlier picker-fix attempts (helper functions, C# scroll hack, temp PS scripts, leftover `/tmp/rthm_pick_folder.ps1`).
+- Deleted filter-branch backup refs (`refs/original/*`) and ran `git gc` to reclaim space after floor796.html was rewritten out of history.
 
 ---
 
 ## Current State
 
 - **Working path:** `C:\Users\richa\RTHM Dropbox\RTHM Fund\RTHM\4. Operations\RTHM App`
-- **Repo path:** `App Files/` (now also at https://github.com/RTHM-fund/RTHM-app)
-- **App:** fully functional. V1 behavior intact. V2 Data Manager page with working folder picker. Arcade easter egg works locally (file restored to `public/`).
-- **Latest commit pushed:** `9c1b480` chore: gitignore floor796.html
-- **Working tree:** clean after filter-branch (need to confirm via git status — see below).
-- **Server must restart** after code changes to pick up new endpoints.
-- **Browser may need hard refresh** if arcade mode looks broken (cached 404 from earlier file-missing window).
+- **Repo:** `App Files/` locally, pushed to `https://github.com/RTHM-fund/RTHM-app` (private, used as backup)
+- **App:** fully functional. V1 behavior intact. V2 Data Manager page with working folder picker. Arcade easter egg works locally.
+- **Working tree:** clean.
+- **Server restart needed** after pulling new code to pick up endpoint changes.
 
 ---
 
@@ -60,16 +57,3 @@ Opens native folder picker on Windows and macOS. Uses `Shell.Application.BrowseF
 Full spec reference: `docs/v2_specs.md` (in repo) + `royalty_merger.py` + `Royalty_Summary_MASTER.xlsm` (in local Downloads only — not in repo).
 
 **Modularity rule:** Deal Manager is not touched as part of v2 work. Cross-integration = v3.
-
-**Dispatch ready:** any new Claude session pointed at the GitHub repo will read CLAUDE.md, `_claude_progress.md`, and `docs/v2_specs.md` at start, then continue.
-
----
-
-## How to continue on phone
-
-1. Open **claude.ai/code** in phone browser (Safari/Chrome, NOT the Claude chat app)
-2. Connect GitHub → authorize Claude GitHub App for `RTHM-fund/RTHM-app` (one-time)
-3. Start new chat in that repo
-4. First message: *"continue v2 work"*
-
-CLAUDE.md auto-loads in every session and tells Claude to read the progress file + spec, so context picks up immediately.
