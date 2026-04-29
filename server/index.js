@@ -8,6 +8,7 @@ const mammoth = require('mammoth')
 const PizZip = require('pizzip')
 const Docxtemplater = require('docxtemplater')
 const { google } = require('googleapis')
+const { scanFolder } = require('./scanner')
 
 const CREDENTIALS = require('./credentials.json').installed
 const MONDAY_TOKEN = require('./monday_config.json').api_token
@@ -995,6 +996,21 @@ app.post('/api/data/pick-folder', (req, res) => {
 
     if (!folderPath) return res.json({ cancelled: true })
     res.json({ ok: true, folderPath })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/data/scan-folder — recursively scan a picked folder for platform source data files.
+// Never writes to disk, reads zips in-memory only, preserves data integrity per CLAUDE.md V2 rule.
+app.post('/api/data/scan-folder', async (req, res) => {
+  try {
+    const { folderPath } = req.body || {}
+    if (!folderPath || typeof folderPath !== 'string') {
+      return res.status(400).json({ error: 'folderPath is required' })
+    }
+    const result = await scanFolder(folderPath)
+    res.json({ ok: true, ...result })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

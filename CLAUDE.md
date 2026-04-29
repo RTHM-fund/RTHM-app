@@ -60,6 +60,18 @@
 
 ---
 
+## Data Integrity — V2 (CORE RULE)
+For v2, the integrity of the source data is paramount. Source data is the single source of truth from which every downstream step (merger, pivot, projection, advance calc) derives. Everything built for v2 must adhere to this rule.
+
+- **Never tamper with source files.** Source files are read-only from the app's perspective — never write to, rename, move, or delete them.
+- **Never corrupt source data in memory or in persisted form.** Standardization, normalization, and reformatting happen on derived copies, never on the source row.
+- **Preserve originals alongside normalizations.** If a column name is normalized, keep the original. If a value is cleaned, the raw value must remain accessible.
+- **Encoding handling must be lossless.** BOM stripping, delimiter detection, and encoding fallback must never silently alter character data. Log anything that changes.
+- **Every derived number must be auditable back to its source.** A user must be able to trace any value in the merged dataset, pivot, projection, or advance calc back to the exact source file, row, and column it came from.
+- **Fail loud, not silent.** If a file can't be parsed cleanly, surface the error — never skip the row, fudge a value, or guess.
+
+---
+
 ## Common Mistakes — Never Repeat
 - **Ref-to-state conversion**: if `useRef` is changed to `useState`, update every `.current` reference in JSX and handlers immediately. Missing `.current` silently breaks rendering.
 - **Pointer-events side effects**: changes to `pointer-events` cascade in non-obvious ways. Trace the full event flow before implementing.

@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
+import ScanResultsModal from './ScanResultsModal'
 import './DataManagerPage.css'
 
 export default function DataManagerPage() {
   const [datasets, setDatasets] = useState([])
-  const [selectedFolder, setSelectedFolder] = useState(null)
+  const [scanFolderPath, setScanFolderPath] = useState(null)
 
   async function pickFolder() {
     const res = await fetch('/api/data/pick-folder', { method: 'POST' })
     const data = await res.json()
     if (data.ok) {
-      setSelectedFolder(data.folderPath)
+      setScanFolderPath(data.folderPath)
     }
   }
 
@@ -54,6 +55,14 @@ export default function DataManagerPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {scanFolderPath && (
+        <ScanResultsModal
+          folderPath={scanFolderPath}
+          onClose={() => setScanFolderPath(null)}
+          onNext={() => { /* Step 2 — column standardization — coming next */ }}
+        />
       )}
     </div>
   )
