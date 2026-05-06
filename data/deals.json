@@ -1181,8 +1181,44 @@
         "fileName": "Skyline Deal Sheet_lilmal357.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_lilmal357.docx",
         "createdAt": "2026-04-13T16:53:20.339Z"
+      },
+      {
+        "type": "Skyline Offer Letter",
+        "fileName": "Skyline Offer Letter_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Offer Letter_lilmal357.docx",
+        "createdAt": "2026-05-06T18:39:58.520Z"
+      },
+      {
+        "type": "B2B RPA",
+        "fileName": "B2B RPA_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\B2B RPA_lilmal357.docx",
+        "createdAt": "2026-05-06T18:47:56.555Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM x RAS RPA_lilmal357.docx",
+        "createdAt": "2026-05-06T18:49:29.312Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM RPA_lilmal357.docx",
+        "createdAt": "2026-05-06T18:49:29.560Z"
       }
-    ]
+    ],
+    "lockedDeal": {
+      "advanceAmount": 14720,
+      "recoupRate": 50,
+      "term": "84 months",
+      "recoupAmount": 40000,
+      "rasAdvance": 22300,
+      "marketingBudget": 8000,
+      "prAdvance": 16000,
+      "prTotal": 24000,
+      "legalName": "Malachi Burney",
+      "transactionId": "RTHM-RPA-28"
+    }
   },
   {
     "name": "Richie Rozay",
@@ -2091,5 +2127,47 @@
         "createdAt": "2026-05-05T17:54:27.024Z"
       }
     ]
+  },
+  {
+    "name": "Hoolibaby Neeno",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 15100,
+      "AD": 16900,
+      "AE": 28000,
+      "AF": 37000,
+      "AG": 34900,
+      "AH": 53700,
+      "AI": 38500,
+      "AJ": 67700
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11942828179",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-06T18:14:46.536Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 70,
+        "36 months": 60,
+        "60 months": 50,
+        "84 months": "50.11"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": false
+    }
   }
 ]

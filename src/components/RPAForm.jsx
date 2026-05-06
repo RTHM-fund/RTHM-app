@@ -146,7 +146,8 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
         .then(r => r.json())
         .then(pd => {
           const pu = {}
-          if (pd?.['B2B Signer']) pu['Seller Name'] = pd['B2B Signer']
+          if (pd?.['B2B Entity']) pu['Seller Name'] = pd['B2B Entity']
+          if (pd?.['B2B Signer']) pu['Legal Name'] = pd['B2B Signer']
           if (pd?.['B2B Title']) pu['Title'] = pd['B2B Title']
           if (Object.keys(pu).length) {
             setValues(prev => ({ ...prev, ...pu }))
@@ -235,7 +236,8 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
         .then(partnerData => {
           if (!partnerData) return
           const partnerUpdates = {}
-          if (partnerData['B2B Signer']) partnerUpdates['Seller Name'] = partnerData['B2B Signer']
+          if (partnerData['B2B Entity']) partnerUpdates['Seller Name'] = partnerData['B2B Entity']
+          if (partnerData['B2B Signer']) partnerUpdates['Legal Name'] = partnerData['B2B Signer']
           if (partnerData['B2B Title']) partnerUpdates['Title'] = partnerData['B2B Title']
           if (Object.keys(partnerUpdates).length) {
             setValues(prev => ({ ...prev, ...partnerUpdates }))
@@ -346,6 +348,16 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
       if (!rasRes.ok || rasData.error) throw new Error(rasData.error || 'RAS save failed')
       if (!rpaRes.ok || rpaData.error) throw new Error(rpaData.error || 'RPA save failed')
 
+      const dealForLock = dealIndex != null ? deals[dealIndex] : null
+      const formAdvance = Math.round(parseFloat(rawAmounts['Advance Amount']))
+      if (dealForLock?.lockedDeal && !isNaN(formAdvance) && formAdvance !== dealForLock.lockedDeal.advanceAmount) {
+        await fetch(`/api/deals/${dealIndex}/lock`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...dealForLock.lockedDeal, advanceAmount: formAdvance })
+        }).catch(() => {})
+      }
+
       if (onSaveComplete) onSaveComplete(dealIndex)
     } catch (err) {
       setError('Save failed: ' + err.message)
@@ -375,12 +387,19 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
       const data = await res.json()
       if (!res.ok || data.error) throw new Error(data.error || 'Save failed')
 
-      if (template.filename === 'B2B RPA_Template.docx' && selectedDealIdx != null && values['Transaction ID']) {
-        const deal = deals[selectedDealIdx]
+      const dealForLock = selectedDealIdx != null ? deals[selectedDealIdx] : null
+      const formAdvance = Math.round(parseFloat(rawAmounts['Advance Amount']))
+      const advanceChanged = dealForLock?.lockedDeal && !isNaN(formAdvance) && formAdvance !== dealForLock.lockedDeal.advanceAmount
+      const txIdChange = template.filename === 'B2B RPA_Template.docx' && values['Transaction ID']
+
+      if (selectedDealIdx != null && (advanceChanged || txIdChange)) {
+        const lockUpdate = { ...(dealForLock?.lockedDeal || {}) }
+        if (advanceChanged) lockUpdate.advanceAmount = formAdvance
+        if (txIdChange) lockUpdate.transactionId = values['Transaction ID']
         fetch(`/api/deals/${selectedDealIdx}/lock`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...(deal?.lockedDeal || {}), transactionId: values['Transaction ID'] })
+          body: JSON.stringify(lockUpdate)
         }).catch(() => {})
       }
       if (onSaveComplete) onSaveComplete(selectedDealIdx)
@@ -458,7 +477,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
               const isRasId = field === 'RAS ID'
               const isMonths = MONTHS_FIELDS.has(field)
               const displayValue = isDate ? (rawDates[field] || '') : (values[field] || '')
-              const isLocked = isAutoCalc || isAutoFill
+              const isLocked = (isAutoCalc || isAutoFill) && field !== 'Advance Amount'
               let calcTip = ''
               if (isAutoCalc && isRAS) {
                 const ra = values['RAS Advance'] || ''

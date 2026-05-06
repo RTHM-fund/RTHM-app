@@ -231,17 +231,24 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                     <td><span className="calc-tip" data-tip={advTip}>{fmt(rthmAdvance)}</span></td>
                     <td>
                       {recoupLocked ? (
-                        <span className="rate-locked">{rate}<span className="rate-symbol">%</span></span>
+                        <span className="rate-locked">{rate.toFixed(2)}<span className="rate-symbol">%</span></span>
                       ) : (
                         <>
                           <input
                             className="rate-input"
                             type="text"
-                            inputMode="numeric"
+                            inputMode="decimal"
                             value={rates[term] != null ? String(rates[term]) : ''}
                             onFocus={e => e.target.select()}
                             onChange={e => {
-                              const v = e.target.value.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '')
+                              let v = e.target.value.replace(/[^0-9.]/g, '')
+                              const dotIdx = v.indexOf('.')
+                              if (dotIdx !== -1) {
+                                v = v.slice(0, dotIdx + 1) + v.slice(dotIdx + 1).replace(/\./g, '')
+                                const [whole, dec] = v.split('.')
+                                v = whole + '.' + (dec || '').slice(0, 2)
+                              }
+                              v = v.replace(/^0+(?=\d)/, '')
                               setRate(term, v)
                             }}
                           />
