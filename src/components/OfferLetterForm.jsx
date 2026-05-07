@@ -289,12 +289,20 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
       if (!res.ok || data.error) throw new Error(data.error || 'Save failed')
 
       const saveDealIdx = prefillData?.dealIndex ?? selectedDealIdx
-      if (lockedRow && values['Legal Name'] && saveDealIdx != null) {
-        await fetch(`/api/deals/${saveDealIdx}/lock`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...lockedRow, legalName: values['Legal Name'] })
-        }).catch(() => {})
+      if (lockedRow && saveDealIdx != null) {
+        const formAdvance = Math.round(parseFloat(rawAmounts['Advance Amount']))
+        const advanceChanged = !isNaN(formAdvance) && formAdvance !== lockedRow.advanceAmount
+        const legalNameChange = !!values['Legal Name']
+        if (advanceChanged || legalNameChange) {
+          const lockUpdate = { ...lockedRow }
+          if (legalNameChange) lockUpdate.legalName = values['Legal Name']
+          if (advanceChanged) lockUpdate.advanceAmount = formAdvance
+          await fetch(`/api/deals/${saveDealIdx}/lock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lockUpdate)
+          }).catch(() => {})
+        }
       }
       if (onSaveComplete && saveDealIdx != null) onSaveComplete(saveDealIdx)
     } catch (err) {
@@ -399,6 +407,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
     const isSuffix = PERCENT_FIELDS.has(field) || MONTHS_FIELDS.has(field) || YEARS_FIELDS.has(field) || PLAIN_NUMBER_FIELDS.has(field)
     const displayValue = isDate ? (rawDates[field] || '') : (values[field] || '')
     const locked = isFieldLocked(field)
+    const inputLocked = locked && field !== 'Advance Amount'
     return (
       <div key={field} className="field-group">
         <label className="field-label">
@@ -406,18 +415,18 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
           {locked && <span className="auto-label">auto-filled</span>}
         </label>
         <input
-          className={`field-input${locked ? ' field-locked' : ''}`}
+          className={`field-input${inputLocked ? ' field-locked' : ''}`}
           type={isDate ? 'date' : 'text'}
           value={displayValue}
           onChange={e => handleChange(field, e.target.value, isDate, isAmount)}
-          onKeyDown={isSuffix && !locked ? e => {
+          onKeyDown={isSuffix && !inputLocked ? e => {
             if (e.key === 'Backspace') {
               e.preventDefault()
               handleChange(field, (rawAmounts[field] || '').slice(0, -1), false, false)
             }
           } : undefined}
-          readOnly={locked}
-          tabIndex={locked ? -1 : undefined}
+          readOnly={inputLocked}
+          tabIndex={inputLocked ? -1 : undefined}
           placeholder={FIELD_PLACEHOLDERS[field] || ''}
         />
       </div>
