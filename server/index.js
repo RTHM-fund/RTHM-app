@@ -43,6 +43,9 @@ const TOKEN_PATH = path.join(__dirname, 'token.json')
 const REDIRECT_URI = 'http://localhost:3001/api/auth/callback'
 const DEALS_FILE = path.join(__dirname, '..', 'data', 'deals.json')
 const B2B_PARTNERS_FILE = path.join(__dirname, '..', 'data', 'b2b-partners.json')
+const BACKUP_DIR = path.resolve(__dirname, '..', '..', 'Backups')
+const MAX_BACKUPS_PER_HOST = 50
+const HOSTNAME = os.hostname().replace(/[^a-zA-Z0-9-]/g, '-')
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const TERMS_ALL = ['12 months', '36 months', '60 months', '84 months']
@@ -57,7 +60,29 @@ function readDeals() {
   try { return JSON.parse(fs.readFileSync(DEALS_FILE)) } catch { return [] }
 }
 
+// Snapshot deals.json BEFORE every write to a Dropbox-synced backup folder outside App Files.
+// Each machine prunes only its own backups (filename ends in .<hostname>.json) so one machine
+// can never delete another's recovery points.
+function backupDealsBefore(targetPath) {
+  if (!fs.existsSync(targetPath)) return
+  try {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true })
+    const ts = new Date().toISOString().replace(/[:.]/g, '-')
+    const dest = path.join(BACKUP_DIR, `deals.${ts}.${HOSTNAME}.json`)
+    fs.copyFileSync(targetPath, dest)
+    const ownBackups = fs.readdirSync(BACKUP_DIR)
+      .filter(f => f.startsWith('deals.') && f.endsWith(`.${HOSTNAME}.json`))
+      .sort()
+    while (ownBackups.length > MAX_BACKUPS_PER_HOST) {
+      try { fs.unlinkSync(path.join(BACKUP_DIR, ownBackups.shift())) } catch {}
+    }
+  } catch (err) {
+    console.warn('[RTHM] deals.json backup failed:', err.message)
+  }
+}
+
 function writeDeals(deals) {
+  backupDealsBefore(DEALS_FILE)
   fs.writeFileSync(DEALS_FILE, JSON.stringify(deals, null, 2))
 }
 
