@@ -1218,7 +1218,8 @@
       "prTotal": 24000,
       "legalName": "Malachi Burney",
       "transactionId": "RTHM-RPA-28"
-    }
+    },
+    "folderPath": "1. RTHM Fund\\3. Deal Materials\\1. Current\\Lilmal357"
   },
   {
     "name": "Richie Rozay",
@@ -2163,11 +2164,197 @@
         "12 months": 70,
         "36 months": 60,
         "60 months": 50,
-        "84 months": "50.11"
+        "84 months": "45"
       },
       "commission": 4,
       "b2bMarginRate": 5,
-      "recoupLocked": false
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Hoolibaby Neeno.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Hoolibaby Neeno.docx",
+        "createdAt": "2026-05-07T20:04:01.947Z"
+      }
+    ]
+  },
+  {
+    "name": "Eric Lee Hudson",
+    "platform": "Sound Exchange",
+    "initialQuote": {
+      "AC": 7100,
+      "AD": 8300,
+      "AE": 14500,
+      "AF": 20000,
+      "AG": 18000,
+      "AH": 29000,
+      "AI": 20000,
+      "AJ": 37000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "11955261545",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-07T20:04:49.887Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 70,
+        "36 months": 60,
+        "60 months": 50,
+        "84 months": "47.3"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Eric Lee Hudson.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Eric Lee Hudson.docx",
+        "createdAt": "2026-05-07T20:31:17.559Z"
+      },
+      {
+        "type": "RTHM Offer Letter",
+        "fileName": "RTHM Offer Letter_Eric Lee Hudson.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Offer Letter_Eric Lee Hudson.docx",
+        "createdAt": "2026-05-07T20:36:04.949Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_Eric Lee Hudson.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM x RAS RPA_Eric Lee Hudson.docx",
+        "createdAt": "2026-05-07T20:36:34.303Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_Eric Lee Hudson.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM RPA_Eric Lee Hudson.docx",
+        "createdAt": "2026-05-07T20:36:34.645Z"
+      }
+    ],
+    "lockedDeal": {
+      "advanceAmount": 17500,
+      "recoupRate": 47.3,
+      "term": "84 months",
+      "recoupAmount": 37000,
+      "rasAdvance": 20000,
+      "marketingBudget": 7000,
+      "prAdvance": 14001,
+      "prTotal": 21001,
+      "legalName": "Eric Lee Hudson"
+    }
+  },
+  {
+    "name": "lilmal357",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 7900,
+      "AD": 9000,
+      "AE": 16100,
+      "AF": 21900,
+      "AG": 20200,
+      "AH": 32000,
+      "AI": 22300,
+      "AJ": 40000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11955374960",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-07T20:12:42.546Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 74,
+        "36 months": 64,
+        "60 months": 54,
+        "84 months": 50
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_lilmal357.docx",
+        "createdAt": "2026-05-07T20:13:46.031Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_lilmal357.docx",
+        "createdAt": "2026-05-07T20:13:46.031Z"
+      },
+      {
+        "type": "RTHM Offer Letter",
+        "fileName": "RTHM Offer Letter_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Offer Letter_lilmal357.docx",
+        "createdAt": "2026-05-07T20:15:28.532Z"
+      },
+      {
+        "type": "Skyline Offer Letter",
+        "fileName": "Skyline Offer Letter_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Offer Letter_lilmal357.docx",
+        "createdAt": "2026-05-07T20:16:12.508Z"
+      },
+      {
+        "type": "B2B RPA",
+        "fileName": "B2B RPA_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\B2B RPA_lilmal357.docx",
+        "createdAt": "2026-05-07T20:16:54.614Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM x RAS RPA_lilmal357.docx",
+        "createdAt": "2026-05-07T20:19:12.095Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM RPA_lilmal357.docx",
+        "createdAt": "2026-05-07T20:19:12.405Z"
+      }
+    ],
+    "lockedDeal": {
+      "advanceAmount": 14720,
+      "recoupRate": 50,
+      "term": "84 months",
+      "recoupAmount": 40000,
+      "rasAdvance": 22300,
+      "marketingBudget": 8000,
+      "prAdvance": 16000,
+      "prTotal": 24000,
+      "legalName": "Malachi Burney",
+      "transactionId": "RTHM-RPA-28"
     }
   }
 ]
