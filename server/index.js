@@ -12,9 +12,23 @@ const { scanFolder } = require('./scanner')
 
 const CREDENTIALS = require('./credentials.json').installed
 const MONDAY_TOKEN = require('./monday_config.json').api_token
-// Derive RTHM root from this file's location — works with any Dropbox account/path.
-// server/index.js lives at <DROPBOX>/RTHM/4. Operations/RTHM App/App Files/server/index.js
-const DROPBOX_RTHM = path.resolve(__dirname, '..', '..', '..', '..')
+// Derive RTHM root by walking up from this file's location, looking for a directory
+// that contains `1. RTHM Fund/2. Offers`. This works regardless of how the Dropbox
+// is structured on each machine (e.g. team Dropbox `<DROPBOX>/RTHM Fund/RTHM/...`
+// vs personal Dropbox where `1. RTHM Fund` may sit higher or lower in the tree).
+function findDropboxRTHM() {
+  let current = path.resolve(__dirname, '..', '..')
+  for (let i = 0; i < 8; i++) {
+    if (fs.existsSync(path.join(current, '1. RTHM Fund', '2. Offers'))) return current
+    const parent = path.dirname(current)
+    if (parent === current) break
+    current = parent
+  }
+  console.warn('[RTHM] Could not locate "1. RTHM Fund/2. Offers" in any parent directory. Falling back to default path. Agreements/Materials/Data features may not work until the relevant Dropbox folders are synced locally.')
+  return path.resolve(__dirname, '..', '..', '..', '..')
+}
+const DROPBOX_RTHM = findDropboxRTHM()
+console.log('[RTHM] DROPBOX_RTHM =', DROPBOX_RTHM)
 const TEMP_AGREEMENTS_DIR = path.join(DROPBOX_RTHM, '1. RTHM Fund', '2. Offers', 'Temp Agreements')
 const DEAL_SHEETS_DIR = path.join(DROPBOX_RTHM, '1. RTHM Fund', '2. Offers', 'Deal Sheets')
 const MATERIALS_ROOT = path.join(DROPBOX_RTHM, '1. RTHM Fund', '3. Deal Materials')
@@ -391,16 +405,21 @@ app.post('/api/save/invoice', (req, res) => {
 // GET /api/deals/saved — all persisted deals
 app.get('/api/deals/saved', (req, res) => {
   const deals = readDeals()
+  // Only run stale-entry cleanup if the underlying directories are actually accessible.
+  // If they're missing (e.g. machine where the relevant Dropbox folders aren't synced),
+  // every check would falsely report "missing" and we'd nuke real data on disk.
+  const materialsAvailable = fs.existsSync(MATERIALS_ROOT)
+  const agreementsAvailable = fs.existsSync(TEMP_AGREEMENTS_DIR)
   let dirty = false
   deals.forEach(deal => {
-    if (deal.folderPath) {
+    if (materialsAvailable && deal.folderPath) {
       const resolved = path.isAbsolute(deal.folderPath) ? deal.folderPath : path.join(DROPBOX_RTHM, deal.folderPath)
       if (!fs.existsSync(resolved)) {
         deal.folderPath = null
         dirty = true
       }
     }
-    if (deal.agreements?.length) {
+    if (agreementsAvailable && deal.agreements?.length) {
       const filtered = deal.agreements.filter(ag => resolveAgreementPath(ag))
       if (filtered.length !== deal.agreements.length) {
         deal.agreements = filtered
