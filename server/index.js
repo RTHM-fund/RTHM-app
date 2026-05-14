@@ -83,14 +83,21 @@ function backupDealsBefore(targetPath) {
 
 // Atomic write: serialize to a temp file, then rename onto the target.
 // rename() is atomic on a single filesystem — readers either see the old or new
-// file, never a half-written state. Backup is taken from the live file BEFORE
-// the swap so it always reflects the most recently committed state.
+// file, never a half-written state.
+function atomicWriteJson(targetPath, data) {
+  const tmp = targetPath + '.tmp'
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2))
+  fs.renameSync(tmp, targetPath)
+}
+
 function writeDeals(deals) {
   backupDealsBefore(DEALS_FILE)
-  const tmpPath = DEALS_FILE + '.tmp'
-  fs.writeFileSync(tmpPath, JSON.stringify(deals, null, 2))
-  fs.renameSync(tmpPath, DEALS_FILE)
+  atomicWriteJson(DEALS_FILE, deals)
 }
+
+// Stale .tmp from a prior crash (between writeFileSync and renameSync) would
+// otherwise sit forever. Cheap one-time cleanup at startup.
+try { fs.unlinkSync(DEALS_FILE + '.tmp') } catch {}
 
 // On startup, surface any Dropbox conflict files so the user can manually reconcile.
 // We never auto-merge — too risky.
@@ -111,6 +118,14 @@ function checkForDropboxConflicts() {
   }
 }
 checkForDropboxConflicts()
+
+// Cleanup helper for endpoints that resolve a stale reference and need to
+// remove it from deals.json + return a 404 with a UI refresh hint.
+function clearAndRespond404(res, deals, msg, mutate) {
+  mutate(deals)
+  writeDeals(deals)
+  return res.status(404).json({ error: msg, cleared: true })
+}
 
 function openFile(filePath) {
   const proc = os.platform() === 'win32'
@@ -593,9 +608,7 @@ app.post('/api/deals/:index/open-folder', (req, res) => {
     if (!stored) return res.status(400).json({ error: 'No folder saved' })
     const resolved = path.isAbsolute(stored) ? stored : path.join(DROPBOX_RTHM, stored)
     if (!fs.existsSync(resolved)) {
-      deals[idx].folderPath = null
-      writeDeals(deals)
-      return res.status(404).json({ error: 'Folder no longer exists', cleared: true })
+      return clearAndRespond404(res, deals, 'Folder no longer exists', d => { d[idx].folderPath = null })
     }
 
     openFile(resolved)
@@ -754,7 +767,7 @@ function readPartners() {
 }
 
 function writePartners(data) {
-  fs.writeFileSync(B2B_PARTNERS_FILE, JSON.stringify(data, null, 2))
+  atomicWriteJson(B2B_PARTNERS_FILE, data)
 }
 
 app.get('/api/b2b-partners', (req, res) => {
@@ -912,9 +925,7 @@ app.post('/api/deals/:index/agreements/:agreementIndex/open', (req, res) => {
     if (!agreement) return res.status(404).json({ error: 'Agreement not found' })
     const agreementPath = resolveAgreementPath(agreement)
     if (!agreementPath) {
-      deals[idx].agreements.splice(agreeIdx, 1)
-      writeDeals(deals)
-      return res.status(404).json({ error: 'File not found on disk', cleared: true })
+      return clearAndRespond404(res, deals, 'File not found on disk', d => { d[idx].agreements.splice(agreeIdx, 1) })
     }
     openFile(agreementPath)
     res.json({ ok: true })
@@ -934,9 +945,7 @@ app.post('/api/deals/:index/agreements/:agreementIndex/export-pdf', (req, res) =
     const ag = deals[idx].agreements[agreeIdx]
     const agPath = resolveAgreementPath(ag)
     if (!agPath) {
-      deals[idx].agreements.splice(agreeIdx, 1)
-      writeDeals(deals)
-      return res.status(404).json({ error: 'File not found on disk', cleared: true })
+      return clearAndRespond404(res, deals, 'File not found on disk', d => { d[idx].agreements.splice(agreeIdx, 1) })
     }
 
     const outDir = isDealSheet

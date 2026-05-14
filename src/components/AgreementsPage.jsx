@@ -143,7 +143,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
     try {
       const res = await fetch(`/api/deals/${dealIndex}/agreements/${i}/open`, { method: 'POST' })
       const data = await res.json().catch(() => ({}))
-      if (data?.cleared) loadAgreements()
+      if (data?.cleared) setAgreements(prev => prev.filter(a => a !== ag))
     } catch {}
   }
 
@@ -158,7 +158,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
         body: JSON.stringify({ isDealSheet })
       })
       const data = await res.json()
-      if (data?.cleared) loadAgreements()
+      if (data?.cleared) { setAgreements(prev => prev.filter(a => a !== ag)); return }
       if (!res.ok || data.error) throw new Error(data.error || 'Export failed')
     } catch (err) {
       alert('Export failed: ' + err.message)
