@@ -22,16 +22,17 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
   const rows = ROW_DEFS[dealType] || ROW_DEFS.Individual
   const matched = Object.fromEntries(rows.map(r => [r, matchAgreement(r, agreements)]))
 
+  function loadAgreements() {
+    fetch(`/api/deals/${dealIndex}/agreements`)
+      .then(r => r.json())
+      .then(setAgreements)
+      .catch(() => {})
+  }
+
   useEffect(() => {
-    function load() {
-      fetch(`/api/deals/${dealIndex}/agreements`)
-        .then(r => r.json())
-        .then(setAgreements)
-        .catch(() => {})
-    }
-    load()
-    window.addEventListener('focus', load)
-    return () => window.removeEventListener('focus', load)
+    loadAgreements()
+    window.addEventListener('focus', loadAgreements)
+    return () => window.removeEventListener('focus', loadAgreements)
   }, [dealIndex])
 
   useEffect(() => {
@@ -139,7 +140,11 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
 
   async function handleOpen(ag) {
     const i = agreements.indexOf(ag)
-    await fetch(`/api/deals/${dealIndex}/agreements/${i}/open`, { method: 'POST' }).catch(() => {})
+    try {
+      const res = await fetch(`/api/deals/${dealIndex}/agreements/${i}/open`, { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (data?.cleared) loadAgreements()
+    } catch {}
   }
 
   async function handleExportPDF(ag, rowLabel) {
@@ -153,6 +158,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
         body: JSON.stringify({ isDealSheet })
       })
       const data = await res.json()
+      if (data?.cleared) loadAgreements()
       if (!res.ok || data.error) throw new Error(data.error || 'Export failed')
     } catch (err) {
       alert('Export failed: ' + err.message)

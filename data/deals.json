@@ -909,7 +909,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Kasper & Anders.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Kasper & Anders.docx",
-        "createdAt": "2026-04-13T16:04:21.341Z"
+        "createdAt": "2026-04-29T15:25:14.193Z"
       }
     ]
   },
@@ -1174,37 +1174,43 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_lilmal357.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_lilmal357.docx",
-        "createdAt": "2026-04-13T16:53:20.339Z"
+        "createdAt": "2026-05-07T20:13:46.031Z"
       },
       {
         "type": "Skyline Deal Sheet",
         "fileName": "Skyline Deal Sheet_lilmal357.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_lilmal357.docx",
-        "createdAt": "2026-04-13T16:53:20.339Z"
+        "createdAt": "2026-05-07T20:13:46.031Z"
+      },
+      {
+        "type": "RTHM Offer Letter",
+        "fileName": "RTHM Offer Letter_lilmal357.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Offer Letter_lilmal357.docx",
+        "createdAt": "2026-05-07T20:15:28.532Z"
       },
       {
         "type": "Skyline Offer Letter",
         "fileName": "Skyline Offer Letter_lilmal357.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Offer Letter_lilmal357.docx",
-        "createdAt": "2026-05-06T18:39:58.520Z"
+        "createdAt": "2026-05-07T20:16:12.508Z"
       },
       {
         "type": "B2B RPA",
         "fileName": "B2B RPA_lilmal357.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\B2B RPA_lilmal357.docx",
-        "createdAt": "2026-05-06T18:47:56.555Z"
+        "createdAt": "2026-05-07T20:16:54.614Z"
       },
       {
         "type": "RTHM x RAS RPA",
         "fileName": "RTHM x RAS RPA_lilmal357.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM x RAS RPA_lilmal357.docx",
-        "createdAt": "2026-05-06T18:49:29.312Z"
+        "createdAt": "2026-05-07T20:19:12.095Z"
       },
       {
         "type": "RTHM RPA",
         "fileName": "RTHM RPA_lilmal357.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM RPA_lilmal357.docx",
-        "createdAt": "2026-05-06T18:49:29.560Z"
+        "createdAt": "2026-05-07T20:19:12.405Z"
       }
     ],
     "lockedDeal": {
@@ -1456,7 +1462,18 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Eclipse Entertainment.docx",
         "createdAt": "2026-04-27T19:09:57.723Z"
       }
-    ]
+    ],
+    "lockedDeal": {
+      "advanceAmount": 109000,
+      "recoupRate": 50,
+      "term": "84 months",
+      "recoupAmount": 219100,
+      "rasAdvance": 127800,
+      "marketingBudget": 43000,
+      "prAdvance": 87640,
+      "prTotal": 130640,
+      "legalName": "Tyrique Reid"
+    }
   },
   {
     "name": "Victor Thell",
@@ -2161,10 +2178,10 @@
     "importedAt": "2026-05-06T18:14:46.536Z",
     "valuationState": {
       "rates": {
-        "12 months": 70,
-        "36 months": 60,
-        "60 months": 50,
-        "84 months": "45"
+        "12 months": "74",
+        "36 months": "64",
+        "60 months": "55",
+        "84 months": "48"
       },
       "commission": 4,
       "b2bMarginRate": 5,
@@ -2174,8 +2191,8 @@
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Hoolibaby Neeno.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Hoolibaby Neeno.docx",
-        "createdAt": "2026-05-07T20:04:01.947Z"
+        "filePath": "/Users/slif/Dropbox/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Hoolibaby Neeno.docx",
+        "createdAt": "2026-05-09T00:12:43.703Z"
       }
     ]
   },
@@ -2256,7 +2273,8 @@
       "prAdvance": 14001,
       "prTotal": 21001,
       "legalName": "Eric Lee Hudson"
-    }
+    },
+    "folderPath": "1. RTHM Fund\\3. Deal Materials\\2. Closed\\Eric Hudson"
   },
   {
     "name": "lilmal357",
@@ -2355,6 +2373,151 @@
       "prTotal": 24000,
       "legalName": "Malachi Burney",
       "transactionId": "RTHM-RPA-28"
-    }
+    },
+    "folderPath": "1. RTHM Fund\\3. Deal Materials\\1. Current\\lilmal357"
+  },
+  {
+    "name": "SJ Made IT",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 4300,
+      "AD": 5000,
+      "AE": 7600,
+      "AF": 10000,
+      "AG": 9000,
+      "AH": 13300,
+      "AI": 9600,
+      "AJ": 15900
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": 90,
+      "AQ": null,
+      "AR": 3870,
+      "AS": 4500,
+      "AT": 6840,
+      "AU": 9000,
+      "AV": 8100,
+      "AW": 11970
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11966722190",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-09T00:14:44.264Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "75",
+        "36 months": "65.5",
+        "60 months": "55.5",
+        "84 months": "50.5"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": false
+    },
+    "b2bPartner": "Skyline",
+    "agreements": []
+  },
+  {
+    "name": "London Jay",
+    "platform": "BMI",
+    "initialQuote": {
+      "AC": 55300,
+      "AD": 63700,
+      "AE": 100600,
+      "AF": 135700,
+      "AG": 119000,
+      "AH": 181300,
+      "AI": 126700,
+      "AJ": 211300
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "11966794121",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-09T00:33:36.589Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "75",
+        "36 months": "66",
+        "60 months": "59",
+        "84 months": "54"
+      },
+      "commission": 8,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_London Jay.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_London Jay.docx",
+        "createdAt": "2026-05-12T17:40:07.198Z"
+      }
+    ]
+  },
+  {
+    "name": "Gerson Ruffino (EUROS)",
+    "platform": "Believe",
+    "initialQuote": {
+      "AC": 97600,
+      "AD": 113200,
+      "AE": 202100,
+      "AF": 279800,
+      "AG": 246500,
+      "AH": 390000,
+      "AI": 265300,
+      "AJ": 463200
+    },
+    "percent": null,
+    "variableQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "11966918565",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-09T01:09:17.691Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "70",
+        "36 months": "62",
+        "60 months": "55.8",
+        "84 months": "50.9"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Gerson Ruffino (EUROS).docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Gerson Ruffino (EUROS).docx",
+        "createdAt": "2026-05-12T17:41:26.316Z"
+      }
+    ]
   }
 ]

@@ -81,10 +81,36 @@ function backupDealsBefore(targetPath) {
   }
 }
 
+// Atomic write: serialize to a temp file, then rename onto the target.
+// rename() is atomic on a single filesystem — readers either see the old or new
+// file, never a half-written state. Backup is taken from the live file BEFORE
+// the swap so it always reflects the most recently committed state.
 function writeDeals(deals) {
   backupDealsBefore(DEALS_FILE)
-  fs.writeFileSync(DEALS_FILE, JSON.stringify(deals, null, 2))
+  const tmpPath = DEALS_FILE + '.tmp'
+  fs.writeFileSync(tmpPath, JSON.stringify(deals, null, 2))
+  fs.renameSync(tmpPath, DEALS_FILE)
 }
+
+// On startup, surface any Dropbox conflict files so the user can manually reconcile.
+// We never auto-merge — too risky.
+function checkForDropboxConflicts() {
+  try {
+    const dataDir = path.dirname(DEALS_FILE)
+    if (!fs.existsSync(dataDir)) return
+    const conflicts = fs.readdirSync(dataDir).filter(f =>
+      /(\(.*conflicted copy.*\)|\.conflict\.)/i.test(f)
+    )
+    if (conflicts.length > 0) {
+      console.warn('[RTHM] Dropbox conflict files detected in data folder:')
+      conflicts.forEach(f => console.warn('  - ' + f))
+      console.warn('[RTHM] Review and merge manually, then delete the conflict file.')
+    }
+  } catch (err) {
+    console.warn('[RTHM] conflict file check failed:', err.message)
+  }
+}
+checkForDropboxConflicts()
 
 function openFile(filePath) {
   const proc = os.platform() === 'win32'
@@ -427,33 +453,14 @@ app.post('/api/save/invoice', (req, res) => {
 
 // ── Deal Manager ──
 
-// GET /api/deals/saved — all persisted deals
+// GET /api/deals/saved — all persisted deals.
+// Read-only: never mutates deals.json. Stale references (deleted .docx files,
+// missing folders) are cleaned up only on explicit user action — when the user
+// clicks "edit DOC" / "export PDF" / "open folder" and the underlying file is
+// genuinely missing, the corresponding endpoint silently removes that one
+// reference. This prevents an unsynced machine from wiping real data.
 app.get('/api/deals/saved', (req, res) => {
-  const deals = readDeals()
-  // Only run stale-entry cleanup if the underlying directories are actually accessible.
-  // If they're missing (e.g. machine where the relevant Dropbox folders aren't synced),
-  // every check would falsely report "missing" and we'd nuke real data on disk.
-  const materialsAvailable = fs.existsSync(MATERIALS_ROOT)
-  const agreementsAvailable = fs.existsSync(TEMP_AGREEMENTS_DIR)
-  let dirty = false
-  deals.forEach(deal => {
-    if (materialsAvailable && deal.folderPath) {
-      const resolved = path.isAbsolute(deal.folderPath) ? deal.folderPath : path.join(DROPBOX_RTHM, deal.folderPath)
-      if (!fs.existsSync(resolved)) {
-        deal.folderPath = null
-        dirty = true
-      }
-    }
-    if (agreementsAvailable && deal.agreements?.length) {
-      const filtered = deal.agreements.filter(ag => resolveAgreementPath(ag))
-      if (filtered.length !== deal.agreements.length) {
-        deal.agreements = filtered
-        dirty = true
-      }
-    }
-  })
-  if (dirty) writeDeals(deals)
-  res.json(deals)
+  res.json(readDeals())
 })
 
 // GET /api/deals/sheet-rows — sheet rows for import modal
@@ -574,7 +581,8 @@ app.post('/api/deals/:index/pick-folder', (req, res) => {
   }
 })
 
-// POST /api/deals/:index/open-folder — open saved folder in Explorer/Finder
+// POST /api/deals/:index/open-folder — open saved folder in Explorer/Finder.
+// If the folder is genuinely missing on disk, silently clear the stale reference.
 app.post('/api/deals/:index/open-folder', (req, res) => {
   try {
     const idx = parseInt(req.params.index)
@@ -583,9 +591,12 @@ app.post('/api/deals/:index/open-folder', (req, res) => {
 
     const stored = deals[idx].folderPath
     if (!stored) return res.status(400).json({ error: 'No folder saved' })
-    // Resolve: try relative to Dropbox root first, then absolute (backwards compat)
     const resolved = path.isAbsolute(stored) ? stored : path.join(DROPBOX_RTHM, stored)
-    if (!fs.existsSync(resolved)) return res.status(404).json({ error: 'Folder no longer exists' })
+    if (!fs.existsSync(resolved)) {
+      deals[idx].folderPath = null
+      writeDeals(deals)
+      return res.status(404).json({ error: 'Folder no longer exists', cleared: true })
+    }
 
     openFile(resolved)
     res.json({ ok: true })
@@ -890,7 +901,8 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
   }
 })
 
-// POST /api/deals/:index/agreements/:agreementIndex/open — open agreement file
+// POST /api/deals/:index/agreements/:agreementIndex/open — open agreement file.
+// If the .docx is genuinely missing on disk, silently remove the stale reference.
 app.post('/api/deals/:index/agreements/:agreementIndex/open', (req, res) => {
   try {
     const idx = parseInt(req.params.index)
@@ -899,7 +911,11 @@ app.post('/api/deals/:index/agreements/:agreementIndex/open', (req, res) => {
     const agreement = deals[idx]?.agreements?.[agreeIdx]
     if (!agreement) return res.status(404).json({ error: 'Agreement not found' })
     const agreementPath = resolveAgreementPath(agreement)
-    if (!agreementPath) return res.status(404).json({ error: 'File not found on disk' })
+    if (!agreementPath) {
+      deals[idx].agreements.splice(agreeIdx, 1)
+      writeDeals(deals)
+      return res.status(404).json({ error: 'File not found on disk', cleared: true })
+    }
     openFile(agreementPath)
     res.json({ ok: true })
   } catch (err) {
@@ -917,7 +933,11 @@ app.post('/api/deals/:index/agreements/:agreementIndex/export-pdf', (req, res) =
     if (!deals[idx]?.agreements?.[agreeIdx]) return res.status(404).json({ error: 'Agreement not found' })
     const ag = deals[idx].agreements[agreeIdx]
     const agPath = resolveAgreementPath(ag)
-    if (!agPath) return res.status(404).json({ error: 'File not found on disk' })
+    if (!agPath) {
+      deals[idx].agreements.splice(agreeIdx, 1)
+      writeDeals(deals)
+      return res.status(404).json({ error: 'File not found on disk', cleared: true })
+    }
 
     const outDir = isDealSheet
       ? DEAL_SHEETS_DIR
