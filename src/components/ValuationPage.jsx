@@ -3,7 +3,7 @@ import './ValuationPage.css'
 
 const TERMS = ['12 months', '36 months', '60 months', '84 months']
 const IQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ']]
-const VQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW']]
+const VQ_PAIRS = [['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
 
 const DEFAULT_RATES = {
   Individual: { '12 months': 70, '36 months': 60, '60 months': 50, '84 months': 45 },
@@ -166,12 +166,20 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     return { term, rasAdvance, rasRecoup, rate, rthmAdvance, margin }
   })
 
-  const prUpliftRows = showPrUplift ? valuationRows.map(({ term, rasAdvance, rate, rthmAdvance }) => {
+  // PR Uplift always derives from Initial Quote, even when a Variable Quote is present.
+  const prUpliftRows = showPrUplift ? TERMS_DESC.map(term => {
+    const termIdx = TERMS.indexOf(term)
+    const [advCol, recoupCol] = IQ_PAIRS[termIdx]
+    const rasAdvance = parseFloat(iq[advCol]) || 0
+    const rasRecoup = parseFloat(iq[recoupCol]) || 0
+    const rate = parseFloat(rates[term]) || 0
+    const rthmAdvance = Math.round(rasRecoup * (rate / 100))
+
     const marketingBudgetRaw = rasAdvance * 0.2 * (1 - 0.33) * 2.5
     const marketingBudget = Math.ceil(marketingBudgetRaw / 1000) * 1000
     const advanceAmount = Math.round(rthmAdvance * 0.8)
     const totalDealValue = advanceAmount + marketingBudget
-    const margin1 = marketingBudgetRaw / 3
+    const margin1 = rasAdvance * 0.2 * 0.33
     const margin2 = 0.8 * (rasAdvance - rthmAdvance)
     const margin = dealType === 'B2B'
       ? Math.round(margin1 + margin2)
@@ -297,8 +305,8 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
             <tbody>
               {prUpliftRows.map(({ term, totalDealValue, advanceAmount, marketingBudget, rate, margin, marketingBudgetRaw, rasAdvance, rthmAdvance }) => {
                 const marginTip = dealType === 'B2B'
-                  ? `(${fmt(rasAdvance)} × 20% × 67% × 2.5 ÷ 3) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)}))`
-                  : `(${fmt(rasAdvance)} × 20% × 67% × 2.5 ÷ 3) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)})) − (${marginRate}% × ${fmt(advanceAmount)})`
+                  ? `(${fmt(rasAdvance)} × 20% × 33%) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)}))`
+                  : `(${fmt(rasAdvance)} × 20% × 33%) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)})) − (${marginRate}% × ${fmt(advanceAmount)})`
                 const totalTip = `${fmt(advanceAmount)} + ${fmt(marketingBudget)}`
                 const advTip = `${fmt(rthmAdvance)} × 80%`
                 const mktTip = `${fmt(rasAdvance)} × 20% × 67% × 2.5 = ${fmt(Math.round(marketingBudgetRaw))} → round up to ${fmt(marketingBudget)}`

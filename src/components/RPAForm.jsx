@@ -37,7 +37,7 @@ const FIELD_PLACEHOLDERS = {
   'B2B Signer': 'authorized signer',
   'B2B Title': 'signer title',
   'Net Amount': 'dollars',
-  'RAS ID': 'RAS-RP-MMDD-XX00',
+  'RAS ID': 'RAS-RP-MMYY-XX00',
 }
 
 export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS, onSaveComplete }) {

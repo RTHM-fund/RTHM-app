@@ -269,6 +269,11 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
       if (!showDistro) DISTRO_FIELDS.forEach(f => delete filteredValues[f])
       if (!showMarketing) MARKETING_FIELDS.forEach(f => delete filteredValues[f])
       if (!showFutures) FUTURES_FIELDS.forEach(f => delete filteredValues[f])
+      // Offer Letter templates have hardcoded " months" / " years" after these placeholders
+      // (e.g. "{{Term}} months"). Send the raw digits so the suffix isn't doubled.
+      ;[...MONTHS_FIELDS, ...YEARS_FIELDS].forEach(f => {
+        if (filteredValues[f] && rawAmounts[f]) filteredValues[f] = rawAmounts[f]
+      })
 
       const res = await fetch('/api/save/rpa', {
         method: 'POST',
