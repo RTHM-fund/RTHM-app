@@ -2,33 +2,40 @@
 
 ## Accomplished This Session
 
-### Earlier — form polish, mapping fixes, Mac onboarding (committed previously)
-- **Valuation Recoup Rate** accepts up to 2 decimals; locked display always 2 dp.
-- **RPA + Offer Letter Advance Amount** editable when autofilled; saves back to `lockedDeal.advanceAmount`.
-- **RTHM RPA B2B mapping** corrected: `Seller Name = B2B Entity`, `Legal Name = B2B Signer`, `Title = B2B Title`.
-- **Mac setup/launch** scripts hardened (fail-loud npm install, sync-aware error messages, desktop launcher wrapper, persistent terminal).
-- **`findDropboxRTHM()`** walks up looking for `1. RTHM Fund/2. Offers/` so Mac/Windows path differences don't break things.
+### Deal Manager — row truncation + button consistency
+- **Long Deal Name / Platform values were wrapping to 2 lines**, growing row height and making the "Deal Materials" button look broken across rows.
+- Added `.deals-cell-truncate` CSS class: `max-width: 240px`, `white-space: nowrap`, `overflow: hidden`, with a `mask-image` linear-gradient that **fades the right edge** of long text instead of an abrupt cut.
+- Added `white-space: nowrap` to `.deals-valuation-btn`, `.deals-forms-btn`, `.deals-materials-btn` — button text never wraps.
+- Wrapped Deal Name and Platform values in `<div className="deals-cell-truncate">` inside the `<td>`, and added `title={value}` on the `<td>` for hover tooltip showing the full string.
+- Result: every row stays exactly 1 line tall regardless of content length; full value visible on hover.
 
-### Earlier — data safety + cleanup hardening (committed previously)
-- **Re-merged 78 agreements** from `14efd15` after Mac-side wipe.
-- **`/api/deals/saved` is read-only** — removed the on-read cleanup that scanned every agreement file. Stale references now cleaned up only on **explicit user action** (clicking "edit DOC" / "export PDF" / "Deal Materials" against a missing file). Server returns `{ cleared: true }`; frontend does optimistic local removal.
-- **Atomic `writeDeals` / `writePartners`** via `atomicWriteJson(path, data)` (write `.tmp`, rename). Prevents half-written files.
-- **Conflict file detection** at startup — surfaces any `*conflicted copy*.json` in `data/`.
-- **Stale `.tmp` cleanup** at startup.
-- **`clearAndRespond404` helper** consolidates the 3 cleanup-on-action endpoints.
+### Valuation page — editable RTHM Advance column
+- Added `advanceDraft` state for per-term in-progress typed values.
+- RTHM Advance cell:
+  - **Locked**: same read-only formatted display as before.
+  - **Unlocked**: editable input (reuses `.rate-input` with new `.advance-input` width modifier, 90px).
+- On blur (or Enter), back-computes the implied Recoup Rate as `(typed / rasRecoup) × 100`, rounded to 2dp, and calls `setRate(term, ...)`. Margin recalculates automatically because it depends on `rthmAdvance` which depends on the rate.
+- **Snap behavior** (per user's choice of "option A"): typed value may drift by 1–2 dollars due to 2dp rate rounding. Single source of truth = `rates`; advance is always derived.
+- Edge cases handled: `rasRecoup = 0` makes the input a no-op (no divide-by-zero); non-digit input filtered.
 
-### This turn — template + sheet-column fixes
-- **RAS ID placeholder** in RPAForm corrected: `RAS-RP-MMDD-XX00` → `RAS-RP-MMYY-XX00` (matches what `buildRasPrefix` actually constructs).
-- **Offer Letter templates double-unit bug.** Audited all 4 OL templates (`Earl Jam`, `RTHM`, `Skyline`, `TopValley`); each had `{{Term}} months`, `{{Holdback}} months`, `{{Distro Term}} years`, `{{Futures Term}} years` — but the form pre-formats those as `"84 months"`, producing `"84 months months"` in the rendered .docx. Fix: in `OfferLetterForm.handleSave`, send raw digits for those 4 fields instead of the formatted display string. Templates now render correctly. Form input UX unchanged.
-- **Variable Quote column shift** (Google Sheet was edited, VQ block moved 2 columns right). Updated hardcoded constants in `server/index.js` and `ValuationPage.jsx`:
-  - `VQ_PAIRS`: `[['AP','AQ'],['AR','AS'],['AT','AU'],['AV','AW']]` → `[['AR','AS'],['AT','AU'],['AV','AW'],['AX','AY']]`
-  - `VQ_COLS` and `WANTED_COLS` extended to AX/AY
-  - Sheet fetch range `A7:AW` → `A7:AY`
-  - **Re-import any deal with VQ data** to refresh stored values under the new mapping. IQ untouched.
-- **PR Uplift formula change.**
-  - `margin1` was `marketingBudgetRaw / 3`; now `rasAdvance × 20% × 33%`.
-  - Tip text updated from `(rasAdvance × 20% × 67% × 2.5 ÷ 3) + ...` to `(rasAdvance × 20% × 33%) + ...`.
-- **PR Uplift always uses Initial Quote**, even when a Variable Quote is present. Built independently from `IQ_PAIRS` instead of inheriting from `valuationRows`. Marketing budget, advance amount, recoup amount, both margin terms — all derived from IQ. RTHM Valuation table above is unchanged (still uses VQ when present).
+### Atomic write — Windows + Dropbox EPERM hardening
+- `atomicWriteJson` was failing with `EPERM` when Dropbox briefly held a lock on `deals.json` during rename. Stale `.tmp` files were left behind.
+- Now retries `renameSync` up to 5 times with progressive backoff (50/100/150/200/250 ms) for `EPERM`/`EBUSY`/`ENOTEMPTY` errors.
+- If all retries fail, falls back to a direct `writeFileSync` (sacrifices atomicity for that one write but guarantees the data lands) and logs a warning.
+- Also cleaned up the stale `data/deals.json.tmp` left over from the prior failure.
+
+### LeTreez Monday link updated
+- `mondayBoardId`: `18397562279` → `10058081462`
+- `mondayItemId`: `"11747681773"` → `"11622638565"`
+- Existing types preserved (board=number, item=string).
+
+### Earlier in session (already committed in 7698515 / 18df4d7 / 8a75806)
+- RAS ID placeholder MMDD → MMYY
+- Offer Letter double-unit bug (Term/Holdback/Distro Term/Futures Term)
+- VQ column shift (2 right) — VQ_PAIRS updated, fetch range AY
+- PR Uplift formula `margin1 = rasAdvance × 20% × 33%`; always derives from Initial Quote
+- `/api/deals/saved` is read-only; cleanup only on explicit click
+- Atomic writeDeals + writePartners; conflict file detection; backup snapshots in `<RTHM App>/Backups/`
 
 ---
 
@@ -36,25 +43,24 @@
 
 - **Working path:** `C:\Users\richa\RTHM Dropbox\RTHM Fund\RTHM\4. Operations\RTHM App`
 - **Repo:** `App Files/` on `master`, pushed to `https://github.com/RTHM-fund/RTHM-app`
-- **App data:** 44 deals, 81 agreements, 43 purple valuations.
-- **Dev servers must be restarted on Mac + Windows** to pick up:
-  - The new `WANTED_COLS` / fetch range / `VQ_PAIRS` mapping
-  - The PR Uplift formula change
+- **App data:** ~48 deals (Mac has been actively adding). Backups syncing across machines as expected.
+- **Mac dev server** has been actively writing — was the source of the EPERM trigger on Windows. Stop Mac while making Windows-only edits to avoid concurrent writes.
+- **Dev servers must be restarted** on Mac + Windows to pick up the new atomic-rename retry logic + the editable advance behavior.
 
 ---
 
 ## What's Next
 
 ### Open / known issues
-- **Re-import deals with VQ data** to refresh column mapping. SJ Made IT specifically.
-- B2B RPA template — does it have similar Seller/Legal Name/Title mapping issues now that the convention is set for RTHM RPA?
-- If user wants previously-generated `.docx` files to update when Advance Amount changes, that's a separate feature (currently they're static after generation).
-- Mac `1. RTHM Fund/`, `3. Deal Materials/`, `1. Data/` folders — user is enabling File Provider sync; will need to re-run Mac setup after migration to fix the desktop shortcut path.
-- Long-term: if cross-device consistency becomes a real-time requirement (concurrent edits across machines), move `deals.json` to a cloud DB (Supabase/Firebase). Today's setup is eventually consistent (via Dropbox sync) — adequate for 1–2 user setup.
+- **Re-import deals with VQ data** to refresh column mapping under the new VQ_PAIRS.
+- B2B RPA template — does it have similar Seller/Legal Name/Title mapping issues?
+- If user wants previously-generated `.docx` files to update when Advance Amount changes, that's a separate feature (currently static after generation).
+- Mac Dropbox File Provider migration: re-run `RTHM Setup.command` after migration completes to fix the desktop shortcut absolute path.
+- Long-term: if cross-device consistency becomes a real-time requirement, move `deals.json` to a cloud DB. Current setup is eventually consistent (via Dropbox sync) — adequate for 1–2 users but vulnerable to concurrent-write conflicts.
 - Future option: dynamic column-header detection in the sheet importer (deferred — fixed mapping is fine for now).
 
 ### V2 roadmap (unchanged)
-1. **File discovery** — after folder pick, scan for CSV/XLS/XLSX (skip "merged"/"summary"/"basic"/`~$`), show in UI.
+1. **File discovery** — after folder pick, scan for CSV/XLS/XLSX, show in UI.
 2. Column standardization → earnings column selection → date extraction → include/exclude columns → merge + persist.
 3. Pivot engine → projection model → advance/IRR calculator.
 

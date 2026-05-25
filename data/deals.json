@@ -1228,63 +1228,6 @@
     "folderPath": "1. RTHM Fund\\3. Deal Materials\\1. Current\\Lilmal357"
   },
   {
-    "name": "Richie Rozay",
-    "platform": "DistroKid",
-    "initialQuote": {
-      "AC": 16400,
-      "AD": 18700,
-      "AE": 37300,
-      "AF": 51800,
-      "AG": 49200,
-      "AH": 81100,
-      "AI": 55900,
-      "AJ": 107000
-    },
-    "percent": null,
-    "variableQuote": {
-      "AP": null,
-      "AQ": null,
-      "AR": null,
-      "AS": null,
-      "AT": null,
-      "AU": null,
-      "AV": null,
-      "AW": null
-    },
-    "dealType": "B2B",
-    "royaltyType": "Distribution",
-    "commission": "4",
-    "mondayItemId": "11735725128",
-    "mondayBoardId": 18397562279,
-    "importedAt": "2026-04-13T16:24:01.263Z",
-    "valuationState": {
-      "rates": {
-        "12 months": 74,
-        "36 months": 64,
-        "60 months": 54,
-        "84 months": "48"
-      },
-      "commission": 4,
-      "b2bMarginRate": 8,
-      "recoupLocked": true
-    },
-    "b2bPartner": "Skyline",
-    "agreements": [
-      {
-        "type": "Deal Sheet",
-        "fileName": "RTHM Deal Sheet_Richie Rozay.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Richie Rozay.docx",
-        "createdAt": "2026-04-13T16:54:15.838Z"
-      },
-      {
-        "type": "Skyline Deal Sheet",
-        "fileName": "Skyline Deal Sheet_Richie Rozay.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Richie Rozay.docx",
-        "createdAt": "2026-04-13T16:54:15.838Z"
-      }
-    ]
-  },
-  {
     "name": "LeTreez",
     "platform": "SOCAN",
     "initialQuote": {
@@ -1311,8 +1254,8 @@
     "dealType": "Individual",
     "royaltyType": "Publishing",
     "commission": "4",
-    "mondayItemId": "11747681773",
-    "mondayBoardId": 18397562279,
+    "mondayItemId": "11622638565",
+    "mondayBoardId": 10058081462,
     "importedAt": "2026-04-14T17:23:44.009Z",
     "valuationState": {
       "rates": {
@@ -1652,16 +1595,16 @@
       "AI": 177000,
       "AJ": 315000
     },
-    "percent": 10,
+    "percent": null,
     "variableQuote": {
-      "AP": null,
-      "AQ": null,
       "AR": 55620,
       "AS": 63000,
       "AT": 115110,
       "AU": 153900,
       "AV": 144000,
-      "AW": 225000
+      "AW": 225000,
+      "AX": 159300,
+      "AY": 283500
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -1674,9 +1617,9 @@
         "12 months": "75",
         "36 months": "65",
         "60 months": "55",
-        "84 months": "50"
+        "84 months": "43.21"
       },
-      "commission": 4,
+      "commission": 0,
       "b2bMarginRate": 5,
       "recoupLocked": true
     },
@@ -1685,9 +1628,38 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Lomeli.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lomeli.docx",
-        "createdAt": "2026-04-29T14:35:02.499Z"
+        "createdAt": "2026-05-25T16:52:59.362Z"
+      },
+      {
+        "type": "RTHM Offer Letter",
+        "fileName": "RTHM Offer Letter_Lomeli.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Offer Letter_Lomeli.docx",
+        "createdAt": "2026-05-25T16:55:09.206Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_Lomeli.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM x RAS RPA_Lomeli.docx",
+        "createdAt": "2026-05-25T17:01:35.494Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_Lomeli.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM RPA_Lomeli.docx",
+        "createdAt": "2026-05-25T17:01:35.971Z"
       }
-    ]
+    ],
+    "lockedDeal": {
+      "advanceAmount": 122500,
+      "recoupRate": 43.21,
+      "term": "84 months",
+      "recoupAmount": 283500,
+      "rasAdvance": 159300,
+      "marketingBudget": 54000,
+      "prAdvance": 98000,
+      "prTotal": 152000,
+      "legalName": "Isaac Joseph Lomeli"
+    }
   },
   {
     "name": "Khalil Publishing",
@@ -2233,7 +2205,7 @@
         "60 months": 50,
         "84 months": "47.3"
       },
-      "commission": 4,
+      "commission": 5,
       "b2bMarginRate": 5,
       "recoupLocked": true
     },
@@ -2391,14 +2363,14 @@
     },
     "percent": null,
     "variableQuote": {
-      "AP": 90,
-      "AQ": null,
       "AR": 3870,
       "AS": 4500,
       "AT": 6840,
       "AU": 9000,
       "AV": 8100,
-      "AW": 11970
+      "AW": 11970,
+      "AX": 8640,
+      "AY": 14310
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -2408,17 +2380,30 @@
     "importedAt": "2026-05-09T00:14:44.264Z",
     "valuationState": {
       "rates": {
-        "12 months": "75",
-        "36 months": "65.5",
-        "60 months": "55.5",
-        "84 months": "50.5"
+        "12 months": "72",
+        "36 months": "66",
+        "60 months": "60",
+        "84 months": "54"
       },
       "commission": 4,
-      "b2bMarginRate": 5,
-      "recoupLocked": false
+      "b2bMarginRate": 8,
+      "recoupLocked": true
     },
     "b2bPartner": "Skyline",
-    "agreements": []
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_SJ Made IT.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_SJ Made IT.docx",
+        "createdAt": "2026-05-14T20:50:46.778Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_SJ Made IT.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_SJ Made IT.docx",
+        "createdAt": "2026-05-14T20:50:46.778Z"
+      }
+    ]
   },
   {
     "name": "London Jay",
@@ -2516,7 +2501,453 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Gerson Ruffino (EUROS).docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Gerson Ruffino (EUROS).docx",
-        "createdAt": "2026-05-12T17:41:26.316Z"
+        "createdAt": "2026-05-19T17:14:47.287Z"
+      }
+    ]
+  },
+  {
+    "name": "Dwayne White",
+    "platform": "UMG, BMI Writer, BMI Publisher",
+    "initialQuote": {
+      "AC": 21900,
+      "AD": 25600,
+      "AE": 46500,
+      "AF": 64900,
+      "AG": 58100,
+      "AH": 94400,
+      "AI": 64300,
+      "AJ": 117600
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12027392289",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-15T23:50:49.785Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "76",
+        "36 months": "66",
+        "60 months": "56",
+        "84 months": "50"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Dwayne White.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Dwayne White.docx",
+        "createdAt": "2026-05-22T01:37:35.066Z"
+      },
+      {
+        "type": "Earl Jam Deal Sheet",
+        "fileName": "Earl Jam Deal Sheet_Dwayne White.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Dwayne White.docx",
+        "createdAt": "2026-05-22T01:37:35.066Z"
+      }
+    ],
+    "b2bPartner": "Earl Jam"
+  },
+  {
+    "name": "Mist (New Energy Ent.)",
+    "platform": "Warner Music",
+    "initialQuote": {
+      "AC": 29200,
+      "AD": 33300,
+      "AE": 64800,
+      "AF": 88800,
+      "AG": 82600,
+      "AH": 132500,
+      "AI": 91600,
+      "AJ": 166800
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12027409464",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-15T23:58:17.107Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "77",
+        "36 months": "67",
+        "60 months": "57",
+        "84 months": "50"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Mist (New Energy Ent.).docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Mist (New Energy Ent.).docx",
+        "createdAt": "2026-05-16T00:55:29.932Z"
+      }
+    ]
+  },
+  {
+    "name": "Richie Rozay",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 16400,
+      "AD": 18700,
+      "AE": 37300,
+      "AF": 51800,
+      "AG": 49200,
+      "AH": 81100,
+      "AI": 55900,
+      "AJ": 107000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": 14760,
+      "AS": 16830,
+      "AT": 33570,
+      "AU": 46620,
+      "AV": 44280,
+      "AW": 72990,
+      "AX": 50310,
+      "AY": 96300
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12043746329",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-18T19:06:42.696Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "74",
+        "36 months": "64",
+        "60 months": "54",
+        "84 months": "48"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Richie Rozay.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Richie Rozay.docx",
+        "createdAt": "2026-05-18T19:08:29.256Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Richie Rozay.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_Richie Rozay.docx",
+        "createdAt": "2026-05-18T19:08:29.256Z"
+      }
+    ]
+  },
+  {
+    "name": "Chris Flame",
+    "platform": "Sony Pub, ASCAP (Domestic)",
+    "initialQuote": {
+      "AC": 12200,
+      "AD": 14200,
+      "AE": 25900,
+      "AF": 36100,
+      "AG": 32500,
+      "AH": 52500,
+      "AI": 35800,
+      "AJ": 65400
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12053441469",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-19T16:32:55.327Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "77",
+        "36 months": "67",
+        "60 months": "57",
+        "84 months": "50"
+      },
+      "commission": 5,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Chris Flame.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Chris Flame.docx",
+        "createdAt": "2026-05-19T22:36:55.365Z"
+      },
+      {
+        "type": "RTHM Offer Letter",
+        "fileName": "RTHM Offer Letter_Chris Flame.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Offer Letter_Chris Flame.docx",
+        "createdAt": "2026-05-20T03:02:00.856Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_Chris Flame.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM x RAS RPA_Chris Flame.docx",
+        "createdAt": "2026-05-20T18:38:18.865Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_Chris Flame.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM RPA_Chris Flame.docx",
+        "createdAt": "2026-05-20T18:38:18.962Z"
+      }
+    ]
+  },
+  {
+    "name": "Amselcom",
+    "platform": "Symphonic, Orchard, Songtrust",
+    "initialQuote": {
+      "AC": 63200,
+      "AD": 71400,
+      "AE": 136200,
+      "AF": 185700,
+      "AG": 173000,
+      "AH": 275300,
+      "AI": 191300,
+      "AJ": 345050
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12080639152",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-22T01:31:23.153Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "78",
+        "36 months": "64.5",
+        "60 months": "56.3",
+        "84 months": "50"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Amselcom.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Amselcom.docx",
+        "createdAt": "2026-05-22T01:33:10.436Z"
+      }
+    ]
+  },
+  {
+    "name": "Shay Nicole",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 3600,
+      "AD": 4100,
+      "AE": 6200,
+      "AF": 8700,
+      "AG": 7500,
+      "AH": 12100,
+      "AI": 8000,
+      "AJ": 14900
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": 3240,
+      "AS": 3690,
+      "AT": 5580,
+      "AU": 7830,
+      "AV": 6750,
+      "AW": 10890,
+      "AX": 7200,
+      "AY": 13410
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12080641140",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-22T01:40:01.378Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 70,
+        "36 months": "60",
+        "60 months": "50",
+        "84 months": 45
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Shay Nicole.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Shay Nicole.docx",
+        "createdAt": "2026-05-22T02:03:17.478Z"
+      }
+    ]
+  },
+  {
+    "name": "Ernso Fable (ABV)",
+    "platform": "BMI",
+    "initialQuote": {
+      "AC": 1400,
+      "AD": 1700,
+      "AE": 3000,
+      "AF": 4500,
+      "AG": 4000,
+      "AH": 7000,
+      "AI": null,
+      "AJ": null
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12080659842",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-22T01:41:21.757Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "70",
+        "36 months": "60",
+        "60 months": "50",
+        "84 months": 50
+      },
+      "commission": 4,
+      "b2bMarginRate": 8,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Ernso Fable (ABV).docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Ernso Fable (ABV).docx",
+        "createdAt": "2026-05-22T01:41:58.954Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Ernso Fable (ABV).docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Ernso Fable (ABV).docx",
+        "createdAt": "2026-05-22T01:41:58.954Z"
+      }
+    ]
+  },
+  {
+    "name": "Courtney Morrison",
+    "platform": "Empire",
+    "initialQuote": {
+      "AC": 20300,
+      "AD": 22800,
+      "AE": 42400,
+      "AF": 57000,
+      "AG": 53500,
+      "AH": 84000,
+      "AI": 59100,
+      "AJ": 105100
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12080728635",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-22T01:42:51.778Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "75",
+        "36 months": "66.7",
+        "60 months": "58.4",
+        "84 months": "52"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Earl Jam",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Courtney Morrison.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Courtney Morrison.docx",
+        "createdAt": "2026-05-22T01:44:20.574Z"
+      },
+      {
+        "type": "Earl Jam Deal Sheet",
+        "fileName": "Earl Jam Deal Sheet_Courtney Morrison.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Courtney Morrison.docx",
+        "createdAt": "2026-05-22T01:44:20.574Z"
       }
     ]
   }

@@ -86,6 +86,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
   const [commission, setCommission] = useState((valuationState?.commission ?? parseFloat(deal?.commission)) || 4)
   const [b2bMarginRate, setB2bMarginRate] = useState(valuationState?.b2bMarginRate ?? 5)
   const [recoupLocked, setRecoupLocked] = useState(valuationState?.recoupLocked || false)
+  const [advanceDraft, setAdvanceDraft] = useState({})
   const [creatingSheet, setCreatingSheet] = useState(false)
   const [sheetError, setSheetError] = useState(null)
   const [showB2BModal, setShowB2BModal] = useState(false)
@@ -236,7 +237,33 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                 return (
                   <tr key={term}>
                     <td className="term-cell">{term}</td>
-                    <td><span className="calc-tip" data-tip={advTip}>{fmt(rthmAdvance)}</span></td>
+                    <td>
+                      {recoupLocked ? (
+                        <span className="calc-tip" data-tip={advTip}>{fmt(rthmAdvance)}</span>
+                      ) : (
+                        <input
+                          className="rate-input advance-input"
+                          type="text"
+                          inputMode="numeric"
+                          value={advanceDraft[term] !== undefined ? advanceDraft[term] : String(rthmAdvance)}
+                          onFocus={e => { setAdvanceDraft(prev => ({ ...prev, [term]: String(rthmAdvance) })); e.target.select() }}
+                          onChange={e => {
+                            const digits = e.target.value.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '')
+                            setAdvanceDraft(prev => ({ ...prev, [term]: digits }))
+                          }}
+                          onBlur={() => {
+                            const draftVal = advanceDraft[term]
+                            if (draftVal != null && rasRecoup > 0) {
+                              const v = parseInt(draftVal) || 0
+                              const newRate = Math.round((v / rasRecoup) * 10000) / 100
+                              setRate(term, String(newRate))
+                            }
+                            setAdvanceDraft(prev => { const next = { ...prev }; delete next[term]; return next })
+                          }}
+                          onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
+                        />
+                      )}
+                    </td>
                     <td>
                       {recoupLocked ? (
                         <span className="rate-locked">{rate.toFixed(2)}<span className="rate-symbol">%</span></span>

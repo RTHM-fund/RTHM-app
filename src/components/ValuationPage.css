@@ -186,6 +186,7 @@
   transition: border-color 0.15s;
 }
 
+.rate-input.advance-input { width: 90px; }
 .rate-input:focus { border-color: var(--primary); }
 .rate-input-locked { background: var(--paper-dark); color: var(--ink-light); cursor: default; }
 .rate-input-locked:focus { border-color: var(--paper-darker); box-shadow: none; }

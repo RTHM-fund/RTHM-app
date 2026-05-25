@@ -104,6 +104,16 @@
   font-weight: 600;
 }
 
+/* Single-line cells: truncate long text with a soft right-edge fade so the
+   row height stays constant and the action buttons never get squeezed. */
+.deals-cell-truncate {
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+}
+
 
 .deals-monday-btn {
   display: flex;
@@ -135,6 +145,7 @@
   font-size: 12px;
   font-weight: 600 !important;
   font-family: 'Montserrat', sans-serif;
+  white-space: nowrap;
   transition: all 0.15s;
 }
 
@@ -165,6 +176,7 @@
   font-size: 12px;
   font-weight: 600 !important;
   font-family: 'Montserrat', sans-serif;
+  white-space: nowrap;
   transition: all 0.15s;
 }
 

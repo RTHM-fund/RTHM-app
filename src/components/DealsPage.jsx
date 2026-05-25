@@ -75,8 +75,12 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
             <tbody>
               {deals.map((deal) => (
                 <tr key={deal._idx}>
-                  <td className="deals-td-name" onContextMenu={e => { e.preventDefault(); setEditIndex(deal._idx); setShowModal(true) }}>{deal.name}</td>
-                  <td>{deal.platform || '—'}</td>
+                  <td className="deals-td-name" title={deal.name} onContextMenu={e => { e.preventDefault(); setEditIndex(deal._idx); setShowModal(true) }}>
+                    <div className="deals-cell-truncate">{deal.name}</div>
+                  </td>
+                  <td title={deal.platform || ''}>
+                    <div className="deals-cell-truncate">{deal.platform || '—'}</div>
+                  </td>
                   <td>{deal.royaltyType || '—'}</td>
                   <td>{deal.dealType || '—'}</td>
                   <td>

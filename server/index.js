@@ -84,10 +84,29 @@ function backupDealsBefore(targetPath) {
 // Atomic write: serialize to a temp file, then rename onto the target.
 // rename() is atomic on a single filesystem — readers either see the old or new
 // file, never a half-written state.
+// On Windows + Dropbox the rename can briefly fail with EPERM/EBUSY while the
+// sync client holds a file lock. Retry with backoff, then fall back to a direct
+// write so we never lose data because of a transient lock.
 function atomicWriteJson(targetPath, data) {
   const tmp = targetPath + '.tmp'
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2))
-  fs.renameSync(tmp, targetPath)
+  const json = JSON.stringify(data, null, 2)
+  fs.writeFileSync(tmp, json)
+  let lastErr = null
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      fs.renameSync(tmp, targetPath)
+      return
+    } catch (err) {
+      lastErr = err
+      if (err.code !== 'EPERM' && err.code !== 'EBUSY' && err.code !== 'ENOTEMPTY') throw err
+      const waitMs = 50 * (attempt + 1)
+      const start = Date.now()
+      while (Date.now() - start < waitMs) { /* brief sync wait for Dropbox to release lock */ }
+    }
+  }
+  console.warn('[RTHM] atomic rename failed after retries, falling back to direct write:', lastErr?.message)
+  try { fs.unlinkSync(tmp) } catch {}
+  fs.writeFileSync(targetPath, json)
 }
 
 function writeDeals(deals) {
