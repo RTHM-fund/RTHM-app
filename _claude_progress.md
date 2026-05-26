@@ -45,9 +45,21 @@
 - Removed orphaned dep `yauzl` from package.json (was only used by scanner.js).
 - Added `logs/` to `.gitignore`.
 
-### Memory entries created
+### Mac workflow hardening (post-initial commit)
+- **`findClaudeBin()`** expanded with Mac fallbacks: `/opt/homebrew/bin/claude`, `/usr/local/bin/claude`, `~/.npm-global/bin/claude`, `~/.claude/local/claude`, scans `~/.nvm/versions/node/<v>/bin/claude`, and a defensive `~/Library/Application Support/Claude/claude-code/<v>/claude` (in case the Mac Desktop app starts bundling its own CLI like Windows does).
+- **`/api/data/run-skill`** auto-applies `xattr com.dropbox.ignored` when it creates `logs/` at first skill run on Mac — covers users who haven't re-run the updated Setup.command yet.
+- **`runSkill` frontend** now alerts on `data.error` from the spawn endpoint so users see "Could not start diligence: Claude CLI not found…" instead of nothing.
+- **`RTHM Setup.command`** (parent dir, Dropbox-only): step 4/4 installs Claude Code CLI via `npm install -g`, with sudo fallback. Skills-folder pre-flight check warns if `1. Data/.claude/skills/` isn't synced. xattr Dropbox-ignore applied to both `node_modules/` AND `logs/`. Verifies `claude --version` after install. Closing message reminds the user to run `claude login`.
+- **`RTHM Launch.command`** (parent dir, Dropbox-only): replaced `sleep 4` with `curl -sf` polling on `http://localhost:5173` (up to 30s timeout) so the browser opens only when Vite is actually ready.
+
+### Final audit pass
+- Code review (3 parallel finder agents) caught: FD leak from `fs.openSync` after spawn (fixed via `closeSync`) and orphaned `yauzl` dep (removed from package.json).
+- All other findings were false positives or intentional (Valuate placeholder, `[runningSkills.size > 0]` dep array).
+
+### Memory entries created/updated
 - `selection_state_style.md` — restrained selected-row pattern + click-outside trap warning.
-- `claude_cli_path_windows.md` — Claude Code CLI bundled with Desktop app on Windows, not on PATH; `findClaudeBin()` resolves it.
+- `claude_cli_path_windows.md` — now cross-platform; documents `findClaudeBin()` and silent-spawn diagnostic signature.
+- `mac_user_workflow.md` — full Dropbox-driven new-Mac-user chain, files in git vs Dropbox-only, common failure modes.
 
 ---
 
