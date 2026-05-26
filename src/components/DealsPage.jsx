@@ -38,7 +38,13 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
       const res = await fetch(`/api/deals/${deal._idx}/open-folder`, { method: 'POST' })
       if (!res.ok) loadDeals()
     } else {
-      await handleRelink(deal._idx)
+      // No linked folder yet — open the materials root in Explorer/Finder so the user
+      // can manually find or create the folder. Right-click still calls handleRelink to link.
+      fetch('/api/data/open-folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'materials-root' }),
+      }).catch(() => {})
     }
   }
 

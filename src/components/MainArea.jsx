@@ -12,7 +12,7 @@ const RPA_CATEGORY = 'Royalty Purchase Agreements'
 const OFFER_CATEGORY = 'Offer Letters'
 const INVOICES_CATEGORY = 'Invoices'
 
-export default function MainArea({ activePage, selectedTemplate, prefillData, selectedDeal, selectedDealIndex, onClearTemplate, onGoBack, onSaveComplete, onNavigateToRAS, onNavigateToRPA, onNavigateToOfferLetter, onOpenValuation, onOpenAgreements, onBackToDeals, valuationStates, valuationState, onUpdateValuationState, arcadeMode, onToggleArcade }) {
+export default function MainArea({ activePage, selectedTemplate, prefillData, selectedDeal, selectedDealIndex, onClearTemplate, onGoBack, onSaveComplete, onNavigateToRAS, onNavigateToRPA, onNavigateToOfferLetter, onOpenValuation, onOpenAgreements, onBackToDeals, valuationStates, valuationState, onUpdateValuationState, arcadeMode, onToggleArcade, runningSkills, setRunningSkills }) {
   const rightClickCount = useRef(0)
   const lastRightClick = useRef(0)
 
@@ -53,7 +53,7 @@ export default function MainArea({ activePage, selectedTemplate, prefillData, se
     )
   }
 
-  if (activePage === 'dataManager') return wrap(<DataManagerPage />)
+  if (activePage === 'dataManager') return wrap(<DataManagerPage runningSkills={runningSkills} setRunningSkills={setRunningSkills} />)
   if (activePage === 'deals') return wrap(<DealsPage onOpenValuation={onOpenValuation} onOpenAgreements={onOpenAgreements} valuationStates={valuationStates} />)
   if (activePage === 'valuation') return wrap(<ValuationPage deal={selectedDeal} dealIndex={selectedDealIndex} onBack={onGoBack} onOpenAgreements={onOpenAgreements} valuationState={valuationState} onUpdateValuationState={onUpdateValuationState} />)
   if (activePage === 'agreements') return wrap(<AgreementsPage deal={selectedDeal} dealIndex={selectedDealIndex} onBack={onGoBack} onNavigateToOfferLetter={onNavigateToOfferLetter} onNavigateToRPA={onNavigateToRPA} />)

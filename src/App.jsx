@@ -13,6 +13,31 @@ export default function App() {
   const [valuationStates, setValuationStates] = useState({})
   const [mainArcade, setMainArcade] = useState(false)
   const [pageHistory, setPageHistory] = useState([])
+  // Data Manager — running skills per folder. Lifted here so spinners survive page navigation.
+  // Map<folderPath, Set<skill>>. Persisted to localStorage so spinners also survive a page reload;
+  // entries self-clean when their file-system completion flag flips on the next Data Manager visit.
+  const [runningSkills, setRunningSkills] = useState(() => {
+    try {
+      const raw = localStorage.getItem('rthm-running-skills')
+      if (!raw) return new Map()
+      const obj = JSON.parse(raw)
+      const map = new Map()
+      for (const [path, skills] of Object.entries(obj || {})) {
+        if (Array.isArray(skills) && skills.length > 0) map.set(path, new Set(skills))
+      }
+      return map
+    } catch {
+      return new Map()
+    }
+  })
+
+  useEffect(() => {
+    try {
+      const obj = {}
+      for (const [path, skills] of runningSkills) obj[path] = [...skills]
+      localStorage.setItem('rthm-running-skills', JSON.stringify(obj))
+    } catch {}
+  }, [runningSkills])
 
   function navigateTo(page) {
     setPageHistory(prev => [...prev, { page: activePage, template: selectedTemplate, prefill: prefillData, deal: selectedDeal, dealIndex: selectedDealIndex }])
@@ -51,7 +76,7 @@ export default function App() {
     const LIQUID_SELECTOR = [
       '.deals-new-btn', '.deals-valuation-btn', '.deals-forms-btn',
       '.deals-materials-btn', '.deals-delete-btn',
-      '.data-manager-import-btn', '.data-manager-delete-btn',
+      '.data-manager-import-btn', '.data-manager-delete-btn', '.data-manager-summarize-btn', '.data-manager-valuate-btn', '.data-manager-extract-btn',
       '.valuation-new-btn', '.recoup-btn',
       '.agreements-new-btn', '.agreements-edit-btn', '.agreements-export-btn',
       '.agreements-delete-btn', '.agreements-type-btn',
@@ -195,6 +220,8 @@ export default function App() {
         onBackToDeals={() => setActivePage('deals')}
         arcadeMode={mainArcade}
         onToggleArcade={() => setMainArcade(p => !p)}
+        runningSkills={runningSkills}
+        setRunningSkills={setRunningSkills}
       />
     </div>
   )

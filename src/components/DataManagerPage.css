@@ -50,6 +50,29 @@
 
 /* hover handled by liquid-pill.css */
 
+.data-manager-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.data-manager-summarize-btn,
+.data-manager-valuate-btn,
+.data-manager-extract-btn {
+  padding: 5px 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+/* hover handled by liquid-pill.css */
+
 .data-manager-table-wrap {
   border: 1px solid var(--paper-darker);
   border-radius: var(--radius);
@@ -87,12 +110,49 @@
 .data-manager-table tbody tr:last-child td { border-bottom: none; }
 
 .data-manager-table tbody tr {
+  cursor: pointer;
   transition: background 0.1s;
 }
 
 .data-manager-table tbody tr:hover {
   background: rgba(186, 156, 252, 0.18);
   box-shadow: inset 0 0 0 1px rgba(218, 206, 253, 0.5);
+}
+
+.data-manager-table tbody tr.selected,
+.data-manager-table tbody tr.selected:hover {
+  background: rgba(82, 0, 190, 0.05);
+  box-shadow: inset 3px 0 0 0 var(--primary);
+}
+
+/* Running highlight — distinct from selected, persists until skill completes */
+.data-manager-table tbody tr.running,
+.data-manager-table tbody tr.running:hover {
+  background: rgba(186, 156, 252, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(218, 206, 253, 0.5);
+}
+
+/* Selected + running compose — keep the selected left bar, running's lavender wash */
+.data-manager-table tbody tr.selected.running,
+.data-manager-table tbody tr.selected.running:hover {
+  background: rgba(186, 156, 252, 0.18);
+  box-shadow: inset 3px 0 0 0 var(--primary);
+}
+
+.data-manager-row-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+  border: 2px solid var(--primary-light);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: data-manager-row-spin 0.8s linear infinite;
+}
+
+@keyframes data-manager-row-spin {
+  to { transform: rotate(360deg); }
 }
 
 .data-manager-table .data-manager-td-name {
@@ -105,7 +165,9 @@
 .data-manager-table th:nth-child(2),
 .data-manager-table td:nth-child(2),
 .data-manager-table th:nth-child(3),
-.data-manager-table td:nth-child(3) {
+.data-manager-table td:nth-child(3),
+.data-manager-table th:nth-child(4),
+.data-manager-table td:nth-child(4) {
   width: 150px;
   text-align: center;
 }

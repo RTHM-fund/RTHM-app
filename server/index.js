@@ -8,7 +8,6 @@ const mammoth = require('mammoth')
 const PizZip = require('pizzip')
 const Docxtemplater = require('docxtemplater')
 const { google } = require('googleapis')
-const { scanFolder } = require('./scanner')
 
 const CREDENTIALS = require('./credentials.json').installed
 const MONDAY_TOKEN = require('./monday_config.json').api_token
@@ -1071,23 +1070,23 @@ app.delete('/api/deals/:index', (req, res) => {
 // DATA MANAGER
 // ═══════════════════════════════════════════════════
 
-// POST /api/data/pick-folder — open native folder picker, return selected path
-app.post('/api/data/pick-folder', (req, res) => {
+// POST /api/data/open-folder — open a known root folder in the OS file browser.
+// Body: { key: 'current' | 'materials-root' }
+// Used by Data Manager's Import Data and Deal Manager's Deal Materials (unlinked) buttons.
+app.post('/api/data/open-folder', (req, res) => {
   try {
-    let folderPath
-    if (os.platform() === 'win32') {
-      const result = spawnSync('powershell', ['-STA', '-Command',
-        `$s = New-Object -ComObject Shell.Application; $f = $s.BrowseForFolder(0, 'Select folder containing royalty statements', 0x240, '${DATA_ROOT.replace(/'/g, "''")}'); if ($f) { $f.Self.Path } else { '' }`
-      ], { encoding: 'utf8', timeout: 60000 })
-      folderPath = result.stdout?.trim()
-    } else {
-      const result = spawnSync('osascript', ['-e', `POSIX path of (choose folder with prompt "Select folder containing royalty statements" default location POSIX file "${DATA_ROOT}")`],
-        { encoding: 'utf8', timeout: 60000 })
-      folderPath = result.stdout?.trim().replace(/\/$/, '')
+    const { key } = req.body || {}
+    const targets = {
+      'current': path.join(DATA_ROOT, '1. Current'),
+      'materials-root': MATERIALS_ROOT,
     }
-
-    if (!folderPath) return res.json({ cancelled: true })
-    res.json({ ok: true, folderPath })
+    const target = targets[key]
+    if (!target) return res.status(400).json({ error: 'invalid key' })
+    if (!fs.existsSync(target)) {
+      try { fs.mkdirSync(target, { recursive: true }) } catch {}
+    }
+    openFile(target)
+    res.json({ ok: true, folderPath: target })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -1112,12 +1111,14 @@ app.get('/api/data/folders', (req, res) => {
         const fullPath = path.join(CURRENT_DIR, e.name)
         const stat = fs.statSync(fullPath)
         let hasDiligence = false
+        let hasExtract = false
         try {
           const subs = fs.readdirSync(fullPath, { withFileTypes: true })
           hasDiligence = subs.some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_due diligence'))
+          hasExtract = subs.some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_data engine'))
         } catch {}
         const hasDeal = dealNames.has(e.name.trim().toLowerCase())
-        return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasDeal }
+        return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasExtract, hasDeal }
       })
       .sort((a, b) => b.mtime.localeCompare(a.mtime))
     res.json(folders)
@@ -1126,16 +1127,76 @@ app.get('/api/data/folders', (req, res) => {
   }
 })
 
-// POST /api/data/scan-folder — recursively scan a picked folder for platform source data files.
-// Never writes to disk, reads zips in-memory only, preserves data integrity per CLAUDE.md V2 rule.
-app.post('/api/data/scan-folder', async (req, res) => {
-  try {
-    const { folderPath } = req.body || {}
-    if (!folderPath || typeof folderPath !== 'string') {
-      return res.status(400).json({ error: 'folderPath is required' })
+// POST /api/data/run-skill — fire-and-forget Claude CLI subprocess for a known skill.
+// Spawns `claude -p "/<skill>" --dangerously-skip-permissions` with cwd = selected folder.
+// Skill discovery walks up from cwd to find <Data>/.claude/skills/<skill>/SKILL.md.
+// Subprocess is detached + unref'd so the server isn't tied to its lifetime.
+// stdout/stderr stream to <App Files>/logs/<folder>_<skill>_<timestamp>.log for debugging.
+const ALLOWED_SKILLS = new Set(['diligence', 'catalog-extract'])
+const LOGS_DIR = path.join(__dirname, '..', 'logs')
+
+// Resolve the Claude Code CLI binary. Checks PATH first, then falls back to common
+// install locations (Desktop-app bundle on Windows, npm-global on Mac). Cached at boot.
+let CLAUDE_BIN_CACHE = null
+function findClaudeBin() {
+  if (CLAUDE_BIN_CACHE) return CLAUDE_BIN_CACHE
+  // Try PATH first
+  const probe = os.platform() === 'win32'
+    ? spawnSync('where', ['claude'], { encoding: 'utf8', windowsHide: true })
+    : spawnSync('which', ['claude'], { encoding: 'utf8' })
+  if (probe.status === 0 && probe.stdout?.trim()) {
+    CLAUDE_BIN_CACHE = probe.stdout.trim().split(/\r?\n/)[0]
+    return CLAUDE_BIN_CACHE
+  }
+  // Windows fallback: Desktop-app bundled CLI at %APPDATA%\Claude\claude-code\<version>\claude.exe
+  if (os.platform() === 'win32') {
+    const bundleRoot = path.join(os.homedir(), 'AppData', 'Roaming', 'Claude', 'claude-code')
+    if (fs.existsSync(bundleRoot)) {
+      const versions = fs.readdirSync(bundleRoot, { withFileTypes: true })
+        .filter(e => e.isDirectory())
+        .map(e => e.name)
+        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+      for (const v of versions) {
+        const candidate = path.join(bundleRoot, v, 'claude.exe')
+        if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; return candidate }
+      }
     }
-    const result = await scanFolder(folderPath)
-    res.json({ ok: true, ...result })
+  }
+  // Mac fallbacks
+  if (os.platform() === 'darwin') {
+    for (const p of ['/opt/homebrew/bin/claude', '/usr/local/bin/claude', path.join(os.homedir(), '.npm-global/bin/claude')]) {
+      if (fs.existsSync(p)) { CLAUDE_BIN_CACHE = p; return p }
+    }
+  }
+  return null
+}
+
+app.post('/api/data/run-skill', (req, res) => {
+  try {
+    const { skill, folderPath } = req.body || {}
+    if (!ALLOWED_SKILLS.has(skill)) return res.status(400).json({ error: 'invalid skill' })
+    if (!folderPath || typeof folderPath !== 'string' || !fs.existsSync(folderPath)) {
+      return res.status(400).json({ error: 'invalid folderPath' })
+    }
+    const claudeBin = findClaudeBin()
+    if (!claudeBin) return res.status(500).json({ error: 'claude CLI not found on PATH or in standard install locations' })
+    if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true })
+    const safeFolder = path.basename(folderPath).replace(/[^a-zA-Z0-9_-]+/g, '_')
+    const logPath = path.join(LOGS_DIR, `${safeFolder}_${skill}_${Date.now()}.log`)
+    const logFd = fs.openSync(logPath, 'a')
+    const prompt = `/${skill} ${JSON.stringify(folderPath)}`
+    const proc = spawn(claudeBin, ['-p', prompt, '--dangerously-skip-permissions'], {
+      cwd: folderPath,
+      detached: true,
+      stdio: ['ignore', logFd, logFd],
+      shell: false,
+      windowsHide: true,
+    })
+    proc.unref()
+    // Close the parent's copy of the log fd; the child has its own duplicate.
+    // Without this, fds accumulate across runs and eventually exhaust the limit.
+    try { fs.closeSync(logFd) } catch {}
+    res.json({ ok: true, pid: proc.pid, logPath, claudeBin })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
