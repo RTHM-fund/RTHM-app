@@ -96,9 +96,9 @@ export default function DataManagerPage({ runningSkills, setRunningSkills }) {
           <h1 className="data-manager-title">DATA MANAGER</h1>
           <span className="data-manager-count-badge">{folders.length}</span>
           <div className="data-manager-header-actions">
-            <button className="data-manager-summarize-btn" onClick={() => runSkill('diligence')}><span>+ Diligence</span></button>
-            <button className="data-manager-valuate-btn"><span>+ Valuate</span></button>
-            <button className="data-manager-extract-btn" onClick={() => runSkill('catalog-extract')}><span>+ Extract</span></button>
+            <button className="data-manager-summarize-btn" onClick={() => runSkill('diligence')}><span>Diligence</span></button>
+            <button className="data-manager-valuate-btn"><span>Valuate</span></button>
+            <button className="data-manager-extract-btn" onClick={() => runSkill('catalog-extract')}><span>Extract</span></button>
           </div>
         </div>
         <button className="data-manager-import-btn" onClick={openDataFolder}><span>+ Import Data</span></button>

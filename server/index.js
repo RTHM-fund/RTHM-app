@@ -1162,11 +1162,46 @@ function findClaudeBin() {
       }
     }
   }
-  // Mac fallbacks
+  // Mac fallbacks: common Node + bundled install locations
   if (os.platform() === 'darwin') {
-    for (const p of ['/opt/homebrew/bin/claude', '/usr/local/bin/claude', path.join(os.homedir(), '.npm-global/bin/claude')]) {
+    const home = os.homedir()
+    const fixedPaths = [
+      '/opt/homebrew/bin/claude',
+      '/usr/local/bin/claude',
+      path.join(home, '.npm-global/bin/claude'),
+      path.join(home, '.claude/local/claude'),
+    ]
+    for (const p of fixedPaths) {
       if (fs.existsSync(p)) { CLAUDE_BIN_CACHE = p; return p }
     }
+    // nvm: scan ~/.nvm/versions/node/* for the latest with claude
+    try {
+      const nvmRoot = path.join(home, '.nvm', 'versions', 'node')
+      if (fs.existsSync(nvmRoot)) {
+        const versions = fs.readdirSync(nvmRoot, { withFileTypes: true })
+          .filter(e => e.isDirectory())
+          .map(e => e.name)
+          .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+        for (const v of versions) {
+          const candidate = path.join(nvmRoot, v, 'bin', 'claude')
+          if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; return candidate }
+        }
+      }
+    } catch {}
+    // Mac Desktop-app bundled CLI (mirrors the Windows pattern; defensive in case it ships this way)
+    try {
+      const bundleRoot = path.join(home, 'Library', 'Application Support', 'Claude', 'claude-code')
+      if (fs.existsSync(bundleRoot)) {
+        const versions = fs.readdirSync(bundleRoot, { withFileTypes: true })
+          .filter(e => e.isDirectory())
+          .map(e => e.name)
+          .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+        for (const v of versions) {
+          const candidate = path.join(bundleRoot, v, 'claude')
+          if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; return candidate }
+        }
+      }
+    } catch {}
   }
   return null
 }
