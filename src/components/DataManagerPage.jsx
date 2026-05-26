@@ -84,6 +84,8 @@ export default function DataManagerPage({ runningSkills, setRunningSkills }) {
             next.set(folderPath, skills)
             return next
           })
+        } else if (data && data.error) {
+          window.alert(`Could not start ${skill}:\n\n${data.error}`)
         }
       })
       .catch(() => {})

@@ -1214,8 +1214,15 @@ app.post('/api/data/run-skill', (req, res) => {
       return res.status(400).json({ error: 'invalid folderPath' })
     }
     const claudeBin = findClaudeBin()
-    if (!claudeBin) return res.status(500).json({ error: 'claude CLI not found on PATH or in standard install locations' })
-    if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true })
+    if (!claudeBin) return res.status(500).json({ error: 'Claude CLI not found. Run RTHM Setup.command again, or install manually: npm install -g @anthropic-ai/claude-code' })
+    if (!fs.existsSync(LOGS_DIR)) {
+      fs.mkdirSync(LOGS_DIR, { recursive: true })
+      // Tell Dropbox to ignore logs/ — per-machine, no value in syncing.
+      // (Setup.command does this too, but covers the case where logs/ is first created at runtime.)
+      if (os.platform() === 'darwin') {
+        try { spawnSync('xattr', ['-w', 'com.dropbox.ignored', '1', LOGS_DIR], { stdio: 'ignore' }) } catch {}
+      }
+    }
     const safeFolder = path.basename(folderPath).replace(/[^a-zA-Z0-9_-]+/g, '_')
     const logPath = path.join(LOGS_DIR, `${safeFolder}_${skill}_${Date.now()}.log`)
     const logFd = fs.openSync(logPath, 'a')
