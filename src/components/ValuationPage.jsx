@@ -198,7 +198,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
         </div>
         <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4}}>
           <button className="valuation-new-btn" onClick={handleCreateDealSheet} disabled={creatingSheet || !recoupLocked}>
-            {creatingSheet ? 'creating...' : '+ create deal sheet'}
+            <span>{creatingSheet ? 'creating...' : '+ create deal sheet'}</span>
           </button>
           {sheetError && <span style={{fontSize:11, color:'var(--error)'}}>{sheetError}</span>}
         </div>
@@ -305,12 +305,12 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
               className={`recoup-btn${recoupLocked ? ' recoup-btn-inactive' : ' recoup-btn-active'}`}
               onClick={() => setRecoupLocked(true)}
               disabled={recoupLocked}
-            >Set Recoup</button>
+            ><span>Set Recoup</span></button>
             <button
               className={`recoup-btn${recoupLocked ? ' recoup-btn-active' : ' recoup-btn-inactive'}`}
               onClick={() => setRecoupLocked(false)}
               disabled={!recoupLocked}
-            >Edit Recoup</button>
+            ><span>Edit Recoup</span></button>
           </div>
         </div>
 
@@ -382,13 +382,13 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
               </div>
             </div>
             <div className="modal-footer">
-              <button className="modal-cancel" onClick={() => setShowB2BModal(false)}>Cancel</button>
+              <button className="modal-cancel" onClick={() => setShowB2BModal(false)}><span>Cancel</span></button>
               <button
                 className={`modal-import-btn${(!b2bTemplate || creatingSheet) ? ' disabled' : ''}`}
                 onClick={handleB2BCreate}
                 disabled={!b2bTemplate || creatingSheet}
               >
-                {creatingSheet ? 'creating...' : 'Create Sheets'}
+                <span>{creatingSheet ? 'creating...' : 'Create Sheets'}</span>
               </button>
             </div>
           </div>

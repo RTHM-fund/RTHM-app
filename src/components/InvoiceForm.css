@@ -108,11 +108,7 @@
   align-self: flex-start;
 }
 
-.invoice-fields .export-btn:hover:not(.disabled):not(.saving) {
-  background: var(--primary-dark);
-  animation: btn-lift 0.4s ease;
-  box-shadow: 0 4px 16px rgba(107,33,217,0.3);
-}
+/* hover handled by liquid-pill.css */
 
 .invoice-fields .export-btn.disabled {
   background: var(--paper-darker);

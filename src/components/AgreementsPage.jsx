@@ -190,7 +190,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
             {deal.b2bPartner}
           </span>
         )}
-        <button className="agreements-new-btn" onClick={() => { setError(null); setShowTypePicker(true) }}>+ create new agreement</button>
+        <button className="agreements-new-btn" onClick={() => { setError(null); setShowTypePicker(true) }}><span>+ create new agreement</span></button>
       </div>
 
       <div className="agreements-body">
@@ -213,9 +213,9 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
                     <tr key={rowLabel}>
                       <td>{rowLabel}</td>
                       <td className="agreements-td-name">{ag.fileName.replace(/\.[^.]+$/, '')}</td>
-                      <td><button className="agreements-edit-btn" onClick={() => handleOpen(ag)}>edit DOC</button></td>
-                      <td><button className="agreements-export-btn" onClick={() => handleExportPDF(ag, rowLabel)} disabled={exporting === agreements.indexOf(ag)}>{exporting === agreements.indexOf(ag) ? 'exporting…' : 'export PDF'}</button></td>
-                      <td><button className="agreements-delete-btn" onClick={() => handleDelete(ag)}>delete</button></td>
+                      <td><button className="agreements-edit-btn" onClick={() => handleOpen(ag)}><span>edit DOC</span></button></td>
+                      <td><button className="agreements-export-btn" onClick={() => handleExportPDF(ag, rowLabel)} disabled={exporting === agreements.indexOf(ag)}><span>{exporting === agreements.indexOf(ag) ? 'exporting…' : 'export PDF'}</span></button></td>
+                      <td><button className="agreements-delete-btn" onClick={() => handleDelete(ag)}><span>delete</span></button></td>
                     </tr>
                   )
                 }
@@ -268,7 +268,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
                     }}
                     disabled={creating !== null || !isUnlocked}
                   >
-                    {creating === type ? 'creating...' : type}
+                    <span>{creating === type ? 'creating...' : type}</span>
                   </button>
                 )
               })}
@@ -316,13 +316,13 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
               </div>
             </div>
             <div className="modal-footer">
-              <button className="modal-cancel" onClick={() => setShowB2BModal(false)}>Cancel</button>
+              <button className="modal-cancel" onClick={() => setShowB2BModal(false)}><span>Cancel</span></button>
               <button
                 className={`modal-import-btn${(!b2bTemplate || b2bCreating) ? ' disabled' : ''}`}
                 onClick={handleB2BCreate}
                 disabled={!b2bTemplate || b2bCreating}
               >
-                {b2bCreating ? 'creating...' : 'Create Sheet'}
+                <span>{b2bCreating ? 'creating...' : 'Create Sheet'}</span>
               </button>
             </div>
           </div>
@@ -351,13 +351,13 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
               ))}
             </div>
             <div className="modal-footer">
-              <button className="modal-cancel" onClick={() => setShowPartnerModal(false)}>cancel</button>
+              <button className="modal-cancel" onClick={() => setShowPartnerModal(false)}><span>cancel</span></button>
               <button
                 className={`modal-import-btn${partnerSaving ? ' disabled' : ''}`}
                 onClick={handleSavePartner}
                 disabled={partnerSaving}
               >
-                {partnerSaving ? 'saving…' : 'save'}
+                <span>{partnerSaving ? 'saving…' : 'save'}</span>
               </button>
             </div>
           </div>

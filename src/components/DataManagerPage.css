@@ -48,11 +48,7 @@
   transition: all 0.15s;
 }
 
-.data-manager-import-btn:hover {
-  background: var(--primary-dark);
-  animation: btn-lift 0.4s ease;
-  box-shadow: 0 4px 16px rgba(82,0,190,0.25);
-}
+/* hover handled by liquid-pill.css */
 
 .data-manager-table-wrap {
   border: 1px solid var(--paper-darker);
@@ -103,6 +99,41 @@
   font-weight: 600;
 }
 
+/* Pack defined columns on the left; trailing empty column absorbs slack. */
+.data-manager-table th:nth-child(1),
+.data-manager-table td:nth-child(1) { width: 280px; }
+.data-manager-table th:nth-child(2),
+.data-manager-table td:nth-child(2),
+.data-manager-table th:nth-child(3),
+.data-manager-table td:nth-child(3) {
+  width: 150px;
+  text-align: center;
+}
+
+.diligence-mark {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+  display: inline-block;
+}
+.diligence-mark.found {
+  color: #16A34A;
+  text-shadow: 0 0 8px rgba(22, 163, 74, 0.65), 0 0 2px rgba(22, 163, 74, 0.5);
+}
+.diligence-mark.missing {
+  color: var(--error);
+  text-shadow: 0 0 8px rgba(220, 38, 38, 0.65), 0 0 2px rgba(220, 38, 38, 0.5);
+}
+
+/* Single-line cells: truncate long folder names with a soft right-edge fade. */
+.data-manager-cell-truncate {
+  max-width: 600px;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+}
+
 .data-manager-delete-btn {
   padding: 5px 14px;
   background: none;
@@ -115,8 +146,4 @@
   transition: all 0.15s;
 }
 
-.data-manager-delete-btn:hover {
-  background: var(--error);
-  color: white;
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */

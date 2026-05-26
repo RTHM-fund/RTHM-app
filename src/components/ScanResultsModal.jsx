@@ -150,13 +150,13 @@ export default function ScanResultsModal({ folderPath, onClose, onNext }) {
         </div>
 
         <div className="modal-footer">
-          <button className="modal-cancel" onClick={onClose}>cancel</button>
+          <button className="modal-cancel" onClick={onClose}><span>cancel</span></button>
           <button
             className={`modal-import-btn ${!result || includedCount === 0 ? 'disabled' : ''}`}
             onClick={() => onNext && onNext(result)}
             disabled={!result || includedCount === 0}
           >
-            next <span className="arr">▶</span>
+            <span>next <span className="arr">▶</span></span>
           </button>
         </div>
       </div>

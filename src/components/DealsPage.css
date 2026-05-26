@@ -48,11 +48,7 @@
   transition: all 0.15s;
 }
 
-.deals-new-btn:hover {
-  background: var(--primary-dark);
-  animation: btn-lift 0.4s ease;
-  box-shadow: 0 4px 16px rgba(82,0,190,0.25);
-}
+/* hover handled by liquid-pill.css */
 
 
 .deals-table-wrap {
@@ -132,14 +128,13 @@
 }
 
 .deals-monday-btn:hover {
-  animation: btn-lift 0.4s ease;
   opacity: 0.85;
 }
 
 .deals-forms-btn, .deals-materials-btn {
   padding: 5px 14px;
-  background: none;
-  border: 1.5px solid var(--primary-mid);
+  background: rgba(98, 24, 200, 0.1);
+  border: none;
   border-radius: var(--radius);
   color: var(--primary-mid);
   font-size: 12px;
@@ -149,28 +144,19 @@
   transition: all 0.15s;
 }
 
-.deals-forms-btn:hover, .deals-materials-btn:hover {
-  background: var(--primary-mid);
-  color: white;
-  animation: btn-lift 0.4s ease;
-}
+/* outline hover handled by liquid-pill.css */
 
 .deals-forms-btn.linked, .deals-materials-btn.linked, .deals-valuation-btn.linked {
   background: var(--primary-mid);
   border-color: var(--primary-mid);
   color: white;
 }
-
-.deals-forms-btn.linked:hover, .deals-materials-btn.linked:hover, .deals-valuation-btn.linked:hover {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  animation: btn-lift 0.4s ease;
-}
+/* linked-state hover handled by liquid-pill.css */
 
 .deals-valuation-btn {
   padding: 5px 14px;
-  background: none;
-  border: 1.5px solid var(--primary);
+  background: rgba(82, 0, 190, 0.1);
+  border: none;
   border-radius: var(--radius);
   color: var(--primary);
   font-size: 12px;
@@ -180,16 +166,12 @@
   transition: all 0.15s;
 }
 
-.deals-valuation-btn:hover {
-  background: var(--primary);
-  color: white;
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */
 
 .deals-delete-btn {
   padding: 5px 14px;
-  background: none;
-  border: 1.5px solid var(--error);
+  background: rgba(220, 38, 38, 0.1);
+  border: none;
   border-radius: var(--radius);
   color: var(--error);
   font-size: 12px;
@@ -198,8 +180,4 @@
   transition: all 0.15s;
 }
 
-.deals-delete-btn:hover {
-  background: var(--error);
-  color: white;
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */

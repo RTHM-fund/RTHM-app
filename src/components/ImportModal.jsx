@@ -187,7 +187,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
             {!connected ? (
               <div className="modal-connect">
                 <p>Connect to Google Sheets to import deals.</p>
-                <button className="modal-connect-btn" onClick={handleConnect}>Connect Google Sheets</button>
+                <button className="modal-connect-btn" onClick={handleConnect}><span>Connect Google Sheets</span></button>
               </div>
             ) : (
               <>
@@ -236,7 +236,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
                 )}
 
                 <div className="modal-footer">
-                  <button className="modal-cancel" onClick={onClose}>Cancel</button>
+                  <button className="modal-cancel" onClick={onClose}><span>Cancel</span></button>
                   <button
                     className={`modal-import-btn ${!canProceed ? 'disabled' : ''}`}
                     onClick={() => {
@@ -249,7 +249,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
                     }}
                     disabled={!canProceed}
                   >
-                    next <span className="arr">▶</span>
+                    <span>next <span className="arr">▶</span></span>
                   </button>
                 </div>
               </>
@@ -281,7 +281,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
                       className={`modal-radio-btn ${dealType === t ? 'active' : ''}`}
                       onClick={() => setDealType(t)}
                     >
-                      {t}
+                      <span>{t}</span>
                     </button>
                   ))}
                 </div>
@@ -290,13 +290,13 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
             </div>
 
             <div className="modal-footer">
-              <button className="modal-cancel" onClick={() => { setStep(1); setError(null) }}><span className="arr">◀</span> back</button>
+              <button className="modal-cancel" onClick={() => { setStep(1); setError(null) }}><span><span className="arr">◀</span> back</span></button>
               <button
                 className={`modal-import-btn ${!canImport || importing ? 'disabled' : ''}`}
                 onClick={handleImport}
                 disabled={!canImport || importing}
               >
-                {importing ? (isEdit ? 'Saving…' : 'Creating Deal…') : (isEdit ? 'Save Changes' : 'Create Deal')}
+                <span>{importing ? (isEdit ? 'Saving…' : 'Creating Deal…') : (isEdit ? 'Save Changes' : 'Create Deal')}</span>
               </button>
             </div>
           </>

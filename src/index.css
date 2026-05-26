@@ -30,14 +30,6 @@
   --radius: 8px;
 }
 
-@keyframes btn-lift {
-  0%   { transform: translateY(0); }
-  35%  { transform: translateY(-2px); }
-  70%  { transform: translateY(1px); }
-  100% { transform: translateY(0); }
-}
-
-
 html, body, #root {
   height: 100%;
 }
@@ -67,8 +59,188 @@ input, select, textarea { font-family: 'Montserrat', sans-serif; }
 input::placeholder, textarea::placeholder { color: var(--ink-light); }
 
 .back-btn { background: none; border: none; border-radius: 0 !important; color: var(--ink); font-size: 13px; font-weight: 600 !important; padding: 4px 0; transition: color 0.15s ease; white-space: nowrap; letter-spacing: 0.01em; }
-.back-btn:hover { color: var(--primary); animation: btn-lift 0.4s ease; }
+.back-btn:hover { color: var(--primary); }
 
 .calc-tip { position: relative; cursor: default; }
 .calc-tip::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.35); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(218,206,253,0.6); color: var(--ink); padding: 7px 12px; border-radius: 6px; font-size: 11px; font-family: 'Montserrat', sans-serif; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 100; box-shadow: 0 4px 20px rgba(82,0,190,0.08), inset 0 0 0 1px rgba(255,255,255,0.4); }
 .calc-tip:hover::after { opacity: 1; }
+
+/* ============================================================
+   LIQUID PILL — radial fill on hover (Bystro pattern)
+   App.jsx attaches a mouseover listener to set --mx / --my from
+   cursor entry. ::before circle grows from there over 0.6s.
+   ============================================================ */
+
+
+.deals-new-btn,
+.deals-valuation-btn,
+.deals-forms-btn,
+.deals-materials-btn,
+.deals-delete-btn,
+.data-manager-import-btn,
+.data-manager-delete-btn,
+.valuation-new-btn,
+.recoup-btn,
+.agreements-new-btn,
+.agreements-edit-btn,
+.agreements-export-btn,
+.agreements-delete-btn,
+.agreements-type-btn,
+.modal-import-btn,
+.modal-cancel,
+.modal-connect-btn,
+.modal-radio-btn,
+.export-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.deals-new-btn::before,
+.deals-valuation-btn::before,
+.deals-forms-btn::before,
+.deals-materials-btn::before,
+.deals-delete-btn::before,
+.data-manager-import-btn::before,
+.data-manager-delete-btn::before,
+.valuation-new-btn::before,
+.recoup-btn::before,
+.agreements-new-btn::before,
+.agreements-edit-btn::before,
+.agreements-export-btn::before,
+.agreements-delete-btn::before,
+.agreements-type-btn::before,
+.modal-import-btn::before,
+.modal-cancel::before,
+.modal-connect-btn::before,
+.modal-radio-btn::before,
+.export-btn::before {
+  content: "";
+  position: absolute;
+  top: var(--my, 50%);
+  left: var(--mx, 50%);
+  width: 0;
+  height: 0;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.6s cubic-bezier(0.33, 0, 0.15, 1),
+    height 0.6s cubic-bezier(0.33, 0, 0.15, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.deals-new-btn > span,
+.deals-valuation-btn > span,
+.deals-forms-btn > span,
+.deals-materials-btn > span,
+.deals-delete-btn > span,
+.data-manager-import-btn > span,
+.data-manager-delete-btn > span,
+.valuation-new-btn > span,
+.recoup-btn > span,
+.agreements-new-btn > span,
+.agreements-edit-btn > span,
+.agreements-export-btn > span,
+.agreements-delete-btn > span,
+.agreements-type-btn > span,
+.modal-import-btn > span,
+.modal-cancel > span,
+.modal-connect-btn > span,
+.modal-radio-btn > span,
+.export-btn > span {
+  position: relative;
+  z-index: 1;
+  transition: color 0.6s cubic-bezier(0.33, 0, 0.15, 1);
+}
+
+.deals-new-btn:hover::before,
+.deals-valuation-btn:hover::before,
+.deals-forms-btn:hover::before,
+.deals-materials-btn:hover::before,
+.deals-delete-btn:hover::before,
+.data-manager-import-btn:hover::before,
+.data-manager-delete-btn:hover::before,
+.valuation-new-btn:hover::before,
+.recoup-btn:hover::before,
+.agreements-new-btn:hover::before,
+.agreements-edit-btn:hover::before,
+.agreements-export-btn:hover::before,
+.agreements-delete-btn:hover::before,
+.agreements-type-btn:hover::before,
+.modal-import-btn:not(.disabled):hover::before,
+.modal-cancel:hover::before,
+.modal-connect-btn:hover::before,
+.modal-radio-btn:hover::before,
+.export-btn:not(.disabled):hover::before {
+  width: 500px;
+  height: 500px;
+}
+
+/* Filled primary buttons: white circle (default), text flips white → primary */
+.deals-new-btn:hover > span,
+.data-manager-import-btn:hover > span,
+.valuation-new-btn:not(:disabled):hover > span,
+.agreements-new-btn:hover > span,
+.modal-import-btn:not(.disabled):hover > span,
+.modal-connect-btn:hover > span,
+.export-btn:not(.disabled):hover > span {
+  color: var(--primary);
+}
+
+/* Outline-primary buttons: circle is primary, text flips primary → white */
+.deals-valuation-btn::before { background: var(--primary); }
+.deals-valuation-btn:hover > span { color: white; }
+
+.deals-forms-btn::before,
+.deals-materials-btn::before,
+.agreements-edit-btn::before,
+.agreements-export-btn::before,
+.agreements-type-btn::before,
+.modal-radio-btn::before {
+  background: var(--primary-mid);
+}
+.deals-forms-btn:hover > span,
+.deals-materials-btn:hover > span,
+.agreements-edit-btn:hover > span,
+.agreements-export-btn:hover > span,
+.agreements-type-btn:hover > span,
+.modal-radio-btn:hover > span {
+  color: white;
+}
+
+/* Outline-error: red circle, text flips red → white */
+.deals-delete-btn::before,
+.data-manager-delete-btn::before,
+.agreements-delete-btn::before {
+  background: var(--error);
+}
+.deals-delete-btn:hover > span,
+.data-manager-delete-btn:hover > span,
+.agreements-delete-btn:hover > span {
+  color: white;
+}
+
+/* Modal cancel: outline ink → primary circle, text flips ink → white */
+.modal-cancel::before { background: var(--primary); }
+.modal-cancel:hover > span { color: white; }
+
+/* Recoup toggle: active = filled, inactive = outline */
+.recoup-btn-active::before { background: white; }
+.recoup-btn-active:hover > span { color: var(--primary); }
+.recoup-btn-inactive::before { background: var(--primary); }
+.recoup-btn-inactive:hover > span { color: white; }
+
+/* Linked state on Deal Manager outline buttons (filled look) */
+.deals-valuation-btn.linked::before,
+.deals-forms-btn.linked::before,
+.deals-materials-btn.linked::before {
+  background: white;
+}
+.deals-valuation-btn.linked:hover > span,
+.deals-forms-btn.linked:hover > span,
+.deals-materials-btn.linked:hover > span {
+  color: var(--primary);
+}
+

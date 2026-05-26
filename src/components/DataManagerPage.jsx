@@ -1,10 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import ScanResultsModal from './ScanResultsModal'
 import './DataManagerPage.css'
 
 export default function DataManagerPage() {
-  const [datasets, setDatasets] = useState([])
+  const [folders, setFolders] = useState([])
   const [scanFolderPath, setScanFolderPath] = useState(null)
+
+  useEffect(() => {
+    loadFolders()
+    window.addEventListener('focus', loadFolders)
+    return () => window.removeEventListener('focus', loadFolders)
+  }, [])
+
+  function loadFolders() {
+    fetch('/api/data/folders')
+      .then(r => r.json())
+      .then(data => setFolders(Array.isArray(data) ? data : []))
+      .catch(() => {})
+  }
 
   async function pickFolder() {
     const res = await fetch('/api/data/pick-folder', { method: 'POST' })
@@ -19,37 +32,43 @@ export default function DataManagerPage() {
       <div className="data-manager-header">
         <div className="data-manager-title-row">
           <h1 className="data-manager-title">DATA MANAGER</h1>
-          <span className="data-manager-count-badge">{datasets.length}</span>
+          <span className="data-manager-count-badge">{folders.length}</span>
         </div>
-        <button className="data-manager-import-btn" onClick={pickFolder}>+ Import Data</button>
+        <button className="data-manager-import-btn" onClick={pickFolder}><span>+ Import Data</span></button>
       </div>
 
-      {datasets.length === 0 ? (
+      {folders.length === 0 ? (
         <div className="empty-state">
-          <p className="empty-hint">click "import data" to get started</p>
+          <p className="empty-hint">no folders found in 1. Data/1. Current</p>
         </div>
       ) : (
         <div className="data-manager-table-wrap">
           <table className="data-manager-table">
             <thead>
               <tr>
-                <th>Dataset Name</th>
-                <th>Platform</th>
-                <th>Files</th>
-                <th>Rows</th>
-                <th>Date Range</th>
-                <th>Delete</th>
+                <th>Folder Name</th>
+                <th>Diligence</th>
+                <th>Quote</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {datasets.map((ds, i) => (
-                <tr key={i}>
-                  <td className="data-manager-td-name">{ds.name}</td>
-                  <td>{ds.platform || '—'}</td>
-                  <td>{ds.fileCount || '—'}</td>
-                  <td>{ds.rowCount || '—'}</td>
-                  <td>{ds.dateRange || '—'}</td>
-                  <td><button className="data-manager-delete-btn">Delete</button></td>
+              {folders.map((f) => (
+                <tr key={f.path}>
+                  <td className="data-manager-td-name" title={f.name}>
+                    <div className="data-manager-cell-truncate">{f.name}</div>
+                  </td>
+                  <td>
+                    <span className={`diligence-mark ${f.hasDiligence ? 'found' : 'missing'}`}>
+                      {f.hasDiligence ? '✓' : '?'}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`diligence-mark ${f.hasDeal ? 'found' : 'missing'}`}>
+                      {f.hasDeal ? '✓' : '?'}
+                    </span>
+                  </td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>

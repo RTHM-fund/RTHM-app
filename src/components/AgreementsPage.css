@@ -72,11 +72,7 @@
   transition: all 0.15s;
 }
 
-.agreements-new-btn:hover {
-  background: var(--primary-dark);
-  animation: btn-lift 0.4s ease;
-  box-shadow: 0 4px 16px rgba(82,0,190,0.25);
-}
+/* hover handled by liquid-pill.css */
 
 .agreements-table-wrap {
   border: 1px solid var(--paper-darker);
@@ -144,11 +140,7 @@
   transition: all 0.15s;
 }
 
-.agreements-edit-btn:hover {
-  background: var(--primary);
-  color: white;
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */
 
 .agreements-export-btn {
   padding: 5px 14px;
@@ -162,11 +154,7 @@
   transition: all 0.15s;
 }
 
-.agreements-export-btn:hover:not(:disabled) {
-  background: var(--primary);
-  color: white;
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */
 
 .agreements-export-btn:disabled {
   opacity: 0.6;
@@ -184,11 +172,7 @@
   transition: all 0.15s;
 }
 
-.agreements-delete-btn:hover {
-  background: var(--error);
-  color: white;
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */
 
 /* Type picker modal */
 .deal-sheet-modal .modal-form {
@@ -218,12 +202,7 @@
   transition: all 0.15s;
 }
 
-.agreements-type-btn:hover:not(:disabled) {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */
 
 .agreements-type-btn:disabled {
   background: none;

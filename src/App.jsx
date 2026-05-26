@@ -42,6 +42,35 @@ export default function App() {
       .catch(err => console.error('Failed to load templates', err))
   }, [])
 
+  // Liquid-pill cursor tracking: capture the cursor's entry point relative to
+  // the button so the ::before circle (defined in styles/liquid-pill.css) grows
+  // from where the cursor entered. Delegated via mouseover, but we only update
+  // when the cursor genuinely ENTERS the button (relatedTarget is outside it) —
+  // matches Bystro's mouseenter semantics so the bubble origin stays fixed.
+  useEffect(() => {
+    const LIQUID_SELECTOR = [
+      '.deals-new-btn', '.deals-valuation-btn', '.deals-forms-btn',
+      '.deals-materials-btn', '.deals-delete-btn',
+      '.data-manager-import-btn', '.data-manager-delete-btn',
+      '.valuation-new-btn', '.recoup-btn',
+      '.agreements-new-btn', '.agreements-edit-btn', '.agreements-export-btn',
+      '.agreements-delete-btn', '.agreements-type-btn',
+      '.modal-import-btn', '.modal-cancel', '.modal-connect-btn', '.modal-radio-btn',
+      '.export-btn'
+    ].join(',')
+    function handler(e) {
+      const btn = e.target.closest(LIQUID_SELECTOR)
+      if (!btn) return
+      // Only fire on genuine entry — ignore moves between children inside the button
+      if (e.relatedTarget && btn.contains(e.relatedTarget)) return
+      const rect = btn.getBoundingClientRect()
+      btn.style.setProperty('--mx', (e.clientX - rect.left) + 'px')
+      btn.style.setProperty('--my', (e.clientY - rect.top) + 'px')
+    }
+    document.addEventListener('mouseover', handler, true)
+    return () => document.removeEventListener('mouseover', handler, true)
+  }, [])
+
   useEffect(() => {
     fetch('/api/deals/saved')
       .then(r => r.json())

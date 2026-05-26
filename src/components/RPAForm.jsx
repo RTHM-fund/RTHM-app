@@ -555,7 +555,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
                     })}
                     disabled={!allFilled}
                   >
-                    create RAS RPA <span className="arr">▶</span>
+                    <span>create RAS RPA <span className="arr">▶</span></span>
                   </button>
                 )}
 
@@ -566,7 +566,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
                     disabled={!allFilled || !prefillData?.rpaExportData || saving}
                     style={{background: (allFilled && prefillData?.rpaExportData) ? 'var(--primary-dark)' : undefined}}
                   >
-                    {saving ? 'saving…' : 'save both RPAs'}
+                    <span>{saving ? 'saving…' : 'save both RPAs'}</span>
                   </button>
                 )}
 
@@ -576,7 +576,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
                     onClick={handleSave}
                     disabled={!allFilled || saving}
                   >
-                    {saving ? 'saving…' : 'save RPA'}
+                    <span>{saving ? 'saving…' : 'save RPA'}</span>
                   </button>
                 )}
               </div>

@@ -2,40 +2,39 @@
 
 ## Accomplished This Session
 
-### Deal Manager — row truncation + button consistency
-- **Long Deal Name / Platform values were wrapping to 2 lines**, growing row height and making the "Deal Materials" button look broken across rows.
-- Added `.deals-cell-truncate` CSS class: `max-width: 240px`, `white-space: nowrap`, `overflow: hidden`, with a `mask-image` linear-gradient that **fades the right edge** of long text instead of an abrupt cut.
-- Added `white-space: nowrap` to `.deals-valuation-btn`, `.deals-forms-btn`, `.deals-materials-btn` — button text never wraps.
-- Wrapped Deal Name and Platform values in `<div className="deals-cell-truncate">` inside the `<td>`, and added `title={value}` on the `<td>` for hover tooltip showing the full string.
-- Result: every row stays exactly 1 line tall regardless of content length; full value visible on hover.
+### Data Manager — folder listing module
+- New `GET /api/data/folders` endpoint lists immediate subfolders of `<DROPBOX_RTHM>/1. RTHM Fund/1. Data/1. Current/`, sorted by mtime descending. Returns empty array if directory inaccessible.
+- For each folder, server also tags:
+  - `hasDiligence: true` if it contains a subdirectory whose name ends with `_Due Diligence` (case-insensitive)
+  - `hasDeal: true` if a deal in `deals.json` matches the folder name (case-insensitive, trimmed) — **first intentional cross-module link**, kept on server side so frontend modules stay decoupled per the modularity rule
+- `DataManagerPage` now fetches + renders folders on mount + window focus.
+- 3 columns: **Folder Name** (truncates with soft fade + tooltip), **Diligence** (`✓` green / `?` red with text-shadow glow, centered), **Quote** (same `✓`/`?` style).
+- Trailing empty spacer column absorbs leftover width so columns pack left.
 
-### Valuation page — editable RTHM Advance column
-- Added `advanceDraft` state for per-term in-progress typed values.
-- RTHM Advance cell:
-  - **Locked**: same read-only formatted display as before.
-  - **Unlocked**: editable input (reuses `.rate-input` with new `.advance-input` width modifier, 90px).
-- On blur (or Enter), back-computes the implied Recoup Rate as `(typed / rasRecoup) × 100`, rounded to 2dp, and calls `setRate(term, ...)`. Margin recalculates automatically because it depends on `rthmAdvance` which depends on the rate.
-- **Snap behavior** (per user's choice of "option A"): typed value may drift by 1–2 dollars due to 2dp rate rounding. Single source of truth = `rates`; advance is always derived.
-- Edge cases handled: `rasRecoup = 0` makes the input a no-op (no divide-by-zero); non-digit input filtered.
+### Deal Manager polish
+- Renamed `Royalty Type` / `Deal Type` headers to single-word `Royalty` / `Type` so they fit on one line.
+- LeTreez Monday link updated: `mondayBoardId: 10058081462`, `mondayItemId: "11622638565"`.
 
-### Atomic write — Windows + Dropbox EPERM hardening
-- `atomicWriteJson` was failing with `EPERM` when Dropbox briefly held a lock on `deals.json` during rename. Stale `.tmp` files were left behind.
-- Now retries `renameSync` up to 5 times with progressive backoff (50/100/150/200/250 ms) for `EPERM`/`EBUSY`/`ENOTEMPTY` errors.
-- If all retries fail, falls back to a direct `writeFileSync` (sacrifices atomicity for that one write but guarantees the data lands) and logs a warning.
-- Also cleaned up the stale `data/deals.json.tmp` left over from the prior failure.
+### Liquid-pill button system (Bystro pattern, RTHM colors)
+- Adapted Bystro landing page's radial-fill hover effect: white circle expands from cursor entry over 0.6s `cubic-bezier(0.33, 0, 0.15, 1)`, text wrapped in `<span>` flips color on the same easing.
+- All pill buttons updated: `deals-new-btn`, `deals-valuation-btn`, `deals-forms-btn`, `deals-materials-btn`, `deals-delete-btn`, `data-manager-import-btn`, `data-manager-delete-btn`, `valuation-new-btn`, `recoup-btn`, `agreements-new-btn`, `agreements-edit-btn`, `agreements-export-btn`, `agreements-delete-btn`, `agreements-type-btn`, `modal-import-btn`, `modal-cancel`, `modal-connect-btn`, `modal-radio-btn`, `export-btn`.
+- All CSS lives in `src/index.css` (one place to maintain). Global `mouseover` listener in `App.jsx` sets `--mx` / `--my` on entry only (uses `relatedTarget` check to ignore moves within the button).
+- Removed `@keyframes btn-lift` and every `animation: btn-lift` / box-shadow lift across component CSS files. No more bounce.
+- **Deal Manager row buttons specifically** (Valuation / Agreements / Deal Materials / Delete):
+  - No border
+  - Rest state: ~10% transparent tint of their own color (rgba purple / purple-mid / red)
+  - Hover: bubble fills with the matching solid color, text flips to white
+- **Sidebar untouched** — design-locked.
+- **`prefers-reduced-motion` lesson**: an early `transition: none` override for reduced-motion killed the bubble for users with that OS preference. Removed since the user explicitly wants the animation.
 
-### LeTreez Monday link updated
-- `mondayBoardId`: `18397562279` → `10058081462`
-- `mondayItemId`: `"11747681773"` → `"11622638565"`
-- Existing types preserved (board=number, item=string).
+### Valuation page — editable RTHM Advance column (already committed in 1e41baf, covered again here for context)
+- RTHM Advance cell is editable when not locked. On blur/Enter, back-computes the implied Recoup Rate. Margin recalculates.
 
-### Earlier in session (already committed in 7698515 / 18df4d7 / 8a75806)
-- RAS ID placeholder MMDD → MMYY
-- Offer Letter double-unit bug (Term/Holdback/Distro Term/Futures Term)
-- VQ column shift (2 right) — VQ_PAIRS updated, fetch range AY
-- PR Uplift formula `margin1 = rasAdvance × 20% × 33%`; always derives from Initial Quote
-- `/api/deals/saved` is read-only; cleanup only on explicit click
-- Atomic writeDeals + writePartners; conflict file detection; backup snapshots in `<RTHM App>/Backups/`
+### atomic-write hardening (already committed in 1e41baf)
+- `atomicWriteJson` retries `renameSync` up to 5× with progressive backoff for `EPERM` / `EBUSY` / `ENOTEMPTY` (Windows + Dropbox lock contention). Falls back to direct write with a warning if all retries fail.
+
+### Aurora background — explored + reverted
+- Tested Bystro's multi-radial-gradient aurora background using RTHM purples. User didn't like it. Reverted to the original `linear-gradient(#DACEFD → #FAFAFA)`.
 
 ---
 
@@ -43,25 +42,23 @@
 
 - **Working path:** `C:\Users\richa\RTHM Dropbox\RTHM Fund\RTHM\4. Operations\RTHM App`
 - **Repo:** `App Files/` on `master`, pushed to `https://github.com/RTHM-fund/RTHM-app`
-- **App data:** ~48 deals (Mac has been actively adding). Backups syncing across machines as expected.
-- **Mac dev server** has been actively writing — was the source of the EPERM trigger on Windows. Stop Mac while making Windows-only edits to avoid concurrent writes.
-- **Dev servers must be restarted** on Mac + Windows to pick up the new atomic-rename retry logic + the editable advance behavior.
+- **App data:** 51 deals in `deals.json`.
+- **Servers must be restarted on Mac + Windows** to pick up server changes (`/api/data/folders` endpoint, atomic-write retry).
+- **Liquid-pill effect is live** — hover any pill button to see the radial fill.
 
 ---
 
 ## What's Next
 
 ### Open / known issues
-- **Re-import deals with VQ data** to refresh column mapping under the new VQ_PAIRS.
-- B2B RPA template — does it have similar Seller/Legal Name/Title mapping issues?
-- If user wants previously-generated `.docx` files to update when Advance Amount changes, that's a separate feature (currently static after generation).
-- Mac Dropbox File Provider migration: re-run `RTHM Setup.command` after migration completes to fix the desktop shortcut absolute path.
-- Long-term: if cross-device consistency becomes a real-time requirement, move `deals.json` to a cloud DB. Current setup is eventually consistent (via Dropbox sync) — adequate for 1–2 users but vulnerable to concurrent-write conflicts.
-- Future option: dynamic column-header detection in the sheet importer (deferred — fixed mapping is fine for now).
+- Catalog diligence feature (Claude Code subprocess for skill chain on a folder) — design discussed, not implemented yet. Pending decisions on skill names, output destination, master-skill orchestration.
+- Re-import deals with VQ data to refresh column mapping (still pending from earlier session).
+- B2B RPA template — may have similar Seller/Legal Name/Title mapping issues.
+- Mac Dropbox File Provider migration: re-run `RTHM Setup.command` after migration completes to fix desktop shortcut absolute path.
 
 ### V2 roadmap (unchanged)
-1. **File discovery** — after folder pick, scan for CSV/XLS/XLSX, show in UI.
+1. **File discovery** — partially done (scan-folder endpoint exists; folder listing now visible in Data Manager).
 2. Column standardization → earnings column selection → date extraction → include/exclude columns → merge + persist.
 3. Pivot engine → projection model → advance/IRR calculator.
 
-Full spec: `docs/v2_specs.md`. Modularity rule: Data Manager and Deal Manager remain decoupled until v3.
+Full spec: `docs/v2_specs.md`. Modularity rule: Data Manager and Deal Manager remain decoupled at frontend level; **server endpoints are the only bridge** (see `cross_machine_safety.md` and the new pattern in `/api/data/folders`).

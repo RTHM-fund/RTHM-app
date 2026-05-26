@@ -76,7 +76,7 @@
   transition: background 0.15s;
 }
 
-.modal-connect-btn:hover { background: var(--primary-dark); animation: btn-lift 0.4s ease; }
+/* hover handled by liquid-pill.css */
 
 .modal-search-wrap {
   display: flex;
@@ -204,7 +204,7 @@
   transition: all 0.15s;
 }
 
-.modal-cancel:hover { border-color: var(--primary); color: var(--primary); animation: btn-lift 0.4s ease; }
+/* hover handled by liquid-pill.css */
 
 .modal-import-btn {
   padding: 9px 24px;
@@ -219,7 +219,7 @@
   transition: all 0.15s;
 }
 
-.modal-import-btn:hover:not(.disabled) { background: var(--primary-dark); animation: btn-lift 0.4s ease; }
+/* hover handled by liquid-pill.css */
 .modal-import-btn.disabled { background: var(--paper-darker); color: var(--primary-mid); cursor: not-allowed; }
 
 /* ── Step 2 form ── */
@@ -261,7 +261,7 @@
 }
 
 .modal-radio-btn { text-transform: none !important; }
-.modal-radio-btn:hover { background: var(--primary); border-color: var(--primary); color: white; animation: btn-lift 0.4s ease; }
+/* hover handled by liquid-pill.css */
 .modal-radio-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
 
 .modal-input {

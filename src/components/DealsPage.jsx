@@ -49,7 +49,7 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
           <h1 className="deals-page-title">DEAL MANAGER</h1>
           <span className="deals-count-badge">{deals.length}</span>
         </div>
-        <button className="deals-new-btn" onClick={() => setShowModal(true)}>+ Create New Deal</button>
+        <button className="deals-new-btn" onClick={() => setShowModal(true)}><span>+ Create New Deal</span></button>
       </div>
 
       {deals.length === 0 ? (
@@ -63,8 +63,8 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
               <tr>
                 <th>Deal Name</th>
                 <th>Platform(s)</th>
-                <th>Royalty Type</th>
-                <th>Deal Type</th>
+                <th>Royalty</th>
+                <th>Type</th>
                 <th>Status</th>
                 <th>Valuation</th>
                 <th>Agreements</th>
@@ -91,19 +91,19 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
                   <td><button
                     className={`deals-valuation-btn${deal.valuationState?.recoupLocked && deal.agreements?.some(ag => ag.fileName?.startsWith('RTHM Deal Sheet')) ? ' linked' : ''}`}
                     onClick={() => onOpenValuation(deal, deal._idx)}
-                  >Valuation</button></td>
+                  ><span>Valuation</span></button></td>
                   <td><button
                     className={`deals-forms-btn${(ROW_DEFS[deal.dealType] || ROW_DEFS.Individual).every(r => matchAgreement(r, deal.agreements || [])) ? ' linked' : ''}`}
                     onClick={() => onOpenAgreements(deal, deal._idx)}
-                  >Agreements</button></td>
+                  ><span>Agreements</span></button></td>
                   <td>
                     <button
                       className={`deals-materials-btn${deal.folderPath ? ' linked' : ''}`}
                       onClick={() => handleDealMaterials(deal)}
                       onContextMenu={e => { e.preventDefault(); handleRelink(deal._idx) }}
-                    >Deal Materials</button>
+                    ><span>Deal Materials</span></button>
                   </td>
-                  <td><button className="deals-delete-btn" onClick={() => deleteDeal(deal._idx)}>Delete</button></td>
+                  <td><button className="deals-delete-btn" onClick={() => deleteDeal(deal._idx)}><span>Delete</span></button></td>
                 </tr>
               ))}
             </tbody>

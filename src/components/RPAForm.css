@@ -132,11 +132,7 @@ select.field-input {
   align-self: flex-start;
 }
 
-.export-btn:hover:not(.disabled):not(.exporting) {
-  background: var(--primary-dark);
-  animation: btn-lift 0.4s ease;
-  box-shadow: 0 4px 16px rgba(107,33,217,0.3);
-}
+/* hover handled by liquid-pill.css */
 
 .export-btn.disabled {
   background: var(--paper-darker);

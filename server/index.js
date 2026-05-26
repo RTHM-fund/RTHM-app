@@ -1093,6 +1093,39 @@ app.post('/api/data/pick-folder', (req, res) => {
   }
 })
 
+// GET /api/data/folders — list immediate subfolders of 1. Data/1. Current/.
+// Newest first by mtime. For each:
+//   - hasDiligence=true if it contains a subfolder whose name ends with "_Due Diligence"
+//   - hasDeal=true if a deal exists in deals.json with the same name (case-insensitive, trimmed)
+// Returns empty array if directory isn't accessible.
+// Note: this is the only cross-module link between Data Manager and Deal Manager.
+// Frontend modules stay decoupled — the bridge lives only in this endpoint.
+app.get('/api/data/folders', (req, res) => {
+  try {
+    const CURRENT_DIR = path.join(DATA_ROOT, '1. Current')
+    if (!fs.existsSync(CURRENT_DIR)) return res.json([])
+    const dealNames = new Set(readDeals().map(d => (d.name || '').trim().toLowerCase()).filter(Boolean))
+    const entries = fs.readdirSync(CURRENT_DIR, { withFileTypes: true })
+    const folders = entries
+      .filter(e => e.isDirectory())
+      .map(e => {
+        const fullPath = path.join(CURRENT_DIR, e.name)
+        const stat = fs.statSync(fullPath)
+        let hasDiligence = false
+        try {
+          const subs = fs.readdirSync(fullPath, { withFileTypes: true })
+          hasDiligence = subs.some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_due diligence'))
+        } catch {}
+        const hasDeal = dealNames.has(e.name.trim().toLowerCase())
+        return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasDeal }
+      })
+      .sort((a, b) => b.mtime.localeCompare(a.mtime))
+    res.json(folders)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // POST /api/data/scan-folder — recursively scan a picked folder for platform source data files.
 // Never writes to disk, reads zips in-memory only, preserves data integrity per CLAUDE.md V2 rule.
 app.post('/api/data/scan-folder', async (req, res) => {

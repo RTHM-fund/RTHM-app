@@ -47,10 +47,7 @@
   transition: all 0.15s;
 }
 
-.valuation-new-btn:hover:not(:disabled) {
-  background: var(--primary-dark);
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */
 
 .valuation-new-btn:disabled {
   background: var(--paper-darker);
@@ -228,11 +225,7 @@ td.negative {
   cursor: pointer;
 }
 
-.recoup-btn-active:hover {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  animation: btn-lift 0.4s ease;
-}
+/* hover handled by liquid-pill.css */
 
 .recoup-btn-inactive {
   background: none;

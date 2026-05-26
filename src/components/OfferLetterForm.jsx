@@ -490,7 +490,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                 )}
                 {dealSelected && (
                   <button className="export-btn" onClick={handleOpenDealSheet}>
-                    select deal
+                    <span>select deal</span>
                   </button>
                 )}
               </div>
@@ -625,7 +625,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                 onClick={handleSave}
                 disabled={!allFilled || saving}
               >
-                {saving ? 'saving…' : 'save offer letter'}
+                <span>{saving ? 'saving…' : 'save offer letter'}</span>
               </button>
             </div>
           </div>
@@ -719,13 +719,13 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
           </div>
 
           <div className="modal-footer">
-            <button className="modal-cancel" onClick={() => setShowTableModal(false)}>cancel</button>
+            <button className="modal-cancel" onClick={() => setShowTableModal(false)}><span>cancel</span></button>
             <button
               className={`modal-import-btn${!selectedRow ? ' disabled' : ''}`}
               disabled={!selectedRow}
               onClick={handleConfirmRow}
             >
-              select deal
+              <span>select deal</span>
             </button>
           </div>
         </div>

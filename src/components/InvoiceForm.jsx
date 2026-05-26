@@ -597,7 +597,7 @@ export default function InvoiceForm({ template, onBack }) {
               onClick={handleSave}
               disabled={!allFilled || saving}
             >
-              {saving ? 'exporting...' : 'export invoice'}
+              <span>{saving ? 'exporting...' : 'export invoice'}</span>
             </button>
           </div>
 
