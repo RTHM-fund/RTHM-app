@@ -74,7 +74,7 @@
 /* hover handled by liquid-pill.css */
 
 .data-manager-table-wrap {
-  border: 1px solid var(--paper-darker);
+  border: none;
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -85,7 +85,7 @@
 }
 
 .data-manager-table thead {
-  background: var(--paper);
+  background: transparent;
 }
 
 .data-manager-table th {
@@ -96,7 +96,11 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
-  border-bottom: 1px solid var(--paper-darker);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  position: relative;
+  isolation: isolate;
 }
 
 .data-manager-table td {
@@ -104,10 +108,7 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
-  border-bottom: 1px solid var(--paper-darker);
 }
-
-.data-manager-table tbody tr:last-child td { border-bottom: none; }
 
 .data-manager-table tbody tr {
   cursor: pointer;

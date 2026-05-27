@@ -61,6 +61,26 @@
 - `claude_cli_path_windows.md` — now cross-platform; documents `findClaudeBin()` and silent-spawn diagnostic signature.
 - `mac_user_workflow.md` — full Dropbox-driven new-Mac-user chain, files in git vs Dropbox-only, common failure modes.
 
+### Valuate page — diligence workbook charts (paused, server bug)
+- New deps: `exceljs` (server xlsx parsing) + `recharts` (frontend charts).
+- New endpoint `GET /api/data/diligence-workbook?folder=<path>` parses `<basename> - Diligence Workbook.xlsx` into structured JSON (handles multi-platform sheets via dash-pattern + the CHECKS sheet). **Known bug: parser throws `Cannot read properties of undefined (reading 'comments')` on the Starz Lil D workbook — exceljs choking on something internal to that file. UI catches it and shows the error.**
+- New page `ValuatePage.jsx` (sibling to ValuationPage) with 4 recharts views: stacked area by category over time, top-tracks horizontal bar (click to drill), single-track line, decay projection with k0/k∞/γ/floor/haircut sliders.
+- Routing: `App.jsx` now holds `valuateFolder` state + `handleOpenValuate(folder)`. Passed through `MainArea` → DataManagerPage's Valuate button.
+- Page history preserves `valuateFolder` on navigate/back.
+
+### Aurora background — Bystro orb system + glass headers
+- Body background swapped to Bystro's 4-radial-gradient aurora + linear vertical lavender stack.
+- `.main-area` set to transparent so the body shows through.
+- `<div className="orb-layer">` + `<div className="grain">` added in `App.jsx` shell; useEffect ports Bystro's verbatim animation (sum-of-sines wander, cursor converge, pairwise repulsion, velocity momentum, breath scale) into a React lifecycle with proper cleanup.
+- Orb palette rebrand: dropped Bystro's teals/blues for `#A78BFA / #5200BE / #6218C8 / #241050` (sidebar-active, primary, primary-mid, sidebar-hover). Opacities tuned down to feel like haze rather than blobs. Blur factor bumped to 0.07 vmax.
+- **Glass treatment** on table column headers (`thead th` on Deal/Data Manager + Agreements + Valuation) AND on the white page headers (Valuation / Agreements / RPA / OfferLetter / Invoice). Pattern: `rgba(255,255,255,0.45)` + `backdrop-filter: blur(20px) saturate(180%)` + `position: relative; isolation: isolate`. The `isolation` forces a stacking context so `backdrop-filter` actually applies (table `<thead>` is `display: table-header-group` and doesn't host the filter; cells do).
+- All table borders removed across Deal/Data Manager + Agreements + Valuation (outer wrap + thead bottom + row separators). Valuation tables switched to `border-collapse: separate; border-spacing: 0; overflow: hidden` so `border-radius` actually clips the corners.
+- Disabled-but-outlined buttons (`.recoup-btn-inactive`, `.agreements-type-btn:disabled`) rebranded to transparent-purple — matches Deal Manager row-button look instead of the old grey outline.
+
+### Mac script hardening (parent dir, Dropbox-only)
+- `RTHM Launch.command`: replaced `sleep 4` with `curl -sf` polling on localhost:5173 (30s timeout) so the browser opens when Vite is actually ready.
+- `RTHM Setup.command`: post-install `claude --version` verification; skills-folder Dropbox-sync pre-flight check; xattr Dropbox-ignore on `logs/` (in addition to `node_modules/`); sudo fallback on `npm install -g`.
+
 ---
 
 ## Current State

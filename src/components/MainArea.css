@@ -1,9 +1,11 @@
 .main-area {
   flex: 1;
   overflow-y: auto;
-  background: linear-gradient(to bottom, #DACEFD 0%, #FAFAFA 75%);
+  /* Background is the body's aurora + orb layer (see src/index.css + App.jsx).
+     Main area is transparent so the orbs/grain show through. */
+  background: transparent;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
 }

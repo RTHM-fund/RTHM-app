@@ -52,7 +52,7 @@
 
 
 .deals-table-wrap {
-  border: 1px solid var(--paper-darker);
+  border: none;
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -63,7 +63,7 @@
 }
 
 .deals-table thead {
-  background: var(--paper);
+  background: transparent;
 }
 
 .deals-table th {
@@ -74,7 +74,11 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
-  border-bottom: 1px solid var(--paper-darker);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  position: relative;
+  isolation: isolate;
 }
 
 .deals-table td {
@@ -82,10 +86,7 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
-  border-bottom: 1px solid var(--paper-darker);
 }
-
-.deals-table tbody tr:last-child td { border-bottom: none; }
 
 .deals-table tbody tr {
   transition: background 0.1s;

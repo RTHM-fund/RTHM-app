@@ -6,7 +6,9 @@
 
 .valuation-header {
   padding: 24px 40px 20px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--paper-darker);
   display: flex;
   align-items: center;
@@ -102,13 +104,18 @@
 }
 
 .valuation-table {
-  border-collapse: collapse;
-  border: 1px solid var(--paper-darker);
+  /* border-collapse: separate + border-spacing: 0 is required so border-radius
+     actually clips the corner cells. With "collapse", cells render outside the
+     table's box and the corners don't round. */
+  border-collapse: separate;
+  border-spacing: 0;
+  border: none;
   border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .valuation-table thead {
-  background: var(--paper);
+  background: transparent;
 }
 
 .valuation-table th {
@@ -119,7 +126,11 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
-  border-bottom: 1px solid var(--paper-darker);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  position: relative;
+  isolation: isolate;
 }
 
 .valuation-table td {
@@ -127,12 +138,7 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--ink);
-  border-bottom: 1px solid var(--paper-darker);
   white-space: nowrap;
-}
-
-.valuation-table tbody tr:last-child td {
-  border-bottom: none;
 }
 
 .valuation-table tbody tr:hover {
@@ -228,8 +234,9 @@ td.negative {
 /* hover handled by liquid-pill.css */
 
 .recoup-btn-inactive {
-  background: none;
-  color: var(--ink-faint);
+  background: rgba(82, 0, 190, 0.1);
+  border: none;
+  color: var(--primary);
   cursor: not-allowed;
 }
 

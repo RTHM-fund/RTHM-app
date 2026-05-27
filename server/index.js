@@ -7,6 +7,7 @@ const { spawnSync, spawn } = require('child_process')
 const mammoth = require('mammoth')
 const PizZip = require('pizzip')
 const Docxtemplater = require('docxtemplater')
+const ExcelJS = require('exceljs')
 const { google } = require('googleapis')
 
 const CREDENTIALS = require('./credentials.json').installed
@@ -1069,6 +1070,117 @@ app.delete('/api/deals/:index', (req, res) => {
 // ═══════════════════════════════════════════════════
 // DATA MANAGER
 // ═══════════════════════════════════════════════════
+
+// GET /api/data/diligence-workbook?folder=<absolute-path>
+// Reads the diligence workbook produced by the `diligence` skill for the given catalog
+// folder and returns a structured JSON view suitable for charting.
+//
+// Expected layout: <folder>/<basename>_Due Diligence/<basename> - Diligence Workbook.xlsx
+// Sheets follow the pattern `<Platform> <dash> {Track Rep|Track Adj|Breakdown Rep|Breakdown Adj}`
+// plus a CHECKS sheet. Multiple platforms (e.g. STIM + Sony Pub) are supported.
+app.get('/api/data/diligence-workbook', async (req, res) => {
+  try {
+    const folder = req.query.folder
+    if (!folder || typeof folder !== 'string' || !fs.existsSync(folder)) {
+      return res.status(400).json({ error: 'invalid folder' })
+    }
+    const basename = path.basename(folder)
+    const ddFolder = path.join(folder, `${basename}_Due Diligence`)
+    if (!fs.existsSync(ddFolder)) return res.status(404).json({ error: 'no diligence folder yet' })
+    const wbPath = path.join(ddFolder, `${basename} - Diligence Workbook.xlsx`)
+    if (!fs.existsSync(wbPath)) return res.status(404).json({ error: 'no diligence workbook yet' })
+
+    const wb = new ExcelJS.Workbook()
+    await wb.xlsx.readFile(wbPath)
+
+    const platforms = {}
+    const checks = []
+    const sheetKindRe = /^(.+?)\s*[–—―\-]\s*(Track Rep|Track Adj|Breakdown Rep|Breakdown Adj)\s*$/i
+
+    for (const ws of wb.worksheets) {
+      if (ws.name === 'CHECKS' || /CHECKS/i.test(ws.name)) {
+        // Row 2 is the column header; data starts at row 3.
+        for (let r = 3; r <= ws.rowCount; r++) {
+          const row = ws.getRow(r)
+          const name = row.getCell(1).value
+          if (!name || String(name).trim() === '') continue
+          checks.push({
+            name: String(name).trim(),
+            sourceA: numOrText(row.getCell(2).value),
+            sourceB: numOrText(row.getCell(3).value),
+            variance: numOrText(row.getCell(4).value),
+            result: String(row.getCell(5).value ?? '').trim(),
+          })
+        }
+        continue
+      }
+      const m = ws.name.match(sheetKindRe)
+      if (!m) continue
+      const platformName = m[1].trim()
+      const kind = m[2].trim()
+      if (!platforms[platformName]) {
+        platforms[platformName] = { name: platformName, months: [], tracks: [], breakdown: [] }
+      }
+      parseDataSheet(ws, platforms[platformName], kind)
+    }
+
+    res.json({ folderName: basename, platforms: Object.values(platforms), checks })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+function numOrText(v) {
+  if (v === null || v === undefined) return null
+  if (typeof v === 'number') return v
+  const n = Number(v)
+  return Number.isFinite(n) ? n : String(v)
+}
+
+function parseDataSheet(ws, platform, kind) {
+  // Row 1: section title  |  Row 2: headers  |  Row 3+: data
+  // Headers: col 1 empty (row labels), col 2 = ISRC/Category, col 3..N-1 = months, col N = LTM Total
+  const headerRow = ws.getRow(2)
+  const lastCol = ws.columnCount
+  const months = []
+  for (let c = 3; c < lastCol; c++) {
+    const v = headerRow.getCell(c).value
+    if (v && String(v).toLowerCase() !== 'ltm total') months.push(String(v))
+  }
+  if (!platform.months.length) platform.months = months
+
+  const isBreakdown = /^Breakdown/i.test(kind)
+  const isAdj = /Adj$/i.test(kind)
+  const bucket = isBreakdown ? platform.breakdown : platform.tracks
+
+  for (let r = 3; r <= ws.rowCount; r++) {
+    const row = ws.getRow(r)
+    const labelCell = row.getCell(1).value
+    if (!labelCell) continue
+    const label = String(labelCell).trim()
+    if (!label || /^grand total$/i.test(label)) continue
+
+    const values = []
+    for (let c = 3; c < lastCol; c++) {
+      const v = row.getCell(c).value
+      values.push(typeof v === 'number' ? v : Number(v) || 0)
+    }
+    const ltmRaw = row.getCell(lastCol).value
+    const ltm = typeof ltmRaw === 'number' ? ltmRaw : Number(ltmRaw) || 0
+
+    let entry = bucket.find(e => e.name === label)
+    if (!entry) {
+      entry = { name: label, rep: [], adj: [], ltmRep: 0, ltmAdj: 0 }
+      if (!isBreakdown) {
+        const isrcVal = row.getCell(2).value
+        entry.isrc = isrcVal ? String(isrcVal) : ''
+      }
+      bucket.push(entry)
+    }
+    if (isAdj) { entry.adj = values; entry.ltmAdj = ltm }
+    else { entry.rep = values; entry.ltmRep = ltm }
+  }
+}
 
 // POST /api/data/open-folder — open a known root folder in the OS file browser.
 // Body: { key: 'current' | 'materials-root' }

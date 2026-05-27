@@ -18,7 +18,7 @@ function clearCompletedSkills(prev, list) {
 }
 
 // runningSkills is lifted to App.jsx so spinners survive page navigation.
-export default function DataManagerPage({ runningSkills, setRunningSkills }) {
+export default function DataManagerPage({ runningSkills, setRunningSkills, onOpenValuate }) {
   const [folders, setFolders] = useState([])
   const [selectedFolderPath, setSelectedFolderPath] = useState(null)
 
@@ -99,7 +99,11 @@ export default function DataManagerPage({ runningSkills, setRunningSkills }) {
           <span className="data-manager-count-badge">{folders.length}</span>
           <div className="data-manager-header-actions">
             <button className="data-manager-summarize-btn" onClick={() => runSkill('diligence')}><span>Diligence</span></button>
-            <button className="data-manager-valuate-btn"><span>Valuate</span></button>
+            <button className="data-manager-valuate-btn" onClick={() => {
+              if (!selectedFolderPath) return
+              const f = folders.find(x => x.path === selectedFolderPath)
+              if (f) onOpenValuate?.({ path: f.path, name: f.name })
+            }}><span>Valuate</span></button>
             <button className="data-manager-extract-btn" onClick={() => runSkill('catalog-extract')}><span>Extract</span></button>
           </div>
         </div>
