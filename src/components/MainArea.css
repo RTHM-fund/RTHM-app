@@ -14,6 +14,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative; /* positioning context for absolute-centered .empty-state */
 }
 
 .main-area--arcade {
@@ -42,14 +43,23 @@
 }
 
 
-/* ── Empty state ── */
+/* ── Empty state ──
+   Absolute-positioned so it centers on the FULL page (not on remaining flex
+   space after the header). This keeps the visual midpoint identical across
+   pages with different header heights (Data Manager has more header buttons
+   than Deal Manager, etc.). Host containers must be position: relative. */
 .empty-state {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
+  pointer-events: none;
+}
+.empty-state > * {
+  pointer-events: auto;
 }
 
 .empty-hint {
@@ -58,6 +68,7 @@
   font-weight: 500;
   color: var(--primary-mid);
   letter-spacing: 0.01em;
+  text-align: center;
 }
 
 /* ── Form panel slide-in ── */

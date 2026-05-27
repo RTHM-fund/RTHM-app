@@ -133,8 +133,8 @@
 
 .agreements-edit-btn {
   padding: 5px 14px;
-  background: none;
-  border: 1.5px solid var(--primary);
+  background: rgba(82, 0, 190, 0.1);
+  border: none;
   border-radius: var(--radius);
   color: var(--primary);
   font-size: 12px;
@@ -147,8 +147,8 @@
 
 .agreements-export-btn {
   padding: 5px 14px;
-  background: none;
-  border: 1.5px solid var(--primary);
+  background: rgba(82, 0, 190, 0.1);
+  border: none;
   border-radius: var(--radius);
   color: var(--primary);
   font-size: 12px;
@@ -166,8 +166,8 @@
 
 .agreements-delete-btn {
   padding: 5px 14px;
-  background: none;
-  border: 1.5px solid var(--error);
+  background: rgba(220, 38, 38, 0.1);
+  border: none;
   border-radius: var(--radius);
   color: var(--error);
   font-size: 12px;
@@ -195,12 +195,12 @@
 
 .agreements-type-btn {
   padding: 12px 20px;
-  background: none;
-  border: 1.5px solid var(--paper-darker);
+  background: var(--primary);
+  border: none;
   text-transform: none;
   font-size: 13px;
   font-weight: 600 !important;
-  color: var(--ink);
+  color: white;
   text-align: left;
   transition: all 0.15s;
 }

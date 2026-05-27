@@ -211,7 +211,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
                     <table className="modal-table">
                       <thead>
                         <tr>
-                          <th><input type="checkbox" checked={selected.size === filteredIndices.length && filteredIndices.length > 0} onChange={toggleAll} /></th>
+                          <th></th>
                           <th>{headerMap['A'] || 'Deal'}</th>
                           <th>{headerMap['C'] || 'Distributor/PRO'}</th>
                         </tr>

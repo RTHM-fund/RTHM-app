@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  position: relative; /* positioning context for absolute-centered .empty-state */
 }
 
 .data-manager-header {
@@ -199,8 +200,8 @@
 
 .data-manager-delete-btn {
   padding: 5px 14px;
-  background: none;
-  border: 1.5px solid var(--error);
+  background: rgba(220, 38, 38, 0.1);
+  border: none;
   border-radius: var(--radius);
   color: var(--error);
   font-size: 12px;

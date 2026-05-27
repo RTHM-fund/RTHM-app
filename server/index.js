@@ -7,7 +7,7 @@ const { spawnSync, spawn } = require('child_process')
 const mammoth = require('mammoth')
 const PizZip = require('pizzip')
 const Docxtemplater = require('docxtemplater')
-const ExcelJS = require('exceljs')
+const XLSX = require('xlsx')
 const { google } = require('googleapis')
 
 const CREDENTIALS = require('./credentials.json').installed
@@ -1072,12 +1072,13 @@ app.delete('/api/deals/:index', (req, res) => {
 // ═══════════════════════════════════════════════════
 
 // GET /api/data/diligence-workbook?folder=<absolute-path>
-// Reads the diligence workbook produced by the `diligence` skill for the given catalog
-// folder and returns a structured JSON view suitable for charting.
+// Reads the diligence workbook produced by the `diligence` skill and returns
+// cross-platform monthly aggregates for the Track Rep + Track Adj sheets.
 //
 // Expected layout: <folder>/<basename>_Due Diligence/<basename> - Diligence Workbook.xlsx
-// Sheets follow the pattern `<Platform> <dash> {Track Rep|Track Adj|Breakdown Rep|Breakdown Adj}`
-// plus a CHECKS sheet. Multiple platforms (e.g. STIM + Sony Pub) are supported.
+// Sheets matched: `<Platform> <dash> {Track Rep|Track Adj}`. Other sheets are ignored.
+// Returns: { folderName, months[], tracksLine[], tracksAdjLine[] } — months is the
+// chronologically-sorted union of every Track sheet's month columns across platforms.
 app.get('/api/data/diligence-workbook', async (req, res) => {
   try {
     const folder = req.query.folder
@@ -1090,110 +1091,168 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
     const wbPath = path.join(ddFolder, `${basename} - Diligence Workbook.xlsx`)
     if (!fs.existsSync(wbPath)) return res.status(404).json({ error: 'no diligence workbook yet' })
 
-    const wb = new ExcelJS.Workbook()
-    await wb.xlsx.readFile(wbPath)
+    const wb = XLSX.readFile(wbPath, { cellDates: true })
+    // Matches `<Platform> <dash> {Track|Breakdown|Brkdn} {Rep|Adj}`. `Brkdn` is the
+    // abbreviated form some diligence-skill versions emit.
+    const sheetKindRe = /^(.+?)\s*[–—―\-]\s*(Track|Brkdn|Breakdown)\s+(Rep|Adj)\s*$/i
 
-    const platforms = {}
-    const checks = []
-    const sheetKindRe = /^(.+?)\s*[–—―\-]\s*(Track Rep|Track Adj|Breakdown Rep|Breakdown Adj)\s*$/i
-
-    for (const ws of wb.worksheets) {
-      if (ws.name === 'CHECKS' || /CHECKS/i.test(ws.name)) {
-        // Row 2 is the column header; data starts at row 3.
-        for (let r = 3; r <= ws.rowCount; r++) {
-          const row = ws.getRow(r)
-          const name = row.getCell(1).value
-          if (!name || String(name).trim() === '') continue
-          checks.push({
-            name: String(name).trim(),
-            sourceA: numOrText(row.getCell(2).value),
-            sourceB: numOrText(row.getCell(3).value),
-            variance: numOrText(row.getCell(4).value),
-            result: String(row.getCell(5).value ?? '').trim(),
-          })
-        }
-        continue
-      }
-      const m = ws.name.match(sheetKindRe)
+    // Pass 1: group matching sheet names by platform.
+    const platformSheets = new Map() // name -> { entries: [{isTrack, isAdj, sheetName}] }
+    for (const sheetName of wb.SheetNames) {
+      const m = sheetName.match(sheetKindRe)
       if (!m) continue
-      const platformName = m[1].trim()
-      const kind = m[2].trim()
-      if (!platforms[platformName]) {
-        platforms[platformName] = { name: platformName, months: [], tracks: [], breakdown: [] }
-      }
-      parseDataSheet(ws, platforms[platformName], kind)
+      const name = m[1].trim()
+      const isTrack = /^Track$/i.test(m[2])
+      const isAdj = /^Adj$/i.test(m[3])
+      if (!platformSheets.has(name)) platformSheets.set(name, { entries: [] })
+      platformSheets.get(name).entries.push({ isTrack, isAdj, sheetName })
     }
 
-    res.json({ folderName: basename, platforms: Object.values(platforms), checks })
+    // Build a month series from a set of sheet refs. Each Adj sheet contributes to
+    // the adj line; each Rep sheet contributes to the rep line. Months are merged
+    // by YYYY-MM key across all input sheets.
+    function buildSeries(entries) {
+      const byMonth = new Map()
+      for (const e of entries) {
+        const ws = wb.Sheets[e.sheetName]
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null })
+        if (rows.length < 3) continue
+        // Header row position varies — scan top 8 rows for first with a month-parseable cell at col >= 2.
+        let headerIdx = -1, colMonths = null
+        for (let i = 0; i < Math.min(rows.length, 8); i++) {
+          const cand = (rows[i] || []).map(parseMonthHeader)
+          if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+        }
+        if (headerIdx < 0) continue
+        const headerLen = (rows[headerIdx] || []).length
+        for (let r = headerIdx + 1; r < rows.length; r++) {
+          const row = rows[r] || []
+          const label = row[0]
+          if (label == null) continue
+          const labelStr = String(label).trim()
+          if (!labelStr || /^grand total$/i.test(labelStr) || /^total$/i.test(labelStr)) continue
+          for (let c = 2; c < headerLen; c++) {
+            const mInfo = colMonths[c]
+            if (!mInfo) continue
+            const cell = row[c]
+            const val = typeof cell === 'number' ? cell : Number(cell)
+            if (!Number.isFinite(val) || val === 0) continue
+            let bucket = byMonth.get(mInfo.key)
+            if (!bucket) { bucket = { label: mInfo.label, rep: 0, adj: 0 }; byMonth.set(mInfo.key, bucket) }
+            if (e.isAdj) bucket.adj += val
+            else bucket.rep += val
+          }
+        }
+      }
+      const sorted = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b))
+      return {
+        months: sorted.map(([, v]) => v.label),
+        tracksLine: sorted.map(([, v]) => v.rep),
+        tracksAdjLine: sorted.map(([, v]) => v.adj),
+      }
+    }
+
+    // Pass 2: per-platform series — prefer Track sheets; fall back to Breakdown
+    // when a platform has no Track sheets (e.g. publishing statements that lack
+    // track-level data, like UMPG on Too $hort).
+    const platforms = []
+    for (const [name, ps] of platformSheets) {
+      const trackEntries = ps.entries.filter(e => e.isTrack)
+      const useEntries = trackEntries.length ? trackEntries : ps.entries
+      platforms.push({ name, ...buildSeries(useEntries) })
+    }
+
+    // Pass 3: combined view — union all platforms' months by YYYY-MM key, sum lines.
+    const combinedByMonth = new Map()
+    for (const p of platforms) {
+      for (let i = 0; i < p.months.length; i++) {
+        const label = p.months[i]
+        const parsed = parseMonthHeader(label)
+        const key = parsed ? parsed.key : label
+        if (!combinedByMonth.has(key)) combinedByMonth.set(key, { label, rep: 0, adj: 0 })
+        const b = combinedByMonth.get(key)
+        b.rep += p.tracksLine[i] || 0
+        b.adj += p.tracksAdjLine[i] || 0
+      }
+    }
+    const combinedSorted = [...combinedByMonth.entries()].sort(([a], [b]) => a.localeCompare(b))
+    const combined = {
+      months: combinedSorted.map(([, v]) => v.label),
+      tracksLine: combinedSorted.map(([, v]) => v.rep),
+      tracksAdjLine: combinedSorted.map(([, v]) => v.adj),
+    }
+
+    res.json({ folderName: basename, platforms, combined })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
 
-function numOrText(v) {
-  if (v === null || v === undefined) return null
-  if (typeof v === 'number') return v
-  const n = Number(v)
-  return Number.isFinite(n) ? n : String(v)
+// Parse a Track sheet's column header cell into a sort key + display label.
+// Accepts Date objects (cellDates: true), "YYYY-MM[-DD]", "M/YYYY", "MMM YYYY", etc.
+// Returns null for non-month cells (the row-label col, the ISRC col, the LTM Total col, blanks).
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+const MONTH_MAP = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 }
+function parseMonthHeader(v) {
+  if (v == null || v === '') return null
+  if (v instanceof Date && !isNaN(v)) {
+    const y = v.getFullYear(), mo = v.getMonth() + 1
+    return { key: `${y}-${String(mo).padStart(2,'0')}`, label: `${MONTH_NAMES[mo-1]} ${y}` }
+  }
+  const s = String(v).trim()
+  if (!s || /ltm/i.test(s)) return null
+  // YYYY-MM or YYYY/MM (optional -DD)
+  let m = s.match(/^(\d{4})[-/](\d{1,2})/)
+  if (m) return { key: `${m[1]}-${m[2].padStart(2,'0')}`, label: s }
+  // M/YYYY or MM-YYYY
+  m = s.match(/^(\d{1,2})[-/](\d{4})$/)
+  if (m) return { key: `${m[2]}-${m[1].padStart(2,'0')}`, label: s }
+  // M/YY or MM/YY — 2-digit year => 20yy
+  m = s.match(/^(\d{1,2})[-/](\d{2})$/)
+  if (m) return { key: `20${m[2]}-${m[1].padStart(2,'0')}`, label: s }
+  // MMM YYYY / MMM-YYYY (e.g. "Aug 2025")
+  m = s.match(/^([A-Za-z]+)[-\s]+(\d{4})$/)
+  if (m) {
+    const mo = MONTH_MAP[m[1].slice(0,3).toLowerCase()]
+    if (mo) return { key: `${m[2]}-${String(mo).padStart(2,'0')}`, label: s }
+  }
+  // MMMyy / MMMyyyy — no separator (e.g. "Aug25", "Aug2025"). Diligence-workbook default format.
+  m = s.match(/^([A-Za-z]+)(\d{2,4})$/)
+  if (m) {
+    const mo = MONTH_MAP[m[1].slice(0,3).toLowerCase()]
+    if (mo) {
+      const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
+      return { key: `${yr}-${String(mo).padStart(2,'0')}`, label: s }
+    }
+  }
+  return null
 }
 
-function parseDataSheet(ws, platform, kind) {
-  // Row 1: section title  |  Row 2: headers  |  Row 3+: data
-  // Headers: col 1 empty (row labels), col 2 = ISRC/Category, col 3..N-1 = months, col N = LTM Total
-  const headerRow = ws.getRow(2)
-  const lastCol = ws.columnCount
-  const months = []
-  for (let c = 3; c < lastCol; c++) {
-    const v = headerRow.getCell(c).value
-    if (v && String(v).toLowerCase() !== 'ltm total') months.push(String(v))
-  }
-  if (!platform.months.length) platform.months = months
-
-  const isBreakdown = /^Breakdown/i.test(kind)
-  const isAdj = /Adj$/i.test(kind)
-  const bucket = isBreakdown ? platform.breakdown : platform.tracks
-
-  for (let r = 3; r <= ws.rowCount; r++) {
-    const row = ws.getRow(r)
-    const labelCell = row.getCell(1).value
-    if (!labelCell) continue
-    const label = String(labelCell).trim()
-    if (!label || /^grand total$/i.test(label)) continue
-
-    const values = []
-    for (let c = 3; c < lastCol; c++) {
-      const v = row.getCell(c).value
-      values.push(typeof v === 'number' ? v : Number(v) || 0)
-    }
-    const ltmRaw = row.getCell(lastCol).value
-    const ltm = typeof ltmRaw === 'number' ? ltmRaw : Number(ltmRaw) || 0
-
-    let entry = bucket.find(e => e.name === label)
-    if (!entry) {
-      entry = { name: label, rep: [], adj: [], ltmRep: 0, ltmAdj: 0 }
-      if (!isBreakdown) {
-        const isrcVal = row.getCell(2).value
-        entry.isrc = isrcVal ? String(isrcVal) : ''
-      }
-      bucket.push(entry)
-    }
-    if (isAdj) { entry.adj = values; entry.ltmAdj = ltm }
-    else { entry.rep = values; entry.ltmRep = ltm }
-  }
-}
-
-// POST /api/data/open-folder — open a known root folder in the OS file browser.
-// Body: { key: 'current' | 'materials-root' }
-// Used by Data Manager's Import Data and Deal Manager's Deal Materials (unlinked) buttons.
+// POST /api/data/open-folder — open a folder in the OS file browser.
+// Body: { key: 'current' | 'materials-root' } OR { path: '<absolute-path>' }
+// Used by:
+//   - Data Manager's Import Data button (key: 'current')
+//   - Data Manager's folder-name right-click (path: <folder path>)
+//   - Deal Manager's Deal Materials unlinked button (key: 'materials-root')
+// When `path` is supplied, it's resolved and must live inside DATA_ROOT (security guard).
 app.post('/api/data/open-folder', (req, res) => {
   try {
-    const { key } = req.body || {}
+    const { key, path: pathParam } = req.body || {}
     const targets = {
       'current': path.join(DATA_ROOT, '1. Current'),
       'materials-root': MATERIALS_ROOT,
     }
-    const target = targets[key]
-    if (!target) return res.status(400).json({ error: 'invalid key' })
+    let target = targets[key]
+    if (!target && pathParam) {
+      const resolved = path.resolve(pathParam)
+      const safeRoot = path.resolve(DATA_ROOT)
+      if (resolved !== safeRoot && !resolved.startsWith(safeRoot + path.sep)) {
+        return res.status(403).json({ error: 'path outside data root' })
+      }
+      if (!fs.existsSync(resolved)) return res.status(404).json({ error: 'path not found' })
+      target = resolved
+    }
+    if (!target) return res.status(400).json({ error: 'invalid key or path' })
     if (!fs.existsSync(target)) {
       try { fs.mkdirSync(target, { recursive: true }) } catch {}
     }

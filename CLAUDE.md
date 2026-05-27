@@ -5,6 +5,7 @@
 ## Session Start
 - Always read `_claude_progress.md` at the start of every session before doing anything.
 - Also read `docs/v2_specs.md` — the full v2 royalty pipeline spec (statement merger, projection model, advance/IRR calculator, modularity rule). This is the source of truth for v2 work.
+- Also read `docs/design_system.md` — the living visual + interaction reference (glass, pill buttons, liquid hover, disabled-state suppression, tooltips, modals, headers, etc.). Source of truth for all UI work. Pattern that appears in 2+ places goes here.
 - When the user says **"save session"**, write a concise `_claude_progress.md` covering:
   1. What was accomplished this session
   2. Where we left off / current state
@@ -115,12 +116,12 @@ UI design is locked. Do not change colors, gradients, typography, sidebar, or sp
 - `--primary-mid: #6218C8`
 - `--primary-light: #EAE0FF`
 - `--primary-faint: #F4F0FF`
-- `--ink: #1A0F2E` (main text)
+- `--ink: #050508` (main text — essentially black with a barely-perceptible cool hint)
 - `--ink-light: #6B6580` (placeholders only)
 - `--ink-faint: #7E7898` (disabled states only)
 - `--sidebar-text: #EDE6FF` (sidebar nav text)
-- `--sidebar-active: #A78BFA`
-- `--sidebar-hover: #241050`
+- `--primary-soft: #A78BFA` (soft lavender — sidebar active, orb palette)
+- `--primary-deep: #241050` (deep near-black purple — sidebar hover, orb palette)
 
 ### Sidebar
 - Background: `var(--sidebar-bg) url('/sidebar-bg.png') center top / cover no-repeat`

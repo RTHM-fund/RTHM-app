@@ -137,7 +137,19 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
                     className={trClass}
                     onClick={() => setSelectedFolderPath(prev => prev === f.path ? null : f.path)}
                   >
-                    <td className="data-manager-td-name" title={f.name}>
+                    <td
+                      className="data-manager-td-name"
+                      title={f.name}
+                      onContextMenu={e => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        fetch('/api/data/open-folder', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ path: f.path }),
+                        }).catch(() => {})
+                      }}
+                    >
                       <div className="data-manager-cell-truncate">
                         {f.name}
                         {isRunning && <span className="data-manager-row-spinner" aria-label="running" />}

@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  position: relative; /* positioning context for absolute-centered .empty-state */
 }
 
 .deals-page-header {
@@ -112,24 +113,45 @@
 }
 
 
+/* Monday.com logo: grayed/desaturated at rest. On hover a clip-path circle
+   expands from the cursor entry point (--mx / --my set by App.jsx's liquid-pill
+   handler) revealing the full-color logo on top. Same easing/timing as the
+   liquid-pill bubble. */
 .deals-monday-btn {
+  position: relative;
   display: flex;
   align-items: center;
   background: none;
   border: none;
   padding: 0;
   text-decoration: none;
-  transition: all 0.15s;
+  isolation: isolate;
 }
 
 .deals-monday-btn img {
   height: 16px;
   width: auto;
   display: block;
+  opacity: 0.3;
+  transition: filter 0.15s;
 }
 
-.deals-monday-btn:hover {
-  opacity: 0.85;
+.deals-monday-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/monday-logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  clip-path: circle(0 at var(--mx, 50%) var(--my, 50%));
+  transition: clip-path 0.6s cubic-bezier(0.33, 0, 0.15, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.deals-monday-btn:hover::before {
+  clip-path: circle(100% at var(--mx, 50%) var(--my, 50%));
 }
 
 .deals-forms-btn, .deals-materials-btn {
@@ -149,7 +171,6 @@
 
 .deals-forms-btn.linked, .deals-materials-btn.linked, .deals-valuation-btn.linked {
   background: var(--primary-mid);
-  border-color: var(--primary-mid);
   color: white;
 }
 /* linked-state hover handled by liquid-pill.css */

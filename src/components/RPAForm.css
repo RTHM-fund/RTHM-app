@@ -89,7 +89,9 @@
   padding: 10px 14px;
   border: 1.5px solid var(--paper-darker);
   border-radius: var(--radius);
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   color: var(--ink);
   font-size: 14px;
   font-weight: 500;
@@ -137,8 +139,8 @@ select.field-input {
 /* hover handled by liquid-pill.css */
 
 .export-btn.disabled {
-  background: var(--paper-darker);
-  color: var(--primary-mid);
+  background: rgba(82, 0, 190, 0.1);
+  color: var(--primary);
   cursor: not-allowed;
 }
 

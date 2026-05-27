@@ -83,7 +83,9 @@
   padding: 10px 14px;
   border: 1.5px solid var(--paper-darker);
   border-radius: var(--radius);
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   color: var(--ink);
   font-size: 14px;
   font-weight: 500;
@@ -113,8 +115,8 @@
 /* hover handled by liquid-pill.css */
 
 .invoice-fields .export-btn.disabled {
-  background: var(--paper-darker);
-  color: var(--primary-mid);
+  background: rgba(82, 0, 190, 0.1);
+  color: var(--primary);
   cursor: not-allowed;
 }
 
@@ -135,7 +137,9 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1.5px solid var(--paper-darker);
   border-top: none;
   border-radius: 0 0 var(--radius) var(--radius);
@@ -188,6 +192,9 @@
   text-align: center;
   color: var(--ink);
   outline: none;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   font-family: 'Montserrat', sans-serif;
 }
 

@@ -70,7 +70,7 @@ export default function App() {
       .catch(err => console.error('Failed to load templates', err))
   }, [])
 
-  // Aurora background — 4 wandering orbs (sum-of-sines wander + cursor converge
+  // Aurora background — 3 wandering orbs (sum-of-sines wander + cursor converge
   // + pairwise repulsion + velocity momentum + breath scale). Ported verbatim
   // from the Bystro landing page so behavior is identical. DOM is mutated
   // imperatively for per-frame transforms (cheaper than React state).
@@ -79,26 +79,25 @@ export default function App() {
     if (!orbLayer) return
 
     const LOCKED = {
-      breath: 0.06,
-      speed: 0.8,
-      wanderSpeed: 2.4,
-      wander: 2.0,
-      converge: 120,
-      repel: 2.0,
-      velocity: 0.02,
-      spacing: 0.35,
+      breath: 0.10,
+      speed: 1.0,
+      wanderSpeed: 3.0,
+      wander: 3.0,
+      converge: 150,
+      repel: 3.0,
+      velocity: 0.05,
+      spacing: 0.20,
     }
-    // RTHM-brand palette: purples + a near-black anchor. No teal/blue/green.
-    // Colors map to design tokens: primary, primary-mid, sidebar-active, sidebar-hover.
-    // RTHM-brand palette: purples + a near-black anchor. No teal/blue/green.
-    // Colors map to design tokens: primary, primary-mid, sidebar-active, sidebar-hover.
-    // Opacities lowered + blur bumped (see positionOrbs below) to keep the
-    // background atmospheric rather than busy.
+    // All 3 orbs use the RTHM royal purple (--primary, #5200BE) — overlapping
+    // regions stack alpha for a richer purple haze, all-same hue keeps the brand
+    // identity loud and the bg minimal. No mixed palette.
+    // Anchor centers as fractions of viewport (centerX, centerY ∈ [0,1]).
+    // Tuned via the in-app drag playground — locked-in positions form an askew
+    // shape across the viewport with the deep purple anchoring the bottom.
     const ORB_DEFS = [
-      { color: '#A78BFA', sizeFactor: 0.80, opacity: 0.30, anchor: 'top-right',    offsetX: -160, offsetY: -200, depth: 1.0 },
-      { color: '#5200BE', sizeFactor: 0.90, opacity: 0.20, anchor: 'bottom-left',  offsetX: -200, offsetY: -260, depth: 0.8 },
-      { color: '#6218C8', sizeFactor: 0.65, opacity: 0.24, anchor: 'center',       offsetX:  -50, offsetY:  -50, depth: 1.3 },
-      { color: '#241050', sizeFactor: 0.60, opacity: 0.15, anchor: 'center-right', offsetX: -100, offsetY:  -60, depth: 1.1 },
+      { color: '#5200BE', sizeFactor: 0.80, opacity: 0.30, centerX: 0.343, centerY: 0.253, depth: 1.0 },
+      { color: '#5200BE', sizeFactor: 0.90, opacity: 0.30, centerX: 0.906, centerY: 0.460, depth: 0.8 },
+      { color: '#5200BE', sizeFactor: 0.60, opacity: 0.30, centerX: 0.511, centerY: 0.842, depth: 1.1 },
     ]
 
     const makeWanderFreqs = () => [
@@ -128,15 +127,12 @@ export default function App() {
         orb.el.style.width = size + 'px'
         orb.el.style.height = size + 'px'
         orb.el.style.filter = 'blur(' + blur + 'px)'
-        let left, top
-        if (def.anchor === 'top-right')         { left = W - size + (-def.offsetX); top = def.offsetY }
-        else if (def.anchor === 'bottom-left')  { left = def.offsetX; top = H - size + (-def.offsetY) }
-        else if (def.anchor === 'center')       { left = W/2 - size/2 + def.offsetX; top = H/2 - size/2 + def.offsetY }
-        else if (def.anchor === 'center-right') { left = W - size + def.offsetX; top = H/2 - size/2 + def.offsetY }
-        orb.el.style.left = left + 'px'
-        orb.el.style.top = top + 'px'
-        orb.baseCenterX = left + size / 2
-        orb.baseCenterY = top + size / 2
+        const cx = W * def.centerX
+        const cy = H * def.centerY
+        orb.el.style.left = (cx - size / 2) + 'px'
+        orb.el.style.top = (cy - size / 2) + 'px'
+        orb.baseCenterX = cx
+        orb.baseCenterY = cy
       })
     }
     positionOrbs()
@@ -144,15 +140,44 @@ export default function App() {
     let mx = window.innerWidth / 2, my = window.innerHeight / 2
     let smx = mx, smy = my
     let lastMx = mx, lastMy = my, velX = 0, velY = 0
+    // Active state: orbs only wander + converge when cursor is over .main-area.
+    // When cursor is in the sidebar or outside the window, isActive→false and
+    // activeFactor smoothly fades to 0 — wander, converge, and velocity transfer
+    // all scale by it, so orbs return to their anchor positions.
+    let isActive = false
+    let activeFactor = 0
 
-    function onMouseMove(e) { mx = e.clientX; my = e.clientY }
+    function onMouseMove(e) {
+      const overMain = e.target?.closest?.('.main-area')
+      if (overMain) {
+        mx = e.clientX
+        my = e.clientY
+        isActive = true
+      } else {
+        isActive = false
+      }
+    }
     function onMouseOut(e) {
-      if (!e.relatedTarget) { mx = window.innerWidth / 2; my = window.innerHeight / 2 }
+      if (!e.relatedTarget) {
+        mx = window.innerWidth / 2
+        my = window.innerHeight / 2
+        isActive = false
+      }
     }
     function onTouchMove(e) {
-      if (e.touches.length > 0) { mx = e.touches[0].clientX; my = e.touches[0].clientY }
+      if (e.touches.length > 0) {
+        const t = e.touches[0]
+        const overMain = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.main-area')
+        if (overMain) {
+          mx = t.clientX
+          my = t.clientY
+          isActive = true
+        } else {
+          isActive = false
+        }
+      }
     }
-    function onTouchEnd() { mx = window.innerWidth / 2; my = window.innerHeight / 2 }
+    function onTouchEnd() { mx = window.innerWidth / 2; my = window.innerHeight / 2; isActive = false }
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseout', onMouseOut)
     window.addEventListener('touchmove', onTouchMove, { passive: true })
@@ -167,6 +192,8 @@ export default function App() {
       velX = velX * 0.85 + (mx - lastMx) * 0.15
       velY = velY * 0.85 + (my - lastMy) * 0.15
       lastMx = mx; lastMy = my
+      // Smooth activeFactor toward 0 or 1 — gives orbs ~12 frames to fade back to anchors
+      activeFactor += ((isActive ? 1 : 0) - activeFactor) * 0.08
 
       orbs.forEach(orb => {
         const def = orb.def
@@ -175,13 +202,13 @@ export default function App() {
           driftX += Math.sin(wanderTime * f.fx + f.px) * f.ax
           driftY += Math.cos(wanderTime * f.fy + f.py) * f.ay
         }
-        driftX *= LOCKED.wander
-        driftY *= LOCKED.wander
+        driftX *= LOCKED.wander * activeFactor
+        driftY *= LOCKED.wander * activeFactor
         const dxc = smx - orb.baseCenterX
         const dyc = smy - orb.baseCenterY
-        const k = LOCKED.converge / 200 * def.depth
-        orb.velX = orb.velX * 0.92 + velX * LOCKED.velocity * def.depth * 0.4
-        orb.velY = orb.velY * 0.92 + velY * LOCKED.velocity * def.depth * 0.4
+        const k = LOCKED.converge / 200 * def.depth * activeFactor
+        orb.velX = orb.velX * 0.92 + velX * LOCKED.velocity * def.depth * 0.4 * activeFactor
+        orb.velY = orb.velY * 0.92 + velY * LOCKED.velocity * def.depth * 0.4 * activeFactor
         orb._tempTx = driftX + dxc * k + orb.velX
         orb._tempTy = driftY + dyc * k + orb.velY
       })
@@ -201,7 +228,10 @@ export default function App() {
           const dist = Math.sqrt(dx * dx + dy * dy) + 1
           const minDist = (a.size + b.size) * LOCKED.spacing
           if (dist < minDist) {
-            const force = (minDist - dist) * 0.05 * LOCKED.repel
+            // Repel scales inversely with activeFactor — when cursor is in
+            // main-area (orbs are actively converging on it), orbs are free
+            // to overlap. Repel only kicks in once activeFactor fades.
+            const force = (minDist - dist) * 0.05 * LOCKED.repel * (1 - activeFactor)
             fx += dx / dist * force
             fy += dy / dist * force
           }
@@ -215,6 +245,9 @@ export default function App() {
         const tx = orb._tempTx + orb.repelX
         const ty = orb._tempTy + orb.repelY
         orb.el.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + scale.toFixed(3) + ')'
+        // Fade orb opacity as it converges. At full convergence each orb sits
+        // at 50% of rest opacity so the stacked-3-overlap doesn't look too dark.
+        orb.el.style.opacity = orb.def.opacity * (1 - 0.5 * activeFactor)
       })
 
       rafId = requestAnimationFrame(tick)
@@ -254,7 +287,9 @@ export default function App() {
       '.agreements-new-btn', '.agreements-edit-btn', '.agreements-export-btn',
       '.agreements-delete-btn', '.agreements-type-btn',
       '.modal-import-btn', '.modal-cancel', '.modal-connect-btn', '.modal-radio-btn',
-      '.export-btn'
+      '.export-btn',
+      '.valuate-toggle-btn',
+      '.deals-monday-btn'
     ].join(',')
     function handler(e) {
       const btn = e.target.closest(LIQUID_SELECTOR)

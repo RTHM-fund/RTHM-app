@@ -76,7 +76,6 @@
   color: var(--ink);
   padding: 6px 8px;
   text-align: center;
-  border-bottom: 1.5px solid var(--paper-darker);
 }
 
 .income-table th:first-child {
@@ -84,7 +83,6 @@
 }
 
 .income-table thead tr:first-child th {
-  border-bottom: none;
   padding-bottom: 0;
 }
 
@@ -111,6 +109,9 @@
   text-align: center;
   color: var(--ink);
   outline: none;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   font-family: 'Montserrat', sans-serif;
 }
 

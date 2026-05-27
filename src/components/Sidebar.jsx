@@ -73,10 +73,6 @@ export default function Sidebar({ categories, selectedTemplate, onSelectTemplate
           </div>
         ))}
       </nav>
-
-      <div className="sidebar-footer">
-        <span className="sidebar-wordmark">RTHM App</span>
-      </div>
     </aside>
   )
 }

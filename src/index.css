@@ -7,7 +7,7 @@
   --primary-light: #EAE0FF;
   --primary-faint: #F4F0FF;
 
-  --ink: #1A0F2E;
+  --ink: #050508;
   --ink-light: #6B6580;
   --ink-faint: #7E7898;
 
@@ -18,8 +18,8 @@
   --sidebar-bg: #16092E;
   --sidebar-text: #EDE6FF;
   --sidebar-text-dim: #9B90C2;
-  --sidebar-active: #A78BFA;
-  --sidebar-hover: #241050;
+  --primary-soft: #A78BFA;
+  --primary-deep: #241050;
 
   --accent: #5200BE;
   --accent-light: #EAE0FF;
@@ -36,11 +36,15 @@ html, body, #root {
 
 body {
   background:
-    radial-gradient(at 15% 20%, #e0d4f0 0%, transparent 45%),
-    radial-gradient(at 85% 15%, #d4d8ec 0%, transparent 50%),
-    radial-gradient(at 75% 75%, #c8d8f0 0%, transparent 55%),
-    radial-gradient(at 20% 85%, #d8d0ec 0%, transparent 50%),
-    linear-gradient(180deg, #f0e8fa 0%, #e4dcf0 60%, #d4dcec 100%);
+    /* Soft lavender highlight pools — all hues sit in the primary-purple family
+       (~270° hue, ~30-40% saturation, varying lightness) so the bg reads as a
+       diffuse extension of the RTHM brand purple. No blue/grey tints. */
+    radial-gradient(at 15% 20%, #EADAF7 0%, transparent 45%),
+    radial-gradient(at 85% 15%, #E2D0F4 0%, transparent 50%),
+    radial-gradient(at 75% 75%, #D6C0EF 0%, transparent 55%),
+    radial-gradient(at 20% 85%, #E6D5F5 0%, transparent 50%),
+    /* Base lavender stack — lightest at top, slightly deeper at bottom */
+    linear-gradient(180deg, #F2E8FB 0%, #E5DBF6 60%, #D4C5ED 100%);
   background-attachment: fixed;
   color: var(--ink);
   font-family: 'Montserrat', sans-serif;
@@ -92,14 +96,14 @@ button { cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform:
 .arr { color: inherit; font-size: 0.5em; line-height: 1; position: relative; top: -1px; }
 input, select, textarea { font-family: 'Montserrat', sans-serif; }
 .auto-label { font-weight: 700; text-transform: none; color: var(--primary-mid); margin-left: 6px; font-size: 11px; }
-.field-locked { background: var(--paper-dark); color: var(--ink-light); cursor: default; }
+.field-locked { background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); color: var(--ink-light); cursor: default; }
 input::placeholder, textarea::placeholder { color: var(--ink-light); }
 
 .back-btn { background: none; border: none; border-radius: 0 !important; color: var(--ink); font-size: 13px; font-weight: 600 !important; padding: 4px 0; transition: color 0.15s ease; white-space: nowrap; letter-spacing: 0.01em; }
 .back-btn:hover { color: var(--primary); }
 
 .calc-tip { position: relative; cursor: default; }
-.calc-tip::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.35); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(218,206,253,0.6); color: var(--ink); padding: 7px 12px; border-radius: 6px; font-size: 11px; font-family: 'Montserrat', sans-serif; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 100; box-shadow: 0 4px 20px rgba(82,0,190,0.08), inset 0 0 0 1px rgba(255,255,255,0.4); }
+.calc-tip::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.45); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: none; color: var(--ink); padding: 7px 12px; border-radius: var(--radius); font-size: 11px; font-family: 'Montserrat', sans-serif; white-space: normal; max-width: 280px; width: max-content; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 100; box-shadow: 0 4px 20px rgba(82,0,190,0.08); isolation: isolate; will-change: backdrop-filter, transform; }
 .calc-tip:hover::after { opacity: 1; }
 
 /* ============================================================
@@ -130,7 +134,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel,
 .modal-connect-btn,
 .modal-radio-btn,
-.export-btn {
+.export-btn,
+.valuate-toggle-btn {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -157,7 +162,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel::before,
 .modal-connect-btn::before,
 .modal-radio-btn::before,
-.export-btn::before {
+.export-btn::before,
+.valuate-toggle-btn::before {
   content: "";
   position: absolute;
   top: var(--my, 50%);
@@ -195,7 +201,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel > span,
 .modal-connect-btn > span,
 .modal-radio-btn > span,
-.export-btn > span {
+.export-btn > span,
+.valuate-toggle-btn > span {
   position: relative;
   z-index: 1;
   text-shadow: none;
@@ -225,9 +232,27 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel:hover::before,
 .modal-connect-btn:hover::before,
 .modal-radio-btn:hover::before,
-.export-btn:not(.disabled):hover::before {
-  width: 500px;
-  height: 500px;
+.export-btn:not(.disabled):hover::before,
+.valuate-toggle-btn:not(.active):hover::before {
+  width: 1500px;
+  height: 1500px;
+}
+
+/* Suppress hover effects on non-clickable buttons app-wide.
+   Covers HTML :disabled, .disabled class, and .recoup-btn-inactive (the toggle's
+   non-clickable variant). Disabled/inactive variants stay in their rest state on
+   hover — no bubble, no text flip. */
+button:disabled:hover::before,
+.disabled:hover::before,
+.recoup-btn-inactive:hover::before {
+  width: 0;
+  height: 0;
+}
+button:disabled:hover > span,
+.disabled:hover > span,
+.recoup-btn-inactive:hover > span {
+  color: inherit;
+  text-shadow: none;
 }
 
 /* Filled primary buttons: white circle (default), text flips white → primary
@@ -239,6 +264,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .data-manager-extract-btn:hover > span,
 .valuation-new-btn:not(:disabled):hover > span,
 .agreements-new-btn:hover > span,
+.agreements-type-btn:not(:disabled):hover > span,
 .modal-import-btn:not(.disabled):hover > span,
 .modal-connect-btn:hover > span,
 .export-btn:not(.disabled):hover > span {
@@ -254,16 +280,16 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .deals-materials-btn::before,
 .agreements-edit-btn::before,
 .agreements-export-btn::before,
-.agreements-type-btn::before,
-.modal-radio-btn::before {
+.modal-radio-btn::before,
+.valuate-toggle-btn::before {
   background: var(--primary-mid);
 }
 .deals-forms-btn:hover > span,
 .deals-materials-btn:hover > span,
 .agreements-edit-btn:hover > span,
 .agreements-export-btn:hover > span,
-.agreements-type-btn:hover > span,
-.modal-radio-btn:hover > span {
+.modal-radio-btn:hover > span,
+.valuate-toggle-btn:not(.active):hover > span {
   color: white;
 }
 
@@ -283,11 +309,10 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel::before { background: var(--primary); }
 .modal-cancel:hover > span { color: white; }
 
-/* Recoup toggle: active = filled, inactive = outline */
+/* Recoup toggle: active = filled (bubble + text flip wired here).
+   Inactive variant is non-clickable — handled by the suppression block above. */
 .recoup-btn-active::before { background: white; }
 .recoup-btn-active:hover > span { color: var(--primary); text-shadow: 0 0 12px rgba(82, 0, 190, 0.4); }
-.recoup-btn-inactive::before { background: var(--primary); }
-.recoup-btn-inactive:hover > span { color: white; }
 
 /* Linked state on Deal Manager outline buttons (filled look) */
 .deals-valuation-btn.linked::before,
