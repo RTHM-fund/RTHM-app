@@ -72,6 +72,21 @@
   transition: all 0.15s;
 }
 
+/* Disabled rest state — design system "transparent-tinted purple" non-clickable convention.
+   Hover suppression (no bubble, no text flip) is handled globally in index.css. */
+.data-manager-summarize-btn:disabled,
+.data-manager-valuate-btn:disabled,
+.data-manager-extract-btn:disabled {
+  background: rgba(82, 0, 190, 0.1);
+  color: var(--primary);
+  cursor: not-allowed;
+}
+.data-manager-summarize-btn:disabled > span,
+.data-manager-valuate-btn:disabled > span,
+.data-manager-extract-btn:disabled > span {
+  color: var(--primary);
+}
+
 /* hover handled by liquid-pill.css */
 
 .data-manager-table-wrap {
@@ -161,16 +176,24 @@
   font-weight: 600;
 }
 
-/* Pack defined columns on the left; trailing empty column absorbs slack. */
-.data-manager-table th:nth-child(1),
-.data-manager-table td:nth-child(1) { width: 280px; }
-.data-manager-table th:nth-child(2),
-.data-manager-table td:nth-child(2),
-.data-manager-table th:nth-child(3),
-.data-manager-table td:nth-child(3),
-.data-manager-table th:nth-child(4),
-.data-manager-table td:nth-child(4) {
-  width: 150px;
+/* Folder name column is given an explicit 280px (= 240px inner truncate +
+   40px cell padding) so the trailing empty column actually absorbs the slack
+   on the right. Deal Manager doesn't need this because every column has
+   content; Data Manager has an empty trailing column that the browser would
+   otherwise skip, dumping all leftover horizontal space into the first
+   unconstrained content column (the folder name). Explicit width prevents that. */
+.data-manager-table thead th:first-child,
+.data-manager-table tbody td:first-child { width: 280px; }
+.data-manager-table .data-manager-td-spark { width: 80px; }
+.data-manager-table .data-manager-th-num,
+.data-manager-table .data-manager-td-num { width: 100px; text-align: right; }
+.data-manager-table thead th:nth-child(5),
+.data-manager-table tbody td:nth-child(5),
+.data-manager-table thead th:nth-child(6),
+.data-manager-table tbody td:nth-child(6),
+.data-manager-table thead th:nth-child(7),
+.data-manager-table tbody td:nth-child(7) {
+  width: 90px;
   text-align: center;
 }
 
@@ -189,13 +212,38 @@
   text-shadow: 0 0 8px rgba(220, 38, 38, 0.65), 0 0 2px rgba(220, 38, 38, 0.5);
 }
 
-/* Single-line cells: truncate long folder names with a soft right-edge fade. */
+/* Single-line cells: truncate long folder names with a soft right-edge fade.
+   Width matches Deal Manager's deals-cell-truncate (240px) for cross-page consistency. */
 .data-manager-cell-truncate {
-  max-width: 600px;
+  max-width: 240px;
   white-space: nowrap;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
   mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+}
+
+/* Per-row sparkline + lifetime/TTM columns. */
+.data-manager-th-num {
+  text-align: right;
+}
+.data-manager-td-spark {
+  width: 80px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.data-manager-sparkline {
+  display: block;
+}
+.data-manager-td-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.data-manager-cell-empty {
+  color: var(--ink-light);
+  font-weight: 500;
 }
 
 .data-manager-delete-btn {

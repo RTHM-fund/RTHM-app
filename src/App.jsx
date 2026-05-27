@@ -287,6 +287,7 @@ export default function App() {
       '.agreements-new-btn', '.agreements-edit-btn', '.agreements-export-btn',
       '.agreements-delete-btn', '.agreements-type-btn',
       '.modal-import-btn', '.modal-cancel', '.modal-connect-btn', '.modal-radio-btn',
+      '.combobox-trigger',
       '.export-btn',
       '.valuate-toggle-btn',
       '.deals-monday-btn'

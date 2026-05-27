@@ -1,7 +1,34 @@
 import React, { useState, useEffect } from 'react'
 import './DataManagerPage.css'
 
-// Build a new Map with completed entries removed (folder gone, or completion flag flipped).
+function fmtInt(v) {
+  if (v == null || !Number.isFinite(v)) return '—'
+  return v.toLocaleString('en-US', { maximumFractionDigits: 0 })
+}
+
+// Minimal sparkline — line shape only, no axes/labels/dots.
+function Sparkline({ values, width = 64, height = 24 }) {
+  if (!values || values.length < 2) return <span className="data-manager-cell-empty">—</span>
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const range = max - min || 1
+  const pad = 2
+  const w = width - pad * 2
+  const h = height - pad * 2
+  const points = values.map((v, i) => {
+    const x = pad + (i / (values.length - 1)) * w
+    const y = pad + h - ((v - min) / range) * h
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  })
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="data-manager-sparkline">
+      <path d={'M' + points.join(' L')} fill="none" stroke="var(--primary)" strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+// Build a new Map with completed entries removed (folder gone, completion flag
+// flipped, or the server marked the skill stale — empty/old log with no progress).
 // Returns the same `prev` reference if nothing changed, so React skips re-render.
 function clearCompletedSkills(prev, list) {
   let changed = false
@@ -12,6 +39,10 @@ function clearCompletedSkills(prev, list) {
     const remaining = new Set(skills)
     if (skills.has('diligence') && folder.hasDiligence) { remaining.delete('diligence'); changed = true }
     if (skills.has('catalog-extract') && folder.hasExtract) { remaining.delete('catalog-extract'); changed = true }
+    const stale = folder.staleSkills || []
+    for (const s of stale) {
+      if (remaining.has(s)) { remaining.delete(s); changed = true }
+    }
     if (remaining.size > 0) next.set(folderPath, remaining)
   }
   return changed ? next : prev
@@ -91,6 +122,14 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
       .catch(() => {})
   }
 
+  // Action availability per the table columns: each button is enabled only when
+  // a folder is selected AND that folder's corresponding column shows ?.
+  // Diligence ↔ hasDiligence,  Valuate ↔ hasDeal (Quote column),  Extract ↔ hasExtract.
+  const selectedFolder = folders.find(f => f.path === selectedFolderPath) || null
+  const diligenceDisabled = !selectedFolder || selectedFolder.hasDiligence
+  const valuateDisabled = !selectedFolder || selectedFolder.hasDeal
+  const extractDisabled = !selectedFolder || selectedFolder.hasExtract
+
   return (
     <div className="data-manager-page">
       <div className="data-manager-header">
@@ -98,13 +137,13 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
           <h1 className="data-manager-title">DATA MANAGER</h1>
           <span className="data-manager-count-badge">{folders.length}</span>
           <div className="data-manager-header-actions">
-            <button className="data-manager-summarize-btn" onClick={() => runSkill('diligence')}><span>Diligence</span></button>
-            <button className="data-manager-valuate-btn" onClick={() => {
+            <button className="data-manager-summarize-btn" disabled={diligenceDisabled} onClick={() => runSkill('diligence')}><span>Diligence</span></button>
+            <button className="data-manager-valuate-btn" disabled={valuateDisabled} onClick={() => {
               if (!selectedFolderPath) return
               const f = folders.find(x => x.path === selectedFolderPath)
               if (f) onOpenValuate?.({ path: f.path, name: f.name })
             }}><span>Valuate</span></button>
-            <button className="data-manager-extract-btn" onClick={() => runSkill('catalog-extract')}><span>Extract</span></button>
+            <button className="data-manager-extract-btn" disabled={extractDisabled} onClick={() => runSkill('catalog-extract')}><span>Extract</span></button>
           </div>
         </div>
         <button className="data-manager-import-btn" onClick={openDataFolder}><span>+ Import Data</span></button>
@@ -120,8 +159,11 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
             <thead>
               <tr>
                 <th>Folder Name</th>
+                <th></th>
+                <th className="data-manager-th-num">Lifetime</th>
+                <th className="data-manager-th-num">TTM</th>
                 <th>Diligence</th>
-                <th>Quote</th>
+                <th>Valuation</th>
                 <th>Extract</th>
                 <th></th>
               </tr>
@@ -154,6 +196,15 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
                         {f.name}
                         {isRunning && <span className="data-manager-row-spinner" aria-label="running" />}
                       </div>
+                    </td>
+                    <td className="data-manager-td-spark">
+                      {f.summary ? <Sparkline values={f.summary.line} /> : <span className="data-manager-cell-empty">—</span>}
+                    </td>
+                    <td className="data-manager-td-num">
+                      {f.summary ? fmtInt(f.summary.lifetime) : <span className="data-manager-cell-empty">—</span>}
+                    </td>
+                    <td className="data-manager-td-num">
+                      {f.summary ? fmtInt(f.summary.ttm) : <span className="data-manager-cell-empty">—</span>}
                     </td>
                     <td>
                       <span className={`diligence-mark ${f.hasDiligence ? 'found' : 'missing'}`}>

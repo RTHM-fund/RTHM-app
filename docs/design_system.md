@@ -201,6 +201,24 @@ Layout:
 
 When adding a new page or component with a header, **immediately add its header class** to the arcade toggle selector in `MainArea.jsx` `handleContextMenu`. Functional-consistency rule (see CLAUDE.md).
 
+### Header Stats Block (centered)
+
+Pattern for surfacing a small number of headline KPIs directly in a page header (first use: Valuate page — `.valuate-header-stats`, showing # statements + reporting cycle).
+
+**Layout — absolute-centered at page midpoint:**
+- Host header has `position: relative`.
+- Stats block: `position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%)`.
+- This anchors the block at the header's horizontal midpoint, which equals the chart-card title midpoint below (both share the same `40px` horizontal padding). Stats therefore line up visually with the column of centered chart-card titles.
+- Because absolute removes the block from flex flow, the header's title-block stays at natural width on the left and the right-side toggle/action pills need `margin-left: auto` to stay pinned right.
+
+**Stat tile structure:** `value` above `label`, both centered horizontally within the tile via `align-items: center` on the column-flex tile.
+- **Value:** 15px, weight 700, `color: var(--primary)`, `font-variant-numeric: tabular-nums`, lowercase/natural case (no `text-transform`). For numeric values it renders as a numeral; for word values (e.g. "monthly", "quarterly", "mixed") it reads in its source lowercase.
+- **Label:** 10px, weight 600, `color: var(--ink-light)`, `letter-spacing: 0.08em`, `text-transform: uppercase`.
+
+**Tile spacing:** `gap: 24px` between tiles inside the block; `gap: 2px` between value and label inside each tile.
+
+**Edge case to flag:** very wide title-block content (long folder name + long subtitle) can grow past the absolute-centered stats block's left edge and overlap. Hasn't surfaced yet but worth knowing if it ever does.
+
 ---
 
 ## Aurora Background

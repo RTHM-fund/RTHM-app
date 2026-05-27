@@ -1,101 +1,100 @@
 # Claude Progress — Session Save
 
-This session was a massive **design-system establishment + visual overhaul** pass on top of a Valuate-page rebuild. Most of the work lives in CSS / a new `docs/design_system.md`, plus a couple of server + JSX changes.
+Massive session — Valuate page expansion + Data Manager v2 inline summaries + modal cutout architecture + Combobox component + diligence-skill spawn diagnostic + dozens of glass/border/alpha refinements.
 
 ---
 
 ## Accomplished This Session
 
-### Valuate page (built from scratch)
-- Old ValuatePage was paused on an `exceljs` bug (`Cannot read properties of undefined (reading 'comments')`). Swapped the diligence-workbook parser to **`xlsx` (SheetJS)** — `exceljs` removed from `package.json`, `xlsx@0.18.5` added.
-- Server endpoint `/api/data/diligence-workbook` rewritten to support:
-  - Both `Track Rep|Adj` and `Brkdn Rep|Adj` sheet naming
-  - Dynamic header-row detection (scans rows 0–7 for first row with month-parseable cells; handles Starz Lil D's header-row-1 layout AND Too $hort's header-row-3 layout AND Rockette's monthly+semi-annual mix)
-  - Per-platform parsing with **Track-preferred + Breakdown fallback** (so UMPG, which has no Track sheets, still contributes via its Breakdown sheets)
-  - Combined view = chronological union of all platforms' months, summed
-- Response shape: `{ folderName, platforms: [{ name, months, tracksLine, tracksAdjLine }], combined: { months, tracksLine, tracksAdjLine } }`.
-- New month-header parser (`parseMonthHeader`) handles: Date objects, `YYYY-MM`, `M/YYYY`, `M/YY` (assumes 2000s), `MMM YYYY`, **`MMMyy` no-separator** (the diligence-skill default like `Aug25`), `MMMyyyy` no-separator.
-- Frontend `ValuatePage.jsx`:
-  - Two stacked line charts ("tracks", "track adjusted"), full width, glass cards, no white bg
-  - Default view = **Combined**, per-platform toggle on the right (only shown when 2+ platforms). Toggle order: platforms first → **Combined furthest right**.
-  - Track-adjusted card auto-hides when its series is element-wise identical to Tracks (case: BMI Dom and BMI Intl on Rockette).
-  - Glass header with back-btn + title + subtitle (all platforms joined `·`).
-- Test catalogs covered: Starz Lil D (1 platform monthly), Too $hort (Jive Track + UMPG Breakdown-only), Roykeisha Rockette (3 platforms mixed monthly+semi-annual).
+### Valuate Page
 
-### Design system established
-- New living doc: **`docs/design_system.md`** — full coverage of glass surface, pill buttons, liquid-pill, disabled suppression, toggles, tooltips, border-radius rules, modals, page headers, aurora background (with full orb spec), selection state, sidebar, typography, transitions/timing, effects (glow/shadow), z-index scale, body background, and the **empty-state centering pattern**.
-- `CLAUDE.md` Session Start updated to read `docs/design_system.md` on every session, alongside `_claude_progress.md` and `docs/v2_specs.md`.
+**Custom chart tooltip** with combined breakdown — for the Combined view, the tooltip now shows `total: $X` + per-platform `jive: $A`, `umpg: $B`, etc. Single-platform views just show `total: $X`. Months aligned across platforms via client-side `monthKey()` mirror of the server's parser.
 
-### Color tokens (locked)
-- **`--ink`**: `#1A0F2E → #0A0A0F → #050508` (essentially black with a barely-perceptible cool hint). Token-based so it cascaded across all text in one change.
-- **`--sidebar-active`** renamed to **`--primary-soft`** (it's a brand-palette purple, not sidebar-only).
-- **`--sidebar-hover`** renamed to **`--primary-deep`** (same reasoning).
-- Sidebar.css usages updated. Comments in `App.jsx` (orb color mapping) updated.
+**Key metrics card** added below the existing chart cards. Rows: `Lifetime (window) — Combined`, `TTM (window) — Combined` (always both shown when ≥12 months, else falls back to Lifetime), per-platform `% of Lifetime (net paid)` (originally `% of LTV` — reverted because LTV means Loan-to-Value in catalog finance; reserving the acronym for the future advance/IRR section). Shares always total 100%.
 
-### Background system (aurora locked)
-- Body gradient back to **lavender**, but all hues sit in the `--primary` purple family (no blue/grey tints — pure RTHM purple family).
-- **3 orbs** (down from 4), **all `#5200BE`** royal purple. Minimal/brand-loud.
-- Anchor positions tuned via an **in-app drag playground** (debug code now stripped):
-  - Orb 1 (sizeFactor 0.80, depth 1.0): centerX `0.343`, centerY `0.253`
-  - Orb 2 (sizeFactor 0.90, depth 0.8): centerX `0.906`, centerY `0.460`
-  - Orb 3 (sizeFactor 0.60, depth 1.1): centerX `0.511`, centerY `0.842`
-- Anchor system **refactored to percentage-based** (`centerX, centerY ∈ [0,1]`) — much more intuitive than the old corner-anchor + offset system.
-- Physics: `breath 0.10, speed 1.0, wanderSpeed 3.0, wander 3.0, converge 150, repel 3.0, velocity 0.05, spacing 0.20`.
-- **Cursor-area gating**: new `isActive` flag — `true` only when cursor is over `.main-area`. Smooth `activeFactor` lerps to 0/1 at 0.08/frame.
-  - Wander, cursor convergence, and velocity transfer all **scale by activeFactor** → orbs glide back to anchors when cursor leaves the main area.
-  - **Repel scales by `(1 - activeFactor)`** → orbs can overlap freely while converging on the cursor; repel returns when they settle.
-  - **Per-orb opacity scales by `(1 - 0.5 × activeFactor)`** → at full convergence each orb fades to 50% of rest (0.30 → 0.15) so 3 overlapping orbs don't stack too dark.
+**$ removed everywhere** on Valuate — `fmtCurrency` drops the currency symbol; just comma-separated integers.
 
-### Pill button system (locked rules)
-- **No borders, ever** on pill buttons (~10 borders removed across app: agreements-edit/export/delete/type, data-manager-delete, modal-cancel, modal-radio, recoup-btn base, deals-X.linked orphan border-color).
-- **Disabled / non-clickable** buttons use the **transparent-tinted purple** convention (`rgba(82, 0, 190, 0.1) + var(--primary)`) — the old `var(--paper-darker) + var(--primary-mid)` pattern is deprecated.
-- Suppression block at the end of liquid-pill in `index.css`: `button:disabled`, `.disabled`, `.recoup-btn-inactive` all stay in rest state on hover (no bubble, no text flip, no glow).
-- Liquid bubble expansion bumped `500px → 1500px` so it fully covers wide buttons (modal radios, agreements-type).
-- Glow on filled-primary hover: `text-shadow: 0 0 12px rgba(82, 0, 190, 0.4)`.
+**Chart titles renamed** + center-aligned: `tracks` → `total revenue`, `track adjusted` → `adjusted revenue`. `key metrics` heading also centered (same `.valuate-chart-title` class).
 
-### Glass surface (everywhere)
-- **All modals**: cleaner Apple-white (`rgba(255,255,255,0.85)` + `blur(24px) saturate(180%)`) over a neutral darken backdrop (`rgba(0,0,0,0.2) + blur(8px)`) — no more navy-purple cast.
-- **All tooltips → glass**: `calc-tip::after` matches recharts tooltip styling (rgba 0.45 + blur 20px + var(--radius)). Recharts tooltips also get `allowEscapeViewBox={{ x: true, y: true }}` to escape chart bounds.
-- **All form inputs → glass** (9 surfaces): `.field-input` (Invoice + RPA + OfferLetter), `.rate-input` (Valuation), `.income-cell .rate-input` (OfferLetter), `.modal-search`, `.modal-input`, `select.modal-input`, `.line-items-count`, `.combo-dropdown`, `.field-locked`.
-- `.field-locked` uses the same glass + `color: var(--ink-light)` (muted text distinguishes locked from active).
-- White solid is now reserved for **filled pill buttons only**.
-- **Valuation table** lost `overflow: hidden`; corner-cell border-radius applied instead — so calc-tip can escape table bounds.
+**Tracks list card** (below the adjusted-revenue chart) — top-80% individual rows + `OTHER (N tracks)` bundle. Columns: `# | track | lifetime | % of LTV`. Server-side per-track aggregation on the "net paid where distinct" basis (only Track sheets, not Brkdn). Comprehensive aggregate-row filter (catches `Grand Total (Gross Royalty)`, `Reported Total`, `Adjusted Total`, `Bridge`, `Less:`, `Layer N — Stripped`, `Net Payable`, `Memo`, `Source field:`, `Statement PDF total`, `Reserve Account Release`, `(a)/(b)/(c)` lettered prefixes). Verified across all current deal workbooks: 47/47 aggregates filtered, 0/57 real tracks falsely caught.
 
-### Empty-state pattern (new design rule)
-- `.empty-state` now **absolute-positioned**: `position: absolute; inset: 0; pointer-events: none` (children re-enable). Centers on the **full page area**, not on remaining flex-space-after-header.
-- Result: Data Manager and Deal Manager (different header heights) place their "no folders found" / "click create new deal" hints at the **same visual midpoint**.
-- `position: relative` added to all 4 host containers: `.deals-page`, `.data-manager-page`, `.main-area-content`, `.valuate-body`.
-- `.empty-hint` now also has `text-align: center` for safety on multi-line copy.
+**Empty chart frames suppressed** — chart cards only render when their data series has ≥1 point. No more hollow axis frames when a deal's diligence is incomplete.
 
-### Sidebar
-- Background image flipped horizontally (`transform: scaleX(-1)` on a new `::before` pseudo-element so nav items don't flip with it).
-- "RTHM App" wordmark + `.sidebar-footer` container removed (JSX + CSS rules deleted).
+**Focus outlines killed** on chart SVG (the dark frame that appeared on click).
 
-### Monday.com logo button (special effect)
-- Rest: 0.3-opacity full-color logo (faded but colored).
-- Hover: clip-path circle (anchored at cursor entry via the liquid-pill `--mx`/`--my` system) grows over 0.6s to reveal a 100%-opacity colored logo from a `::before` pseudo.
-- Added `.deals-monday-btn` to `LIQUID_SELECTOR` in App.jsx.
+**Header stats block** (left of title-block, centered between title and toggle then locked at page horizontal midpoint via `position: absolute; left: 50%`): two mini stat-tiles for `STATEMENTS` (count) + `CYCLE` (monthly / quarterly / semi-annual / annual / mixed). Value 15px primary, label 10px uppercase ink-light. Dynamic per platform toggle — selecting BMI Dom shows just BMI Dom's count + cadence.
 
-### Headers (audit + glass)
-- All form-page headers (`.invoice-header`, `.agreements-header`, `.offers-header`, `.rpa-header`, `.valuate-header`, `.valuation-header`) confirmed glass with the standard pattern (`rgba(255,255,255,0.45) + blur(20px) saturate(180%) + border-bottom`).
-- `.data-manager-header` and `.deals-page-header` are inline title-rows (not glass banners) by design — flagged in audit.
+**Statement count = actual source files**, not period count. Server scans the deal folder and attributes each statement file to the platform whose name appears in its relative path. Comprehensive rule set:
+- Tokenized + aliased platform matching (`DOM ↔ Domestic`, `INTL ↔ International`, `PUB ↔ Publishing`, `MECH ↔ Mechanical`, `PERF ↔ Performance`). Single-substring matching missed Scott Storch's `ASCAP DOM` ↔ `ASCAP/01_12_2026 - Domestic.csv` case.
+- CSV+PDF basename dedup (Scott Storch's ASCAP CSV+PDF pairs count as 1 statement, not 2).
+- Single-platform deals allow depth-0 files (Starz Lil D's lone `royalties_detailed.csv` at the deal root).
+- Multi-platform deals skip depth-0 (Too $hort's `Earnings Summary - Jive + UMPG.xlsx` filtered).
+- Filename keyword filter: `quote / merged / consolidated / agreement / agenda / contract` always skip; `summary` only when no period marker (year / 1H/2H / Q1-Q4 / month name) — preserves UMPG's `Financial Summary 1H2023.pdf` while still rejecting `LOMELI TuneCore Summary.xlsx`.
+- File extensions accepted: `.csv .tsv .pdf .xls .xlsx .xlsm .txt` (also added to `/diligence` skill's `SKILL.md`).
+- **Integrity gate**: platform with revenue but 0 attributed files → `statementsCount: null`, frontend renders `?` with hover-tooltip explanation. Never a silent 0 when data exists.
 
-### Other UI fixes
-- **Income Sharing table**: removed `border-bottom` from `th` cells (no more white line under header).
-- **Modal table thead**: white fill removed (sticky positioning kept, but bg transparent so modal glass shows through).
-- **Modal top-row checkbox**: removed (header row no longer selectable; empty `<th></th>` placeholder keeps column widths aligned).
-- **Modal cancel/back rest color**: ink → primary (matches the tinted-clickable schema).
-- **Agreements-type-btn**: moved from outline-primary group to filled-primary group (rest = filled primary, hover = white bubble + primary text + glow, matches `+ Diligence`).
-- **Recoup toggle**: kept on the no-borders + suppression-block rules; orphan `border-color` cleaned.
+**CAGR removed** from key metrics (`455.81%` on partial-year data was clearly broken; reserved for future advance/IRR work where it can be done correctly).
 
-### Server / endpoint additions
-- `POST /api/data/open-folder` now accepts `{ path: <absolute path> }` in addition to `{ key }`. Security check: resolved path must live inside `DATA_ROOT`.
-- Data Manager: **right-click on a folder name** → opens that folder in Explorer/Finder via the new endpoint. `e.stopPropagation()` to avoid the arcade triple-click handler. `preventDefault()` on the context menu.
+### Data Manager
 
-### Memory + docs
-- `CLAUDE.md` Session Start updated to reference `docs/design_system.md`.
-- `docs/design_system.md` created and continuously expanded as new rules were locked.
-- Token renames + ink darkening reflected in `CLAUDE.md` Locked Colors section.
+**Three new columns** between Folder Name and Diligence: blank-header sparkline (SVG line shape only, no axes/labels/dots), `Lifetime`, `TTM`. Sparkline uses combined-revenue line (adjusted if distinct from rep, else rep — mirrors Valuate's auto-choose). Inline server computation via new `computeWorkbookSummary(folder)` helper called from `/api/data/folders`. Folders without diligence get `summary: null` → cells render `—`.
+
+**Column widths tuned** so columns pack left next to the folder name + trailing column absorbs slack on the right. Folder name explicitly 280px (= 240px inner truncate + 40px padding) — matches Deal Manager's first-column visual exactly. Inputs/sparkline/lifetime/TTM/diligence/valuation/extract all tightened.
+
+**Folder name truncation** — matches Deal Manager's pattern (`max-width: 240px` + right-edge mask-image fade) so long names taper rather than push the table.
+
+**Action button disabled states** based on column completion: Diligence button disabled when `hasDiligence`, Valuate when `hasDeal`, Extract when `hasExtract`. All three disabled when no folder selected. Disabled rest state uses design-system "transparent-tinted purple" convention.
+
+**QUOTE → VALUATION** column header rename.
+
+**Stale-skill detection** in `/api/data/folders`. Per-folder, per-skill: if the most recent log file is empty + > 10 min old OR > 1 hr old regardless of size → marked stale → frontend's `clearCompletedSkills` reconciler auto-clears the spinner from localStorage. No more permanent spinners on dead diligence runs.
+
+### Diligence Skill / Subprocess
+
+**`SKILL.md` updated** to enumerate `CSV / TSV / XLS / XLSX / XLSM / PDF / TXT` in the description tag, Phase 2A cross-check, and failure-handling rule. So the skill's classifier sees all supported formats.
+
+**Spawn diagnostic fix landed** in `/api/data/run-skill` — but NOT YET VERIFIED. Changes:
+- Dropped `detached: true` (subprocess stays tied to server; server is long-running anyway)
+- Switched `stdio` from raw fd inheritance to piped streams (`['ignore', 'pipe', 'pipe']` + `.pipe(createWriteStream)`) — Windows + detached + fd inheritance was silently dropping output
+- Added `proc.on('exit')` handler that appends `[spawn] exit code=N signal=S` to log
+- Added `proc.on('error')` handler for spawn failures
+- Added `.spawn-debug.json` sidecar written BEFORE spawn (resolved bin + args + cwd + env keys)
+
+Issue saved as `memory/diligence_spawn_dying_issue.md`. Next session: restart server, trigger diligence on Victor Thell, check for `[spawn] exit code=...` line + `.spawn-debug.json` to know exactly what fails.
+
+### Modal Cutout Architecture
+
+**Replaced 2-layer dim+blur with 1-layer cutout** approach across all modals. `.modal-overlay` is now a transparent click-trap (no `background`, no `backdrop-filter`). `.modal` panel drops to chart-card glass (`rgba(255,255,255,0.45)` + `blur(20px) saturate(180%)`) and casts its own dim via massive box-shadow spread (`0 0 0 100vmax rgba(0,0,0,0.35)`). The modal area becomes a clean hole in the dim — its transparency now reveals the real aurora blurred behind it, not a dimmed plane. Resolves the "modal looks muddy" problem.
+
+Audited all six modal call sites (`ImportModal`, `OfferLetterForm` Select Row, `ValuationPage` Create Deal Sheets, `AgreementsPage` Select Type / Create Deal Sheets B2B / Partner Info). All sub-variants (`.deal-sheet-modal`, `.deal-sheet-table-modal`, `.agreements-type-modal`, `.partner-modal`) only override `width` — cutout flows through automatically.
+
+**No-white-inside-modals**: all `.modal-search` / `.modal-input` / `select.modal-input` backgrounds set to `transparent`. The 0.45-alpha modal panel shows through directly. Border still defines the input region.
+
+**All horizontal lines removed** from modals: `.modal-header` bottom, `.modal-search-wrap` bottom, `.modal-table th` bottom, `.modal-table td` bottom (row dividers), `.modal-footer` top.
+
+### Combobox Component
+
+**New reusable component** at `src/components/Combobox.jsx` + `.css`. Replaces native `<select className="modal-input">` because the OPENED dropdown menu of a native `<select>` is OS-rendered solid white and can't be styled with CSS.
+
+Used in two places: `ValuationPage`'s Create Deal Sheets B2B template picker + `AgreementsPage`'s Create Deal Sheets B2B template picker. Other native selects in `ImportModal` (royaltyType / dealType) NOT swapped — wasn't requested.
+
+**Trigger** = filled-primary pill (purple bg, white text, chevron via inline SVG with `currentColor` so it animates with the text-flip). Wired into all four `index.css` liquid-pill selector groups (base position rule, `::before` bubble rule, `> span` text-transition rule, filled-primary `:hover > span` color rule) + `LIQUID_SELECTOR` array in `App.jsx`.
+
+**Stays-open state** — `.combobox.open .combobox-trigger::before` matches the hover `:hover::before` bubble-expansion rule + `.combobox.open .combobox-trigger > span` matches the filled-primary hover text-flip. So when the dropdown is open, trigger holds the white-bubble + primary-text + glow visual. Chevron also rotates 180° via `.combobox.open .combobox-chevron`.
+
+**Dropdown menu portaled** to `document.body` via `createPortal`. Position fixed using the trigger's `getBoundingClientRect()`. Necessary because the parent modal has `overflow: hidden` (for rounded corners) + `backdrop-filter` (creates a containing block that traps even `position: fixed` children). Click-outside handler exempts both the combobox root AND the portaled menu.
+
+**Field centering** — `.modal-field:has(.combobox)` centers the label + trigger horizontally in the modal.
+
+### Valuation Page (rate-input cleanup)
+
+- **Borders removed** from `.rate-input` (purple borders + focus-color flip both gone)
+- **Editable rate-input alpha** dropped from 0.45 → 0.18 (subtle glass; user said 0.45 read as "white pill")
+- **`.rate-locked` (locked recoup display)** restyled as a glass pill matching the valuation table headers — `rgba(255,255,255,0.45)` + `blur(20px) saturate(180%)` + 4px radius + 4px 8px padding. Both the recoup-rate column locked span AND the advance column locked span (`<span className="calc-tip">` got `rate-locked` added). Previously the locked state showed plain text with no background, "straight up purple" through the lavender.
+
+### Data Integrity Core Rule
+
+**Added to CLAUDE.md** as a top-level CORE RULE. Two sacred layers: (1) source data files, (2) diligence workbooks — must be 100% accurate from source. All math must be financially perfect, no mistakes. Includes specific examples (e.g., `slice(-12)`-counts-entries-not-months bug that caused TTM=Lifetime on semi-annual deals). Saved as `memory/data_integrity_core.md` for future-session persistence.
 
 ---
 
@@ -103,27 +102,35 @@ This session was a massive **design-system establishment + visual overhaul** pas
 
 - **Working path**: `C:\Users\richa\RTHM Dropbox\RTHM Fund\RTHM\4. Operations\RTHM App\App Files`
 - **Branch**: `master`, repo `https://github.com/RTHM-fund/RTHM-app`
-- **App state**: Vite + Node server still hot-reloading cleanly. No outstanding runtime errors.
-- **Server-restart-needed changes this session**: yes — `xlsx` dep swap, endpoint rewrites, plus other minor edits. Frontend changes hot-reload via Vite, but the user should have `npm run dev` running for the latest server code.
-- **Design**: locked in. Background lavender / orbs royal-purple / empty-state absolute-centered / pill buttons borderless / disabled tinted-purple / glass everywhere except filled pills.
+- **App state**: Vite + Node server hot-reloading cleanly. UI changes live via HMR.
+- **Server restart needed** for: per-track extraction, source-file statement scanner, sparkline/Lifetime/TTM summary, stale-skill detection, diligence spawn diagnostic, all the route + helper additions.
+- **Diligence spawn fix not yet verified** — first re-trigger after server restart will show whether it actually runs to completion (look for `[spawn] exit code=...` in log + `.spawn-debug.json` sidecar).
 
 ---
 
 ## What's Next
 
-### V2 roadmap (unchanged from last save)
-1. File discovery — done ✓
-2. **Column standardization → earnings col selection → date extraction → include/exclude → merge** ← NEXT
-3. Pivot engine → projection model → advance/IRR calculator
+### v2 spec — projection + advance/IRR engine
+Full spec already provided in earlier task message — stages 7-22, server-side only, pure functions. Modules outlined:
+- `server/data-manager/projections.js` (stages 7–11: rank/split, baseline, floor, decay, TOTAL)
+- `server/data-manager/params.js` (defaults / overrides / presets / resolve)
+- `server/data-manager/advance.js` (stages 16–22: scenarios, cashflow, solver, recoupment, IRR, req-months)
+- `server/data-manager/xfin.js` (XNPV + XIRR primitives, by hand)
+- `server/data-manager/routes.js` (single endpoint)
 
-Full spec: `docs/v2_specs.md`. Modularity rule still holds (Data Manager / Deal Manager decoupled at the frontend; server endpoints are the only bridge).
+UX design already in progress per user message:
+- Portfolio inputs + "set parameters" pill below charts
+- Projections toggle pill in same band
+- Tracks list (top-80% + OTHER) drives drill-down: click track → graphs swap to single-track context
+- Per-track parameter overrides starting from portfolio defaults
+- Save individually + group-apply to TOTAL projection + advance calc
 
-### Known issues / pending
-- **Linux fallback** for `findClaudeBin()` still not implemented (PATH-only).
+### Known open issues
+- **Diligence subprocess silent death** — fix applied, not verified. See `memory/diligence_spawn_dying_issue.md`. Reproducible across multiple deals before fix; verify with Victor Thell after server restart.
+- **Native `<select>` in `ImportModal`** (royaltyType, dealType) — still has OS-rendered solid-white dropdown menu. Combobox component exists; swap is a 3-line change per call site if/when desired.
+- **Linux fallback** for `findClaudeBin()` still PATH-only.
 - **No concurrency cap** on skill runs.
-- **localStorage stale entries** — no force-clear UI yet.
-- Mac Dropbox File Provider migration still pending re-run of `RTHM Setup.command`.
 
 ### Design follow-ups (if needed)
-- Data Manager header / Deals page header are still inline title-rows (no glass banner). If user wants them upgraded to glass banners later, the pattern is documented.
-- Sticky modal-table thead has no fill now → scrolling rows read through. User accepted that tradeoff. If it becomes a problem, faint glass on the `<thead>` is the fix.
+- `LTV` term reserved for Loan-to-Value future use — when advance/IRR scenarios land, that's where the acronym lives.
+- `design_system.md` doc still references the old 2-layer modal architecture in places — cleanup pass deferred until everything else stabilizes.

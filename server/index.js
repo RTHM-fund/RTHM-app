@@ -1162,6 +1162,124 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
       platforms.push({ name, ...buildSeries(useEntries) })
     }
 
+    // Pass 2b: count source statement FILES per platform by scanning the deal folder.
+    // "Statement" = one logical source delivery from a publisher/distributor.
+    // A statement may be delivered as a single file (TuneCore monthly CSV, UMPG
+    // semi-annual "Financial Summary <period>.pdf") OR as paired files (ASCAP
+    // delivers each period as a CSV + PDF with the same basename). We dedupe by
+    // (directory + basename), so CSV+PDF pairs count as one statement.
+    //
+    // Matching workbook platform name → source file uses TOKENIZED + ALIASED
+    // substring checks: split the platform name on whitespace, require every
+    // token to appear somewhere in the file's relative path, with known
+    // abbreviation expansions (DOM ↔ Domestic, INTL ↔ International, etc.).
+    // A single-contiguous substring check ("ascap dom" anywhere in the path)
+    // would silently fail when folders/files use the expanded form — exactly
+    // what happened on Scott Storch (ASCAP DOM, ASCAP INTL).
+    //
+    // Aggregates excluded by FOLDER DEPTH (deal-root files are quotes/summaries/
+    // agendas, not statements) and by filename keyword (quote/merged/consolidated/
+    // agreement/agenda/contract). We do NOT filter on "summary" because real
+    // publisher statements are literally named that (UMPG canonical case).
+    const STATEMENT_EXTS = new Set(['.csv', '.tsv', '.pdf', '.xls', '.xlsx', '.xlsm', '.txt'])
+    const PLATFORM_ALIAS_GROUPS = [
+      ['dom', 'domestic'],
+      ['intl', 'int', 'international'],
+      ['pub', 'publishing', 'publisher'],
+      ['mech', 'mechanical'],
+      ['perf', 'performance'],
+    ]
+    function tokenAliases(token) {
+      for (const group of PLATFORM_ALIAS_GROUPS) {
+        if (group.includes(token)) return group
+      }
+      return [token]
+    }
+    function platformMatchesPath(platformName, pathLower) {
+      const tokens = platformName.toLowerCase().split(/\s+/).filter(Boolean)
+      return tokens.every(t => tokenAliases(t).some(a => pathLower.includes(a)))
+    }
+    function shouldSkipStatementFile(name) {
+      if (name.startsWith('.') || name.startsWith('~$')) return true
+      // Always-skip filename keywords — these never represent statements.
+      if (/(quote|merged|consolidated|agreement|agenda|contract)/i.test(name)) return true
+      // "Summary" requires a period marker to count. Aggregate summary files
+      // typically don't have one ("LOMELI TuneCore Summary.xlsx", "Earnings
+      // Summary - Jive + UMPG.xlsx"). Real publisher statements that include
+      // "Summary" do have one ("Financial Summary 1H2023.pdf" → UMPG canonical).
+      if (/summary/i.test(name) && !/(\b\d{4}\b|1H|2H|H1|H2|Q[1-4]|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(name)) {
+        return true
+      }
+      return false
+    }
+    function shouldSkipStatementDir(name) {
+      if (/_(due diligence|data engine)$/i.test(name)) return true
+      const lower = name.toLowerCase()
+      if (lower === 'csv' || lower === 'merged') return true
+      if (/agreements?$/i.test(name)) return true
+      return false
+    }
+    const platformNames = platforms.map(p => p.name)
+    const isSinglePlatform = platformNames.length === 1
+    const statementBasenames = new Map(platformNames.map(n => [n, new Set()]))
+    function walkForStatements(dir, depth) {
+      let entries
+      try { entries = fs.readdirSync(dir, { withFileTypes: true }) } catch { return }
+      for (const ent of entries) {
+        if (ent.isDirectory()) {
+          if (shouldSkipStatementDir(ent.name)) continue
+          walkForStatements(path.join(dir, ent.name), depth + 1)
+        } else if (ent.isFile()) {
+          // Multi-platform deals: skip files at the deal root (depth 0) — those
+          // are almost always aggregates (Quote, Earnings Summary, legal docs).
+          // Single-platform deals: the lone statement is sometimes at the root
+          // (e.g. Starz Lil D's `royalties_detailed_Starz Lil D.csv` consolidates
+          // all EMPIRE data into one file). Allow depth 0 in that case and let
+          // the filename filter screen out the obvious aggregates.
+          if (depth === 0 && !isSinglePlatform) continue
+          if (shouldSkipStatementFile(ent.name)) continue
+          const ext = path.extname(ent.name).toLowerCase()
+          if (!STATEMENT_EXTS.has(ext)) continue
+          const fullPath = path.join(dir, ent.name)
+          const rel = path.relative(folder, fullPath)
+          const relLower = rel.toLowerCase()
+          const baseName = path.basename(ent.name, path.extname(ent.name))
+          const baseKey = (path.dirname(rel) + path.sep + baseName).toLowerCase()
+          let matched = null
+          for (const p of platformNames) {
+            if (platformMatchesPath(p, relLower)) { matched = p; break }
+          }
+          if (matched) {
+            statementBasenames.get(matched).add(baseKey)
+          } else if (isSinglePlatform) {
+            statementBasenames.get(platformNames[0]).add(baseKey)
+          }
+        }
+      }
+    }
+    walkForStatements(folder, 0)
+    const statementCounts = new Map(
+      [...statementBasenames.entries()].map(([k, v]) => [k, v.size])
+    )
+
+    // Sanity gate: a platform with non-zero revenue MUST have ≥1 statement file
+    // attributed to it. If the scanner can't find any, surface that as null
+    // (UI can render "?") rather than a misleading 0. Data integrity > UX polish.
+    const statementWarnings = []
+    for (const p of platforms) {
+      const c = statementCounts.get(p.name) || 0
+      const hasRevenue = (p.tracksLine || []).some(v => v > 0) || (p.tracksAdjLine || []).some(v => v > 0)
+      if (c === 0 && hasRevenue) {
+        p.statementsCount = null
+        statementWarnings.push(`platform "${p.name}" has revenue in the diligence workbook but no source statement files were attributed to it by the folder scan`)
+      } else {
+        p.statementsCount = c
+      }
+    }
+    if (statementWarnings.length > 0) {
+      console.warn('[diligence-workbook]', statementWarnings.join('; '))
+    }
+
     // Pass 3: combined view — union all platforms' months by YYYY-MM key, sum lines.
     const combinedByMonth = new Map()
     for (const p of platforms) {
@@ -1182,7 +1300,140 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
       tracksAdjLine: combinedSorted.map(([, v]) => v.adj),
     }
 
-    res.json({ folderName: basename, platforms, combined })
+    // Pass 4: per-track lifetime extraction, ranked descending, with top-80% /
+    // OTHER bundle per stage 7 of v2 spec. Each track's lifetime is summed on the
+    // "net paid where distinct" basis — per platform: Adj line if it differs
+    // anywhere from Rep, else Rep.
+    //
+    // ONLY Track sheets are used for this list (not Breakdown). Brkdn sheets carry
+    // DSP/category-level rows ("Apple Music", "Spotify", country names) — those
+    // aren't tracks. Platforms with no Track sheets (publishing platforms like
+    // UMPG) contribute to the platform/chart aggregates but not the tracks list.
+    //
+    // Aggregate row filter is comprehensive — the diligence workbook embeds many
+    // non-track rows in the Track sheets per the v2 spec (Grand Total, Reported
+    // Total, Adjusted Total, bridge lines, memo notes, source-field captions).
+    // Including any of these in the tracks list double-counts (totals = sum of
+    // tracks) and pollutes the ranking with non-songs. Filter must catch:
+    //   • "TOTAL" / "Grand Total" / "GRAND TOTAL (Gross Royalty)" / "TOTAL — X"
+    //   • "Reported Total" / "Adjusted Total" with any qualifier/parenthetical
+    //   • "(a)/(b)/(c) X" lettered list prefixes
+    //   • "Less: X" / "Layer N — X Stripped" / "X Stripped"
+    //   • "Adjustment Bridge" / "Bridge note" / "Bridge Tie" / "Bridge per X"
+    //   • "— Memo: X" / "Net Payable to Seller" / "Source field: X"
+    //   • "Statement PDF total" / "Reserve Account Release"
+    function isAggregateRow(label) {
+      const s = String(label).trim()
+      if (!s) return true
+      // "Total" anywhere as a word — catches all the total/grand total variants
+      if (/\btotal\b/i.test(s)) return true
+      // Bridge rows — adjustment-bridge sections + per-row bridge ties/notes
+      if (/\bbridge\b/i.test(s)) return true
+      // "Less:" line items (sync stripped, fee stripped, catch-up adjustments)
+      if (/\bless:\s/i.test(s)) return true
+      // Layer N — X / Stripped notes
+      if (/^layer\s+\d/i.test(s)) return true
+      if (/\bstripped\b/i.test(s)) return true
+      // Net Payable to Seller (current state — masters only, no distribution)
+      if (/^net\s+payable/i.test(s)) return true
+      // Memo lines (with or without leading em-dash)
+      if (/^—?\s*memo\b/i.test(s)) return true
+      // Source-field captions ("Source field: 'Earnings (USD)' from ...")
+      if (/^source\s+field\s*:/i.test(s)) return true
+      // Statement PDF reconciliation lines
+      if (/^statement\s+pdf/i.test(s)) return true
+      // Reserve account release lines
+      if (/^reserve\s+account/i.test(s)) return true
+      // Lettered list prefixes "(a) ..." / "(b) ..." / "(c) ..."  — only when followed
+      // by a recognizable aggregate keyword to avoid hitting song titles like "(a) Song".
+      if (/^\([a-z]\)\s+(reported|adjusted|less:)/i.test(s)) return true
+      return false
+    }
+
+    function trackLifetimeFromEntries(entries) {
+      const trackMap = new Map()
+      for (const e of entries) {
+        const ws = wb.Sheets[e.sheetName]
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null })
+        if (rows.length < 3) continue
+        let headerIdx = -1, colMonths = null
+        for (let i = 0; i < Math.min(rows.length, 8); i++) {
+          const cand = (rows[i] || []).map(parseMonthHeader)
+          if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+        }
+        if (headerIdx < 0) continue
+        const headerLen = (rows[headerIdx] || []).length
+        for (let r = headerIdx + 1; r < rows.length; r++) {
+          const row = rows[r] || []
+          const label = row[0]
+          if (label == null) continue
+          const labelStr = String(label).trim()
+          if (!labelStr) continue
+          if (isAggregateRow(labelStr)) continue
+          let lifetime = 0
+          for (let c = 2; c < headerLen; c++) {
+            const mInfo = colMonths[c]
+            if (!mInfo) continue
+            const cell = row[c]
+            const val = typeof cell === 'number' ? cell : Number(cell)
+            if (!Number.isFinite(val)) continue
+            lifetime += val
+          }
+          if (lifetime !== 0) trackMap.set(labelStr, (trackMap.get(labelStr) || 0) + lifetime)
+        }
+      }
+      return trackMap
+    }
+
+    const allTrackLifetimes = new Map() // label -> total lifetime across platforms
+    for (const [name, ps] of platformSheets) {
+      const trackOnly = ps.entries.filter(e => e.isTrack)
+      if (trackOnly.length === 0) continue // Brkdn-only platforms not eligible for track list
+      const platform = platforms.find(p => p.name === name)
+      const matches = platform.tracksLine.length === platform.tracksAdjLine.length
+        && platform.tracksLine.every((v, i) => v === platform.tracksAdjLine[i])
+      const wantAdj = !matches
+      let relevant = trackOnly.filter(e => e.isAdj === wantAdj)
+      if (relevant.length === 0) relevant = trackOnly.filter(e => e.isAdj === false)
+      if (relevant.length === 0) relevant = trackOnly
+      const platformTracks = trackLifetimeFromEntries(relevant)
+      for (const [label, lifetime] of platformTracks) {
+        allTrackLifetimes.set(label, (allTrackLifetimes.get(label) || 0) + lifetime)
+      }
+    }
+
+    const sortedTracks = [...allTrackLifetimes.entries()]
+      .map(([label, lifetime]) => ({ label, lifetime }))
+      .filter(t => t.lifetime > 0)
+      .sort((a, b) => b.lifetime - a.lifetime)
+    const dealLifetime = sortedTracks.reduce((s, t) => s + t.lifetime, 0)
+
+    const tracksTop = []
+    const tracksOtherRaw = []
+    if (dealLifetime > 0) {
+      let cum = 0
+      let cumReached = false
+      for (const t of sortedTracks) {
+        if (cumReached) { tracksOtherRaw.push(t); continue }
+        tracksTop.push(t)
+        cum += t.lifetime
+        if (cum / dealLifetime >= 0.80) cumReached = true
+      }
+    }
+    const tracks = tracksTop.map(t => ({
+      label: t.label,
+      lifetime: t.lifetime,
+      pctOfLtv: dealLifetime > 0 ? t.lifetime / dealLifetime : 0,
+    }))
+    const otherTotal = tracksOtherRaw.reduce((s, t) => s + t.lifetime, 0)
+    const other = tracksOtherRaw.length > 0 ? {
+      label: `OTHER (${tracksOtherRaw.length} track${tracksOtherRaw.length === 1 ? '' : 's'})`,
+      lifetime: otherTotal,
+      pctOfLtv: dealLifetime > 0 ? otherTotal / dealLifetime : 0,
+      componentCount: tracksOtherRaw.length,
+    } : null
+
+    res.json({ folderName: basename, platforms, combined, tracks, other, dealLifetime })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -1226,6 +1477,118 @@ function parseMonthHeader(v) {
     }
   }
   return null
+}
+
+// Lightweight per-deal summary used by /api/data/folders to populate the Data
+// Manager's sparkline / Lifetime / TTM columns. Reads the deal's diligence
+// workbook, builds the combined revenue series across all platforms, and
+// returns the line shape + headline totals. Uses the adjusted-revenue line
+// when it differs from reported (matches Valuate page's auto-choose rule),
+// else uses reported.
+// Returns null when there's no workbook (frontend renders cells as "—").
+function computeWorkbookSummary(folder) {
+  try {
+    const basename = path.basename(folder)
+    const ddFolder = path.join(folder, `${basename}_Due Diligence`)
+    if (!fs.existsSync(ddFolder)) return null
+    const wbPath = path.join(ddFolder, `${basename} - Diligence Workbook.xlsx`)
+    if (!fs.existsSync(wbPath)) return null
+    const wb = XLSX.readFile(wbPath, { cellDates: true })
+    const sheetKindRe = /^(.+?)\s*[–—―\-]\s*(Track|Brkdn|Breakdown)\s+(Rep|Adj)\s*$/i
+    const platformSheets = new Map()
+    for (const sheetName of wb.SheetNames) {
+      const m = sheetName.match(sheetKindRe)
+      if (!m) continue
+      const name = m[1].trim()
+      const isTrack = /^Track$/i.test(m[2])
+      const isAdj = /^Adj$/i.test(m[3])
+      if (!platformSheets.has(name)) platformSheets.set(name, { entries: [] })
+      platformSheets.get(name).entries.push({ isTrack, isAdj, sheetName })
+    }
+    function buildSeries(entries) {
+      const byMonth = new Map()
+      for (const e of entries) {
+        const ws = wb.Sheets[e.sheetName]
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null })
+        if (rows.length < 3) continue
+        let headerIdx = -1, colMonths = null
+        for (let i = 0; i < Math.min(rows.length, 8); i++) {
+          const cand = (rows[i] || []).map(parseMonthHeader)
+          if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+        }
+        if (headerIdx < 0) continue
+        const headerLen = (rows[headerIdx] || []).length
+        for (let r = headerIdx + 1; r < rows.length; r++) {
+          const row = rows[r] || []
+          const label = row[0]
+          if (label == null) continue
+          const labelStr = String(label).trim()
+          if (!labelStr || /^grand total$/i.test(labelStr) || /^total$/i.test(labelStr)) continue
+          for (let c = 2; c < headerLen; c++) {
+            const mInfo = colMonths[c]
+            if (!mInfo) continue
+            const cell = row[c]
+            const val = typeof cell === 'number' ? cell : Number(cell)
+            if (!Number.isFinite(val) || val === 0) continue
+            let bucket = byMonth.get(mInfo.key)
+            if (!bucket) { bucket = { label: mInfo.label, rep: 0, adj: 0 }; byMonth.set(mInfo.key, bucket) }
+            if (e.isAdj) bucket.adj += val
+            else bucket.rep += val
+          }
+        }
+      }
+      const sorted = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b))
+      return {
+        keys: sorted.map(([k]) => k),
+        months: sorted.map(([, v]) => v.label),
+        rep: sorted.map(([, v]) => v.rep),
+        adj: sorted.map(([, v]) => v.adj),
+      }
+    }
+    const platforms = []
+    for (const [name, ps] of platformSheets) {
+      const trackEntries = ps.entries.filter(e => e.isTrack)
+      const useEntries = trackEntries.length ? trackEntries : ps.entries
+      platforms.push({ name, ...buildSeries(useEntries) })
+    }
+    if (platforms.length === 0) return null
+    // Combined view by month key
+    const combinedByMonth = new Map()
+    for (const p of platforms) {
+      for (let i = 0; i < p.keys.length; i++) {
+        const key = p.keys[i]
+        if (!combinedByMonth.has(key)) combinedByMonth.set(key, { rep: 0, adj: 0 })
+        const b = combinedByMonth.get(key)
+        b.rep += p.rep[i] || 0
+        b.adj += p.adj[i] || 0
+      }
+    }
+    const combinedSorted = [...combinedByMonth.entries()].sort(([a], [b]) => a.localeCompare(b))
+    if (combinedSorted.length === 0) return null
+    const keys = combinedSorted.map(([k]) => k)
+    const repLine = combinedSorted.map(([, v]) => v.rep)
+    const adjLine = combinedSorted.map(([, v]) => v.adj)
+    const adjMatchesRep = repLine.every((v, i) => v === adjLine[i])
+    const line = adjMatchesRep ? repLine : adjLine
+    const lifetime = line.reduce((s, v) => s + v, 0)
+    // TTM = trailing 12 calendar months anchored on the latest data month
+    let ttm = lifetime
+    const lastKey = keys[keys.length - 1]
+    const [ly, lm] = lastKey.split('-').map(Number)
+    const firstKey = keys[0]
+    const [fy, fm] = firstKey.split('-').map(Number)
+    const totalMonths = (ly - fy) * 12 + (lm - fm) + 1
+    if (totalMonths >= 12) {
+      let sm = lm - 11, sy = ly
+      while (sm <= 0) { sm += 12; sy -= 1 }
+      const ttmStartKey = `${sy}-${String(sm).padStart(2, '0')}`
+      ttm = 0
+      for (let i = 0; i < keys.length; i++) {
+        if (keys[i] >= ttmStartKey && keys[i] <= lastKey) ttm += line[i] || 0
+      }
+    }
+    return { line, lifetime, ttm, hasAdj: !adjMatchesRep }
+  } catch { return null }
 }
 
 // POST /api/data/open-folder — open a folder in the OS file browser.
@@ -1276,6 +1639,35 @@ app.get('/api/data/folders', (req, res) => {
     if (!fs.existsSync(CURRENT_DIR)) return res.json([])
     const dealNames = new Set(readDeals().map(d => (d.name || '').trim().toLowerCase()).filter(Boolean))
     const entries = fs.readdirSync(CURRENT_DIR, { withFileTypes: true })
+
+    // Pre-list logs/ once for stale-run detection. A skill is "stale" if its most
+    // recent log shows no progress: empty + over 10 min old, OR over 1 hour old
+    // regardless of size. Stale entries are returned per-folder so the frontend
+    // can auto-clear spinners that would otherwise persist in localStorage.
+    const STALE_EMPTY_MS = 10 * 60 * 1000
+    const STALE_OLD_MS = 60 * 60 * 1000
+    let logFiles = []
+    try { logFiles = fs.readdirSync(LOGS_DIR, { withFileTypes: true }).filter(f => f.isFile()).map(f => f.name) } catch {}
+    const now = Date.now()
+    function staleSkillsFor(folderName) {
+      const safeFolder = folderName.replace(/[^a-zA-Z0-9_-]+/g, '_')
+      const escaped = safeFolder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const stale = []
+      for (const skill of ['diligence', 'catalog-extract']) {
+        const pattern = new RegExp(`^${escaped}_${skill}_\\d+\\.log$`)
+        const matching = logFiles.filter(f => pattern.test(f)).sort()
+        if (matching.length === 0) continue
+        const latest = matching[matching.length - 1]
+        try {
+          const lstat = fs.statSync(path.join(LOGS_DIR, latest))
+          const age = now - lstat.mtime.getTime()
+          const empty = lstat.size === 0
+          if ((empty && age > STALE_EMPTY_MS) || age > STALE_OLD_MS) stale.push(skill)
+        } catch {}
+      }
+      return stale
+    }
+
     const folders = entries
       .filter(e => e.isDirectory())
       .map(e => {
@@ -1289,7 +1681,10 @@ app.get('/api/data/folders', (req, res) => {
           hasExtract = subs.some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_data engine'))
         } catch {}
         const hasDeal = dealNames.has(e.name.trim().toLowerCase())
-        return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasExtract, hasDeal }
+        const staleSkills = staleSkillsFor(e.name)
+        // Summary (sparkline line + Lifetime + TTM) — only when workbook exists.
+        const summary = hasDiligence ? computeWorkbookSummary(fullPath) : null
+        return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasExtract, hasDeal, staleSkills, summary }
       })
       .sort((a, b) => b.mtime.localeCompare(a.mtime))
     res.json(folders)
@@ -1411,20 +1806,45 @@ app.post('/api/data/run-skill', (req, res) => {
     }
     const safeFolder = path.basename(folderPath).replace(/[^a-zA-Z0-9_-]+/g, '_')
     const logPath = path.join(LOGS_DIR, `${safeFolder}_${skill}_${Date.now()}.log`)
-    const logFd = fs.openSync(logPath, 'a')
     const prompt = `/${skill} ${JSON.stringify(folderPath)}`
-    const proc = spawn(claudeBin, ['-p', prompt, '--dangerously-skip-permissions'], {
+    const args = ['-p', prompt, '--dangerously-skip-permissions']
+
+    // Sidecar debug file written BEFORE spawn so we have evidence even if the
+    // subprocess dies immediately. Records resolved command + cwd + key env.
+    const debugPath = logPath.replace(/\.log$/, '.spawn-debug.json')
+    try {
+      fs.writeFileSync(debugPath, JSON.stringify({
+        timestamp: new Date().toISOString(),
+        claudeBin, args, cwd: folderPath,
+        platform: os.platform(),
+        nodeVersion: process.version,
+        env: { HOME: process.env.HOME, USERPROFILE: process.env.USERPROFILE, APPDATA: process.env.APPDATA, PATH_present: !!process.env.PATH },
+      }, null, 2))
+    } catch {}
+
+    // Use pipe-based stdio + Node streams instead of inheriting raw fds. On
+    // Windows detached + fd inheritance can silently drop subprocess output —
+    // a piped stream that we drain to the log file is reliable. Drop detached
+    // so the subprocess stays attached and any exit code is observable.
+    const proc = spawn(claudeBin, args, {
       cwd: folderPath,
-      detached: true,
-      stdio: ['ignore', logFd, logFd],
+      stdio: ['ignore', 'pipe', 'pipe'],
       shell: false,
       windowsHide: true,
     })
-    proc.unref()
-    // Close the parent's copy of the log fd; the child has its own duplicate.
-    // Without this, fds accumulate across runs and eventually exhaust the limit.
-    try { fs.closeSync(logFd) } catch {}
-    res.json({ ok: true, pid: proc.pid, logPath, claudeBin })
+    const logStream = fs.createWriteStream(logPath, { flags: 'a' })
+    proc.stdout.pipe(logStream, { end: false })
+    proc.stderr.pipe(logStream, { end: false })
+    proc.on('exit', (code, signal) => {
+      try {
+        logStream.write(`\n[spawn] exit code=${code} signal=${signal} at ${new Date().toISOString()}\n`)
+        logStream.end()
+      } catch {}
+    })
+    proc.on('error', (err) => {
+      try { logStream.write(`\n[spawn] error: ${err.message}\n`); logStream.end() } catch {}
+    })
+    res.json({ ok: true, pid: proc.pid, logPath, claudeBin, debugPath })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

@@ -2776,7 +2776,7 @@
       },
       "commission": 4,
       "b2bMarginRate": 5,
-      "recoupLocked": true
+      "recoupLocked": false
     },
     "agreements": [
       {
@@ -2833,7 +2833,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Shay Nicole.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Shay Nicole.docx",
-        "createdAt": "2026-05-22T02:03:17.478Z"
+        "createdAt": "2026-05-27T10:44:21.127Z"
       }
     ]
   },

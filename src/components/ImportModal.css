@@ -1,9 +1,11 @@
+/* Cutout architecture: the overlay is a pure click-trap (transparent, no paint).
+ * The dim is cast by the modal's own box-shadow with a viewport-sized spread,
+ * which leaves the modal area as a clean hole. The modal's backdrop-filter
+ * therefore blurs the actual aurora directly behind it (not a dimmed plane),
+ * so the panel can sit at chart-card alpha (0.45) without going muddy. */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,16 +13,18 @@
 }
 
 .modal {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 12px;
   width: 640px;
   max-width: 90vw;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 40px rgba(82,0,190,0.18);
+  box-shadow:
+    0 0 0 100vmax rgba(0, 0, 0, 0.35),
+    0 8px 40px rgba(82, 0, 190, 0.18);
   overflow: hidden;
   position: relative;
   isolation: isolate;
@@ -31,7 +35,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px 16px;
-  border-bottom: 1px solid var(--paper-darker);
+  border-bottom: none;
   flex-shrink: 0;
 }
 
@@ -88,7 +92,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 24px;
-  border-bottom: 1px solid var(--paper-darker);
+  border-bottom: none;
   flex-shrink: 0;
 }
 
@@ -101,9 +105,10 @@
   font-family: 'Montserrat', sans-serif;
   color: var(--ink);
   outline: none;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* No background — input wells inside modals would compound any white layer
+     on top of the 0.45-alpha modal panel, making them read as solid panels.
+     The border defines the input region; the modal's own glass shows through. */
+  background: transparent;
   transition: border-color 0.15s;
 }
 
@@ -157,7 +162,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
-  border-bottom: 1px solid var(--paper-darker);
+  border-bottom: none;
 }
 
 .modal-table th:first-child,
@@ -171,7 +176,7 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
-  border-bottom: 1px solid var(--paper-darker);
+  border-bottom: none;
 }
 
 .modal-table tbody tr {
@@ -195,7 +200,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 24px;
-  border-top: 1px solid var(--paper-darker);
+  border-top: none;
   flex-shrink: 0;
 }
 
@@ -279,9 +284,7 @@
   font-family: 'Montserrat', sans-serif;
   color: var(--ink);
   outline: none;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: transparent;
   transition: border-color 0.15s;
   max-width: 200px;
 }
@@ -298,7 +301,7 @@ select.modal-input {
   padding-right: 36px;
   font-family: 'Montserrat', sans-serif;
   color: var(--ink);
-  background-color: rgba(255, 255, 255, 0.45);
+  background-color: transparent;
   cursor: pointer;
 }
 

@@ -1,0 +1,67 @@
+.combobox {
+  position: relative;
+  display: inline-block;
+}
+
+.combobox-trigger {
+  padding: 10px 22px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  background: var(--primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 180px;
+}
+
+.combobox-trigger > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.combobox-chevron {
+  display: inline-block;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.33, 0, 0.15, 1);
+}
+
+.combobox.open .combobox-chevron { transform: rotate(180deg); }
+
+/* Center any modal-field that contains a Combobox (the B2B template picker). */
+.modal-field:has(.combobox) { align-items: center; }
+.modal-field:has(.combobox) .modal-label { text-align: center; }
+
+.combobox-menu {
+  /* Position (top/left/width) set inline by Combobox.jsx — portaled to body,
+     so it escapes the parent modal's overflow: hidden + backdrop-filter
+     containing block. */
+  z-index: 1000;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 4px 20px rgba(82, 0, 190, 0.08);
+  padding: 4px 0;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.combobox-item {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.combobox-item:hover {
+  background: rgba(82, 0, 190, 0.08);
+}
+
+.combobox-item.selected {
+  background: rgba(82, 0, 190, 0.05);
+  box-shadow: inset 3px 0 0 0 var(--primary);
+}

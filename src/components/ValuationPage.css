@@ -182,23 +182,20 @@
 .rate-input {
   width: 52px;
   padding: 4px 6px;
-  border: 1.5px solid var(--paper-darker);
+  border: none;
   border-radius: 4px;
   font-size: 13px;
   font-family: 'Montserrat', sans-serif;
   color: var(--ink);
   text-align: center;
   outline: none;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  transition: border-color 0.15s;
 }
 
 .rate-input.advance-input { width: 90px; }
-.rate-input:focus { border-color: var(--primary); }
 .rate-input-locked { background: var(--paper-dark); color: var(--ink-light); cursor: default; }
-.rate-input-locked:focus { border-color: var(--paper-darker); box-shadow: none; }
 
 .rate-input::-webkit-inner-spin-button,
 .rate-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -251,7 +248,15 @@ td.negative {
 }
 
 .rate-locked {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 14px;
   color: var(--ink);
   font-weight: 500;
+  /* Same glass treatment as the valuation-table headers — locked values read
+     as a sealed glass pill (vs the editable .rate-input which sits at 0.18). */
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }

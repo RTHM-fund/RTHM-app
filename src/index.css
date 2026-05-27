@@ -134,6 +134,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel,
 .modal-connect-btn,
 .modal-radio-btn,
+.combobox-trigger,
 .export-btn,
 .valuate-toggle-btn {
   position: relative;
@@ -162,6 +163,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel::before,
 .modal-connect-btn::before,
 .modal-radio-btn::before,
+.combobox-trigger::before,
 .export-btn::before,
 .valuate-toggle-btn::before {
   content: "";
@@ -201,6 +203,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel > span,
 .modal-connect-btn > span,
 .modal-radio-btn > span,
+.combobox-trigger > span,
 .export-btn > span,
 .valuate-toggle-btn > span {
   position: relative;
@@ -232,6 +235,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 .modal-cancel:hover::before,
 .modal-connect-btn:hover::before,
 .modal-radio-btn:hover::before,
+.combobox-trigger:hover::before,
+.combobox.open .combobox-trigger::before,
 .export-btn:not(.disabled):hover::before,
 .valuate-toggle-btn:not(.active):hover::before {
   width: 1500px;
@@ -267,6 +272,8 @@ button:disabled:hover > span,
 .agreements-type-btn:not(:disabled):hover > span,
 .modal-import-btn:not(.disabled):hover > span,
 .modal-connect-btn:hover > span,
+.combobox-trigger:hover > span,
+.combobox.open .combobox-trigger > span,
 .export-btn:not(.disabled):hover > span {
   color: var(--primary);
   text-shadow: 0 0 12px rgba(82, 0, 190, 0.4);

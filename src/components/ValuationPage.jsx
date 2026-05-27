@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Combobox from './Combobox.jsx'
 import './ValuationPage.css'
 
 const TERMS = ['12 months', '36 months', '60 months', '84 months']
@@ -239,7 +240,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                     <td className="term-cell">{term}</td>
                     <td>
                       {recoupLocked ? (
-                        <span className="calc-tip" data-tip={advTip}>{fmt(rthmAdvance)}</span>
+                        <span className="calc-tip rate-locked" data-tip={advTip}>{fmt(rthmAdvance)}</span>
                       ) : (
                         <input
                           className="rate-input advance-input"
@@ -367,18 +368,12 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
               {sheetError && <div className="modal-error">{sheetError}</div>}
               <div className="modal-field">
                 <label className="modal-label">B2B TEMPLATE</label>
-                <select
-                  className="modal-input"
+                <Combobox
                   value={b2bTemplate}
+                  placeholder="select template"
+                  options={b2bTemplates.map(t => ({ value: t.filename, label: t.name.replace(/_?Template$/i, '').trim() }))}
                   onChange={e => setB2bTemplate(e.target.value)}
-                >
-                  <option value="" disabled hidden>select template</option>
-                  {b2bTemplates.map(t => (
-                    <option key={t.filename} value={t.filename}>
-                      {t.name.replace(/_?Template$/i, '').trim()}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
             <div className="modal-footer">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ROW_DEFS, matchAgreement } from '../agreementDefs.js'
+import Combobox from './Combobox.jsx'
 import './AgreementsPage.css'
 
 export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOfferLetter, onNavigateToRPA }) {
@@ -289,9 +290,10 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
               {b2bError && <div className="modal-error">{b2bError}</div>}
               <div className="modal-field">
                 <label className="modal-label">B2B TEMPLATE</label>
-                <select
-                  className="modal-input"
+                <Combobox
                   value={b2bTemplate}
+                  placeholder="select template"
+                  options={b2bTemplates.map(t => ({ value: t.filename, label: t.name.replace(/_?Template$/i, '').trim() }))}
                   onChange={e => {
                     const val = e.target.value
                     setB2bTemplate(val)
@@ -305,14 +307,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
                       }).catch(() => {})
                     }
                   }}
-                >
-                  <option value="" disabled hidden>select template</option>
-                  {b2bTemplates.map(t => (
-                    <option key={t.filename} value={t.filename}>
-                      {t.name.replace(/_?Template$/i, '').trim()}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
             <div className="modal-footer">

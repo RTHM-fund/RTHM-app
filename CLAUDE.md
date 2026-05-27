@@ -61,14 +61,24 @@
 
 ---
 
-## Data Integrity — V2 (CORE RULE)
-For v2, the integrity of the source data is paramount. Source data is the single source of truth from which every downstream step (merger, pivot, projection, advance calc) derives. Everything built for v2 must adhere to this rule.
+## Data Integrity (CORE RULE)
+
+Data is sacred. There are two protected layers that downstream code must never corrupt or get wrong — and on top of those, all math must be perfect.
+
+**Layer 1 — Source data.** The raw distributor/publisher statements (CSV / XLS / XLSX). The single source of truth. Never tamper.
+
+**Layer 2 — Diligence workbooks.** The outputs of the `diligence` skill (`<deal> - Diligence Workbook.xlsx`). Derived directly from source data and required to be **100% accurate** to it — no drift, no estimation, no rounding shortcuts. The app reads from these; every downstream metric depends on them being faithful.
+
+**Rules:**
 
 - **Never tamper with source files.** Source files are read-only from the app's perspective — never write to, rename, move, or delete them.
+- **Never tamper with diligence workbooks.** The app reads from them; never modify them in place.
+- **Diligence workbook contents must be 100% faithful to source data.** Any value in the workbook must trace exactly to its source row/column.
 - **Never corrupt source data in memory or in persisted form.** Standardization, normalization, and reformatting happen on derived copies, never on the source row.
 - **Preserve originals alongside normalizations.** If a column name is normalized, keep the original. If a value is cleaned, the raw value must remain accessible.
 - **Encoding handling must be lossless.** BOM stripping, delimiter detection, and encoding fallback must never silently alter character data. Log anything that changes.
-- **Every derived number must be auditable back to its source.** A user must be able to trace any value in the merged dataset, pivot, projection, or advance calc back to the exact source file, row, and column it came from.
+- **Every derived number must be auditable back to its source.** A user must be able to trace any value (merged dataset, pivot, projection, advance calc, key metric, tooltip number) back to the exact source file, row, and column it came from.
+- **All math must be perfect — no mistakes.** Sums, averages, percentages, CAGR, IRR, share calculations, period-window boundaries: every formula must be financially correct and produce identical results to a manual hand-calculation. No floating-point sloppiness left unhandled. No off-by-one window edges. No silent fallback to wrong defaults. No counting "entries" when you mean "calendar months". If you're unsure whether a calculation matches the intended financial definition, ask before shipping.
 - **Fail loud, not silent.** If a file can't be parsed cleanly, surface the error — never skip the row, fudge a value, or guess.
 
 ---
