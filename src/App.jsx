@@ -95,10 +95,10 @@ export default function App() {
     // Opacities lowered + blur bumped (see positionOrbs below) to keep the
     // background atmospheric rather than busy.
     const ORB_DEFS = [
-      { color: '#A78BFA', sizeFactor: 0.80, opacity: 0.20, anchor: 'top-right',    offsetX: -160, offsetY: -200, depth: 1.0 },
-      { color: '#5200BE', sizeFactor: 0.90, opacity: 0.13, anchor: 'bottom-left',  offsetX: -200, offsetY: -260, depth: 0.8 },
-      { color: '#6218C8', sizeFactor: 0.65, opacity: 0.16, anchor: 'center',       offsetX:  -50, offsetY:  -50, depth: 1.3 },
-      { color: '#241050', sizeFactor: 0.60, opacity: 0.10, anchor: 'center-right', offsetX: -100, offsetY:  -60, depth: 1.1 },
+      { color: '#A78BFA', sizeFactor: 0.80, opacity: 0.30, anchor: 'top-right',    offsetX: -160, offsetY: -200, depth: 1.0 },
+      { color: '#5200BE', sizeFactor: 0.90, opacity: 0.20, anchor: 'bottom-left',  offsetX: -200, offsetY: -260, depth: 0.8 },
+      { color: '#6218C8', sizeFactor: 0.65, opacity: 0.24, anchor: 'center',       offsetX:  -50, offsetY:  -50, depth: 1.3 },
+      { color: '#241050', sizeFactor: 0.60, opacity: 0.15, anchor: 'center-right', offsetX: -100, offsetY:  -60, depth: 1.1 },
     ]
 
     const makeWanderFreqs = () => [

@@ -81,6 +81,28 @@
 - `RTHM Launch.command`: replaced `sleep 4` with `curl -sf` polling on localhost:5173 (30s timeout) so the browser opens when Vite is actually ready.
 - `RTHM Setup.command`: post-install `claude --version` verification; skills-folder Dropbox-sync pre-flight check; xattr Dropbox-ignore on `logs/` (in addition to `node_modules/`); sudo fallback on `npm install -g`.
 
+### Button-hover purple glow
+- All hover states where the text flips to primary purple (filled-primary buttons, `.recoup-btn-active`, `.deals-X.linked`) now get a soft `text-shadow: 0 0 12px rgba(82,0,190,0.4)` that fades in over the same 0.6s as the bubble. Single layer — went through subtle → too much → split-the-difference iterations.
+
+### Glass headers + no-border tables
+- Page headers with `background: var(--white)` (Valuation, Agreements, RPA, OfferLetter, Invoice) and table `<th>` cells across all four tables (Deal/Data Manager + Agreements + Valuation) swapped to `rgba(255,255,255,0.45) + backdrop-filter: blur(20px) saturate(180%)`. Cells use `position: relative; isolation: isolate` to force a stacking context so `backdrop-filter` actually applies (`<thead>` can't host it).
+- All table borders stripped (outer wrap + thead-bottom + row separators). Valuation tables switched to `border-collapse: separate; border-spacing: 0; overflow: hidden` so `border-radius` actually clips the corner cells.
+- Outlined-disabled buttons (`.recoup-btn-inactive`, `.agreements-type-btn:disabled`) rebranded from grey-outline to `rgba(82,0,190,0.1)` transparent-purple + primary text, matching Deal Manager row-button look.
+
+### `findClaudeBin()` disk-cache hardening
+- On Windows, `fs.existsSync(<AppData path>)` occasionally returns `false` from a Node process even when the directory exists (transient — possibly AV / file-provider race / Node startup quirk). PowerShell sees it fine; standalone Node sees it fine; the long-running `npm run dev` Node sometimes doesn't.
+- Fix: `findClaudeBin()` now reads `App Files/logs/.claude-bin` (the resolved path) FIRST. If present, that wins — no `fs.existsSync(AppData)` involved. On every successful discovery, the path is written to that file via `persistClaudeBin()`.
+- Cache file is pre-seeded with `C:\Users\richa\AppData\Roaming\Claude\claude-code\2.1.149\claude.exe` so future server restarts bootstrap correctly even if the existsSync flake hits. `logs/` is already gitignored AND Dropbox-ignored, so the cache stays per-machine.
+- Stale-cache recovery: if Claude Desktop ever bumps to a new version, delete `logs/.claude-bin` and the server will rediscover + rewrite.
+
+### Aurora orb tuning
+- Initial Bystro port was too noisy with brand colors. Iterated through: original opacities → cut 40% → cut another 40% → too subtle → bumped 50% back up. Settled values for RTHM:
+  - `#A78BFA` (sidebar-active) opacity 0.30
+  - `#5200BE` (primary) opacity 0.20
+  - `#6218C8` (primary-mid) opacity 0.24
+  - `#241050` (sidebar-hover) opacity 0.15
+- Blur factor bumped `0.04 → 0.07` of viewport for softer atmospheric feel.
+
 ---
 
 ## Current State

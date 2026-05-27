@@ -1248,16 +1248,31 @@ const ALLOWED_SKILLS = new Set(['diligence', 'catalog-extract'])
 const LOGS_DIR = path.join(__dirname, '..', 'logs')
 
 // Resolve the Claude Code CLI binary. Checks PATH first, then falls back to common
-// install locations (Desktop-app bundle on Windows, npm-global on Mac). Cached at boot.
+// install locations (Desktop-app bundle on Windows, npm-global on Mac). Cached in-memory
+// AND on disk (logs/.claude-bin) — disk cache survives restarts and transient fs.existsSync
+// flakes that occasionally happen on Windows AppData paths.
 let CLAUDE_BIN_CACHE = null
+const CLAUDE_BIN_CACHE_FILE = path.join(__dirname, '..', 'logs', '.claude-bin')
+function persistClaudeBin(p) {
+  try {
+    if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true })
+    fs.writeFileSync(CLAUDE_BIN_CACHE_FILE, p, 'utf8')
+  } catch {}
+}
 function findClaudeBin() {
   if (CLAUDE_BIN_CACHE) return CLAUDE_BIN_CACHE
+  // Disk cache — load if present
+  try {
+    const cached = fs.readFileSync(CLAUDE_BIN_CACHE_FILE, 'utf8').trim()
+    if (cached) { CLAUDE_BIN_CACHE = cached; return cached }
+  } catch {}
   // Try PATH first
   const probe = os.platform() === 'win32'
     ? spawnSync('where', ['claude'], { encoding: 'utf8', windowsHide: true })
     : spawnSync('which', ['claude'], { encoding: 'utf8' })
   if (probe.status === 0 && probe.stdout?.trim()) {
     CLAUDE_BIN_CACHE = probe.stdout.trim().split(/\r?\n/)[0]
+    persistClaudeBin(CLAUDE_BIN_CACHE)
     return CLAUDE_BIN_CACHE
   }
   // Windows fallback: Desktop-app bundled CLI at %APPDATA%\Claude\claude-code\<version>\claude.exe
@@ -1270,7 +1285,7 @@ function findClaudeBin() {
         .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
       for (const v of versions) {
         const candidate = path.join(bundleRoot, v, 'claude.exe')
-        if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; return candidate }
+        if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
       }
     }
   }
@@ -1284,7 +1299,7 @@ function findClaudeBin() {
       path.join(home, '.claude/local/claude'),
     ]
     for (const p of fixedPaths) {
-      if (fs.existsSync(p)) { CLAUDE_BIN_CACHE = p; return p }
+      if (fs.existsSync(p)) { CLAUDE_BIN_CACHE = p; persistClaudeBin(p); return p }
     }
     // nvm: scan ~/.nvm/versions/node/* for the latest with claude
     try {
@@ -1296,7 +1311,7 @@ function findClaudeBin() {
           .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
         for (const v of versions) {
           const candidate = path.join(nvmRoot, v, 'bin', 'claude')
-          if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; return candidate }
+          if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
         }
       }
     } catch {}
@@ -1310,7 +1325,7 @@ function findClaudeBin() {
           .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
         for (const v of versions) {
           const candidate = path.join(bundleRoot, v, 'claude')
-          if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; return candidate }
+          if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
         }
       }
     } catch {}
