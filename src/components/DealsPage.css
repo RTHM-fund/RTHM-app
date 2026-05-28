@@ -89,13 +89,28 @@
   color: var(--ink);
 }
 
+/* Center header + cell for the five action/link columns (Status [monday.com],
+   Valuation, Agreements, Deal Materials, Delete) — matches the Data Manager
+   pattern where header text sits above the row buttons it controls. */
+.deals-table thead th:nth-child(n+5),
+.deals-table tbody td:nth-child(n+5) {
+  text-align: center;
+}
+
 .deals-table tbody tr {
+  cursor: pointer;
   transition: background 0.1s;
 }
 
 .deals-table tbody tr:hover {
   background: rgba(186, 156, 252, 0.18);
   box-shadow: inset 0 0 0 1px rgba(218, 206, 253, 0.5);
+}
+
+.deals-table tbody tr.selected,
+.deals-table tbody tr.selected:hover {
+  background: rgba(82, 0, 190, 0.05);
+  box-shadow: inset 3px 0 0 0 var(--primary);
 }
 
 .deals-table .deals-td-name {

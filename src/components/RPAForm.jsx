@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Combobox from './Combobox.jsx'
 import { MONTHS, getTypeLabel, isAmountField } from '../utils.js'
 import './RPAForm.css'
 
@@ -447,17 +448,13 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
                   placeholder="select a deal"
                 />
               ) : (
-                <select
-                  className="field-input"
+                <Combobox
+                  className="combobox--form"
                   value={selectedDealIdx ?? ''}
                   onChange={handleDealSelect}
-                  style={{color: selectedDealIdx === null ? 'var(--ink-light)' : 'var(--ink)'}}
-                >
-                  <option value="" disabled hidden>select a deal</option>
-                  {deals.map((d, i) => (
-                    <option key={i} value={i}>{d.name}</option>
-                  ))}
-                </select>
+                  placeholder="select a deal"
+                  options={deals.map((d, i) => ({ value: String(i), label: d.name }))}
+                />
               )}
             </div>
 

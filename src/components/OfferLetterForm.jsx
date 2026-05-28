@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import Combobox from './Combobox.jsx'
 import { MONTHS, getTypeLabel, isAmountField } from '../utils.js'
 import './OfferLetterForm.css'
 
@@ -474,19 +475,17 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                     tabIndex={-1}
                   />
                 ) : (
-                  <select
-                    className="field-input"
+                  <Combobox
+                    className="combobox--form"
                     value={selectedDealIdx ?? ''}
                     onChange={handleDealSelect}
-                    style={{color: selectedDealIdx === null ? 'var(--ink-light)' : 'var(--ink)'}}
-                  >
-                    <option value="" disabled hidden>select a deal</option>
-                    {deals.map((d, i) => {
-                      const hasDealSheet = (d.agreements || []).some(a => a.fileName?.toLowerCase().includes('deal sheet'))
-                      if (!hasDealSheet) return null
-                      return <option key={i} value={i}>{d.name}</option>
-                    })}
-                  </select>
+                    placeholder="select a deal"
+                    options={deals
+                      .map((d, i) => ({ d, i }))
+                      .filter(({ d }) => (d.agreements || []).some(a => a.fileName?.toLowerCase().includes('deal sheet')))
+                      .map(({ d, i }) => ({ value: String(i), label: d.name }))
+                    }
+                  />
                 )}
                 {dealSelected && (
                   <button className="export-btn" onClick={handleOpenDealSheet}>

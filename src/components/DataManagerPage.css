@@ -117,6 +117,7 @@
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   position: relative;
   isolation: isolate;
+  white-space: nowrap;
 }
 
 .data-manager-table td {
@@ -176,23 +177,20 @@
   font-weight: 600;
 }
 
-/* Folder name column is given an explicit 280px (= 240px inner truncate +
-   40px cell padding) so the trailing empty column actually absorbs the slack
-   on the right. Deal Manager doesn't need this because every column has
-   content; Data Manager has an empty trailing column that the browser would
-   otherwise skip, dumping all leftover horizontal space into the first
-   unconstrained content column (the folder name). Explicit width prevents that. */
+/* Folder name column absorbs slack so MOVE lands at the right edge of the table
+   (matches Deal Manager's DELETE-rightmost pattern). All other columns get
+   explicit minimum widths; folder name uses min-width only and grows to fill. */
 .data-manager-table thead th:first-child,
-.data-manager-table tbody td:first-child { width: 280px; }
+.data-manager-table tbody td:first-child { min-width: 280px; width: auto; }
 .data-manager-table .data-manager-td-spark { width: 80px; }
 .data-manager-table .data-manager-th-num,
-.data-manager-table .data-manager-td-num { width: 100px; text-align: right; }
-.data-manager-table thead th:nth-child(5),
-.data-manager-table tbody td:nth-child(5),
-.data-manager-table thead th:nth-child(6),
-.data-manager-table tbody td:nth-child(6),
-.data-manager-table thead th:nth-child(7),
-.data-manager-table tbody td:nth-child(7) {
+.data-manager-table .data-manager-td-num { width: 100px; text-align: left; white-space: nowrap; }
+.data-manager-table thead th:nth-child(8),
+.data-manager-table tbody td:nth-child(8),
+.data-manager-table thead th:nth-child(9),
+.data-manager-table tbody td:nth-child(9),
+.data-manager-table thead th:nth-child(10),
+.data-manager-table tbody td:nth-child(10) {
   width: 90px;
   text-align: center;
 }
@@ -202,6 +200,7 @@
   font-weight: 500;
   line-height: 1;
   display: inline-block;
+  transition: text-shadow 0.25s ease, transform 0.25s ease;
 }
 .diligence-mark.found {
   color: #16A34A;
@@ -210,6 +209,44 @@
 .diligence-mark.missing {
   color: var(--error);
   text-shadow: 0 0 8px rgba(220, 38, 38, 0.65), 0 0 2px rgba(220, 38, 38, 0.5);
+}
+
+/* Wrapper button around the ✓ — clickable to open the skill's output folder
+   (Diligence / Extract) or the Valuate page. No chrome at rest. Hover state
+   lives on the inner span: glow intensifies + slight scale-up. */
+.diligence-mark-btn {
+  background: transparent;
+  border: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: var(--radius) !important;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.diligence-mark-btn:hover .diligence-mark.found {
+  /* Hot halo close to the character — tight layered shadows at high alpha,
+     outer glow stays subtle so the intensity reads as "near the strokes". */
+  text-shadow:
+    0 0 1px rgba(22, 163, 74, 1),
+    0 0 3px rgba(22, 163, 74, 1),
+    0 0 7px rgba(22, 163, 74, 0.9),
+    0 0 12px rgba(22, 163, 74, 0.4);
+  transform: scale(1.1);
+}
+.diligence-mark-btn:hover .diligence-mark.missing {
+  /* Same hot-halo treatment in error red — kicks off the skill / opens Valuate. */
+  text-shadow:
+    0 0 1px rgba(220, 38, 38, 1),
+    0 0 3px rgba(220, 38, 38, 1),
+    0 0 7px rgba(220, 38, 38, 0.9),
+    0 0 12px rgba(220, 38, 38, 0.4);
+  transform: scale(1.1);
+}
+.diligence-mark-btn:active .diligence-mark.found,
+.diligence-mark-btn:active .diligence-mark.missing {
+  transform: scale(0.95);
 }
 
 /* Single-line cells: truncate long folder names with a soft right-edge fade.
@@ -223,15 +260,12 @@
 }
 
 /* Per-row sparkline + lifetime/TTM columns. */
-.data-manager-th-num {
-  text-align: right;
-}
 .data-manager-td-spark {
   width: 80px;
   padding-left: 8px;
   padding-right: 8px;
 }
-.data-manager-sparkline {
+.sparkline-svg {
   display: block;
 }
 .data-manager-td-num {

@@ -29,6 +29,29 @@
 
 .combobox.open .combobox-chevron { transform: rotate(180deg); }
 
+/* Form-context variant — full-width filled-primary pill. Inherits the default
+   purple-at-rest / white-bubble-on-hover-or-open liquid-pill effect from
+   .combobox-trigger above. Only difference is the trigger stretches to fill
+   its container (form-field row) instead of fitting to content. */
+.combobox.combobox--form { display: block; }
+.combobox.combobox--form .combobox-trigger {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 22px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+.combobox.combobox--form .combobox-trigger > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+.combobox.combobox--form .combobox-trigger.is-placeholder { color: white; }
+
 /* Center any modal-field that contains a Combobox (the B2B template picker). */
 .modal-field:has(.combobox) { align-items: center; }
 .modal-field:has(.combobox) .modal-label { text-align: center; }
@@ -45,7 +68,8 @@
   box-shadow: 0 4px 20px rgba(82, 0, 190, 0.08);
   padding: 4px 0;
   isolation: isolate;
-  overflow: hidden;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
 .combobox-item {

@@ -79,23 +79,18 @@
   text-transform: uppercase;
 }
 
+/* Form-input glass schema — see RPAForm.css / design_system.md. */
 .invoice-fields .field-input {
   padding: 10px 14px;
-  border: 1.5px solid var(--paper-darker);
+  border: none;
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   color: var(--ink);
   font-size: 14px;
   font-weight: 500;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   outline: none;
-}
-
-.invoice-fields .field-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(107,33,217,0.1);
 }
 
 .invoice-fields .export-btn {
@@ -132,19 +127,23 @@
   background-position: right 14px center;
 }
 
+/* Combo dropdown menu — matches .combobox-menu (Combobox.jsx) for cross-form
+   visual consistency. Glass + no border, no top-attachment break. */
 .combo-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1.5px solid var(--paper-darker);
-  border-top: none;
-  border-radius: 0 0 var(--radius) var(--radius);
+  border: none;
+  border-radius: var(--radius);
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(82, 0, 190, 0.08);
+  padding: 4px 0;
+  isolation: isolate;
+  overflow: hidden;
 }
 
 .combo-option {
@@ -158,7 +157,7 @@
 
 .combo-option:hover,
 .combo-option--active {
-  background: var(--primary-faint);
+  background: rgba(82, 0, 190, 0.08);
 }
 
 .combo-option:last-child {
@@ -182,24 +181,21 @@
   gap: 10px;
 }
 
+/* Form-input glass schema — see design_system.md. */
 .line-items-count {
   width: 48px;
   padding: 4px 4px;
-  border: 1.5px solid var(--paper-darker);
+  border: none;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   text-align: center;
   color: var(--ink);
   outline: none;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   font-family: 'Montserrat', sans-serif;
-}
-
-.line-items-count:focus {
-  border-color: var(--primary);
 }
 
 .line-items-count::-webkit-inner-spin-button,

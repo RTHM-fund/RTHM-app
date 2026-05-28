@@ -216,8 +216,8 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
           <div className="valuation-section-header">
             <h3 className="valuation-section-title">RTHM VALUATION</h3>
             <span className="valuation-type-badge">{dealType}</span>
-            {dealType === 'Individual' && <RateInput label="Commission" value={commission} onChange={setCommission} disabled={recoupLocked} />}
-            {dealType === 'B2B' && <RateInput label="Margin" value={b2bMarginRate} onChange={setB2bMarginRate} disabled={recoupLocked} />}
+            {dealType === 'Individual' && <RateInput label="Commission" value={commission} onChange={setCommission} />}
+            {dealType === 'B2B' && <RateInput label="Margin" value={b2bMarginRate} onChange={setB2bMarginRate} />}
           </div>
           <table className="valuation-table">
             <thead>
@@ -240,7 +240,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                     <td className="term-cell">{term}</td>
                     <td>
                       {recoupLocked ? (
-                        <span className="calc-tip rate-locked" data-tip={advTip}>{fmt(rthmAdvance)}</span>
+                        <span className="calc-tip" data-tip={advTip}>{fmt(rthmAdvance)}</span>
                       ) : (
                         <input
                           className="rate-input advance-input"
@@ -267,7 +267,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                     </td>
                     <td>
                       {recoupLocked ? (
-                        <span className="rate-locked">{rate.toFixed(2)}<span className="rate-symbol">%</span></span>
+                        <>{rate.toFixed(2)}%</>
                       ) : (
                         <>
                           <input
@@ -369,6 +369,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
               <div className="modal-field">
                 <label className="modal-label">B2B TEMPLATE</label>
                 <Combobox
+                  className="combobox--form"
                   value={b2bTemplate}
                   placeholder="select template"
                   options={b2bTemplates.map(t => ({ value: t.filename, label: t.name.replace(/_?Template$/i, '').trim() }))}

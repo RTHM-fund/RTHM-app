@@ -96,14 +96,14 @@ button { cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform:
 .arr { color: inherit; font-size: 0.5em; line-height: 1; position: relative; top: -1px; }
 input, select, textarea { font-family: 'Montserrat', sans-serif; }
 .auto-label { font-weight: 700; text-transform: none; color: var(--primary-mid); margin-left: 6px; font-size: 11px; }
-.field-locked { background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); color: var(--ink-light); cursor: default; }
+.field-locked { background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); color: var(--ink-light); cursor: default; }
 input::placeholder, textarea::placeholder { color: var(--ink-light); }
 
 .back-btn { background: none; border: none; border-radius: 0 !important; color: var(--ink); font-size: 13px; font-weight: 600 !important; padding: 4px 0; transition: color 0.15s ease; white-space: nowrap; letter-spacing: 0.01em; }
 .back-btn:hover { color: var(--primary); }
 
 .calc-tip { position: relative; cursor: default; }
-.calc-tip::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.45); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: none; color: var(--ink); padding: 7px 12px; border-radius: var(--radius); font-size: 11px; font-family: 'Montserrat', sans-serif; white-space: normal; max-width: 280px; width: max-content; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 100; box-shadow: 0 4px 20px rgba(82,0,190,0.08); isolation: isolate; will-change: backdrop-filter, transform; }
+.calc-tip::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.45); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: none; color: var(--ink); padding: 7px 12px; border-radius: var(--radius); font-size: 11px; font-family: 'Montserrat', sans-serif; font-weight: 500; text-transform: none; letter-spacing: normal; white-space: normal; max-width: 360px; width: max-content; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 100; box-shadow: 0 4px 20px rgba(82,0,190,0.08); isolation: isolate; will-change: backdrop-filter, transform; }
 .calc-tip:hover::after { opacity: 1; }
 
 /* ============================================================

@@ -15,6 +15,10 @@ export default function App() {
   const [valuationStates, setValuationStates] = useState({})
   const [mainArcade, setMainArcade] = useState(false)
   const [pageHistory, setPageHistory] = useState([])
+  // Data Manager — folder list lifted here so it survives page navigation.
+  // Previously local to DataManagerPage; switching to Deal Manager and back
+  // unmounted the page, dropped state, and forced a re-fetch + re-parse on remount.
+  const [dataFolders, setDataFolders] = useState([])
   // Data Manager — running skills per folder. Lifted here so spinners survive page navigation.
   // Map<folderPath, Set<skill>>. Persisted to localStorage so spinners also survive a page reload;
   // entries self-clean when their file-system completion flag flips on the next Data Manager visit.
@@ -40,6 +44,17 @@ export default function App() {
       localStorage.setItem('rthm-running-skills', JSON.stringify(obj))
     } catch {}
   }, [runningSkills])
+
+  // Prefetch Data Manager folders on app startup so when the user clicks the
+  // Data Manager nav, the list is already populated. Pairs with the server's
+  // mtime-keyed summary cache: this initial fetch warms the React state; any
+  // subsequent fetch (focus, skill poll) hits the warm cache and is near-instant.
+  useEffect(() => {
+    fetch('/api/data/folders')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setDataFolders(data) })
+      .catch(() => {})
+  }, [])
 
   function navigateTo(page) {
     setPageHistory(prev => [...prev, { page: activePage, template: selectedTemplate, prefill: prefillData, deal: selectedDeal, dealIndex: selectedDealIndex, valuateFolder }])
@@ -439,6 +454,8 @@ export default function App() {
         onToggleArcade={() => setMainArcade(p => !p)}
         runningSkills={runningSkills}
         setRunningSkills={setRunningSkills}
+        dataFolders={dataFolders}
+        setDataFolders={setDataFolders}
         valuateFolder={valuateFolder}
         onOpenValuate={handleOpenValuate}
       />

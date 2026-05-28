@@ -1,30 +1,10 @@
 import React, { useState, useEffect } from 'react'
+import Sparkline from './Sparkline.jsx'
 import './DataManagerPage.css'
 
 function fmtInt(v) {
   if (v == null || !Number.isFinite(v)) return '—'
   return v.toLocaleString('en-US', { maximumFractionDigits: 0 })
-}
-
-// Minimal sparkline — line shape only, no axes/labels/dots.
-function Sparkline({ values, width = 64, height = 24 }) {
-  if (!values || values.length < 2) return <span className="data-manager-cell-empty">—</span>
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const range = max - min || 1
-  const pad = 2
-  const w = width - pad * 2
-  const h = height - pad * 2
-  const points = values.map((v, i) => {
-    const x = pad + (i / (values.length - 1)) * w
-    const y = pad + h - ((v - min) / range) * h
-    return `${x.toFixed(1)},${y.toFixed(1)}`
-  })
-  return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="data-manager-sparkline">
-      <path d={'M' + points.join(' L')} fill="none" stroke="var(--primary)" strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
-  )
 }
 
 // Build a new Map with completed entries removed (folder gone, completion flag
@@ -48,9 +28,11 @@ function clearCompletedSkills(prev, list) {
   return changed ? next : prev
 }
 
-// runningSkills is lifted to App.jsx so spinners survive page navigation.
-export default function DataManagerPage({ runningSkills, setRunningSkills, onOpenValuate }) {
-  const [folders, setFolders] = useState([])
+// runningSkills + folders are lifted to App.jsx so state survives page navigation —
+// switching to Deal Manager and back no longer drops the folder list and forces a
+// re-fetch/re-parse on remount. The fetch still runs on mount + window focus; the
+// previously-fetched list stays visible during the refresh.
+export default function DataManagerPage({ runningSkills, setRunningSkills, folders, setFolders, onOpenValuate }) {
   const [selectedFolderPath, setSelectedFolderPath] = useState(null)
 
   useEffect(() => {
@@ -97,9 +79,23 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
     }).catch(() => {})
   }
 
-  function runSkill(skill) {
-    if (!selectedFolderPath) return
-    const folderPath = selectedFolderPath
+  // Open a specific folder path in the OS file browser (Finder / Explorer).
+  // Used by the row's Diligence + Extract ✓ buttons to jump straight to the
+  // skill's output folder inside the deal directory.
+  function openFolderPath(p) {
+    fetch('/api/data/open-folder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: p }),
+    }).catch(() => {})
+  }
+
+  // folderPath is optional — when omitted, falls back to selectedFolderPath
+  // (header-pill buttons). Per-row ? buttons pass their own row path so the
+  // skill kicks off without requiring a selection.
+  function runSkill(skill, explicitFolderPath) {
+    const folderPath = explicitFolderPath || selectedFolderPath
+    if (!folderPath) return
     fetch('/api/data/run-skill', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -162,10 +158,12 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
                 <th></th>
                 <th className="data-manager-th-num">Lifetime</th>
                 <th className="data-manager-th-num">TTM</th>
+                <th className="data-manager-th-num">Tracks</th>
+                <th className="data-manager-th-num">Top 80%</th>
+                <th className="data-manager-th-num">Dollar Age</th>
                 <th>Diligence</th>
                 <th>Valuation</th>
                 <th>Extract</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -177,7 +175,11 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
                   <tr
                     key={f.path}
                     className={trClass}
-                    onClick={() => setSelectedFolderPath(prev => prev === f.path ? null : f.path)}
+                    onClick={e => {
+                      // Don't toggle row selection when clicking row buttons / links.
+                      if (e.target.closest('button, a')) return
+                      setSelectedFolderPath(prev => prev === f.path ? null : f.path)
+                    }}
                   >
                     <td
                       className="data-manager-td-name"
@@ -198,7 +200,7 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
                       </div>
                     </td>
                     <td className="data-manager-td-spark">
-                      {f.summary ? <Sparkline values={f.summary.line} /> : <span className="data-manager-cell-empty">—</span>}
+                      {f.summary ? <Sparkline values={f.summary.line} emptyClassName="data-manager-cell-empty" /> : <span className="data-manager-cell-empty">—</span>}
                     </td>
                     <td className="data-manager-td-num">
                       {f.summary ? fmtInt(f.summary.lifetime) : <span className="data-manager-cell-empty">—</span>}
@@ -206,22 +208,74 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, onOpe
                     <td className="data-manager-td-num">
                       {f.summary ? fmtInt(f.summary.ttm) : <span className="data-manager-cell-empty">—</span>}
                     </td>
-                    <td>
-                      <span className={`diligence-mark ${f.hasDiligence ? 'found' : 'missing'}`}>
-                        {f.hasDiligence ? '✓' : '?'}
-                      </span>
+                    <td className="data-manager-td-num">
+                      {f.summary && Number.isFinite(f.summary.trackCount) ? fmtInt(f.summary.trackCount) : <span className="data-manager-cell-empty">—</span>}
+                    </td>
+                    <td className="data-manager-td-num">
+                      {f.summary && Number.isFinite(f.summary.top80Count) ? fmtInt(f.summary.top80Count) : <span className="data-manager-cell-empty">—</span>}
+                    </td>
+                    <td className="data-manager-td-num">
+                      {f.summary && Number.isFinite(f.summary.dollarAge)
+                        ? f.summary.dollarAge.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'y'
+                        : <span className="data-manager-cell-empty">—</span>}
                     </td>
                     <td>
-                      <span className={`diligence-mark ${f.hasDeal ? 'found' : 'missing'}`}>
-                        {f.hasDeal ? '✓' : '?'}
-                      </span>
+                      {f.hasDiligence ? (
+                        <button
+                          className="diligence-mark-btn"
+                          onClick={() => openFolderPath(`${f.path}/${f.name}_Due Diligence`)}
+                          title="open diligence folder"
+                        >
+                          <span className="diligence-mark found">✓</span>
+                        </button>
+                      ) : (
+                        <button
+                          className="diligence-mark-btn"
+                          onClick={() => runSkill('diligence', f.path)}
+                          title="run diligence"
+                        >
+                          <span className="diligence-mark missing">?</span>
+                        </button>
+                      )}
                     </td>
                     <td>
-                      <span className={`diligence-mark ${f.hasExtract ? 'found' : 'missing'}`}>
-                        {f.hasExtract ? '✓' : '?'}
-                      </span>
+                      {f.hasDeal ? (
+                        <button
+                          className="diligence-mark-btn"
+                          onClick={() => onOpenValuate?.({ path: f.path, name: f.name })}
+                          title="open valuate page"
+                        >
+                          <span className="diligence-mark found">✓</span>
+                        </button>
+                      ) : (
+                        <button
+                          className="diligence-mark-btn"
+                          onClick={() => onOpenValuate?.({ path: f.path, name: f.name })}
+                          title="open valuate page"
+                        >
+                          <span className="diligence-mark missing">?</span>
+                        </button>
+                      )}
                     </td>
-                    <td></td>
+                    <td>
+                      {f.hasExtract ? (
+                        <button
+                          className="diligence-mark-btn"
+                          onClick={() => openFolderPath(`${f.path}/${f.name}_Data Engine`)}
+                          title="open extract folder"
+                        >
+                          <span className="diligence-mark found">✓</span>
+                        </button>
+                      ) : (
+                        <button
+                          className="diligence-mark-btn"
+                          onClick={() => runSkill('catalog-extract', f.path)}
+                          title="run extract"
+                        >
+                          <span className="diligence-mark missing">?</span>
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 )
               })}

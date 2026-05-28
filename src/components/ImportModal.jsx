@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import Combobox from './Combobox.jsx'
 import './ImportModal.css'
 
 const PUBLISHING = [
@@ -265,11 +266,16 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
 
               <div className="modal-field">
                 <label className="modal-label">ROYALTY TYPE</label>
-                <select className="modal-input" value={royaltyType} onChange={e => setRoyaltyType(e.target.value)}>
-                  <option value="Distribution">Distribution</option>
-                  <option value="Publishing">Publishing</option>
-                  <option value="Both">Both</option>
-                </select>
+                <Combobox
+                  className="combobox--form"
+                  value={royaltyType}
+                  onChange={e => setRoyaltyType(e.target.value)}
+                  options={[
+                    { value: 'Distribution', label: 'Distribution' },
+                    { value: 'Publishing', label: 'Publishing' },
+                    { value: 'Both', label: 'Both' },
+                  ]}
+                />
               </div>
 
               <div className="modal-field">

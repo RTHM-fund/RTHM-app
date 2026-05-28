@@ -41,6 +41,45 @@ backdrop-filter: blur(24px) saturate(180%);
 
 ---
 
+## Form Inputs — Glass Schema
+
+All form-entry **text fields** (text inputs, textareas, search inputs, rate inputs, checkboxes) share **one visual treatment**: subtle 0.18-alpha glass, no border, no focus ring.
+
+**Comboboxes are NOT in this schema** — they're click-to-open buttons that surface a menu, so they follow the filled-primary pill button design language (purple at rest, white-bubble + primary-text on hover/open via the liquid-pill effect). See the Pill Buttons section. For form contexts where the trigger should stretch to fill its container, use `<Combobox className="combobox--form">`.
+
+```css
+padding: 10px 14px;       /* form fields — adjust per context */
+border: none;
+border-radius: var(--radius);
+background: rgba(255, 255, 255, 0.18);
+backdrop-filter: blur(20px) saturate(180%);
+-webkit-backdrop-filter: blur(20px) saturate(180%);
+color: var(--ink);
+font-size: 14px;
+outline: none;
+```
+
+**Rules:**
+- **No borders, no focus rings.** Inputs read as floating glass on the aurora. Hierarchy is the alpha bump (0.18) against the lavender, nothing else.
+- **No `:focus` border-color flip, no `box-shadow` glow** — clean rest = clean focus. Tradeoff accepted: minor keyboard-accessibility hit; visual consistency wins.
+- **Padding/sizing per context.** Table cell inputs (`.rate-input`) are 4px 6px / 13px font. Form fields (`.field-input`, `.modal-input`) are 10px 14px / 14px font. Combobox glass-input (`.combobox--glass`) matches form fields.
+- **Locked / read-only state** uses the same 0.18 glass — the field still reads as a value-bearing surface, just non-interactive. Don't switch to plain text unless the surrounding table is explicitly mirroring a read-only sibling (RTHM Valuation locked Advance / Rate cells mirror the Initial Quote table).
+- **Native `<select>` is forbidden in forms.** Its opened dropdown menu is OS-rendered solid white and can't be glass-styled. Use the `<Combobox className="combobox--glass">` component instead — same controlled-value API as `<select>`, but a portaled glass menu.
+
+**Classes implementing this rule:**
+- `.rate-input` (ValuationPage table cells, OfferLetterForm income-cell %)
+- `.field-input` (RPAForm, OfferLetterForm, InvoiceForm)
+- `.field-locked` (read-only auto-calculated variant — same glass + ink-light text)
+- `.modal-input` (ImportModal)
+- `.modal-search` (ImportModal search bar — borderless, no background pill of its own, sits directly on the modal's glass)
+- `.field-checkbox` / `.modal-table input[type="checkbox"]` (15×15 glass squares; primary fill + white check on `:checked`)
+- `.line-items-count` (InvoiceForm line-item counter)
+- `.combo-dropdown` (InvoiceForm type-or-pick menu — same glass as `.combobox-menu`)
+
+If a new input class is added, it must match this schema. Any `border: 1.5px solid var(--paper-darker)` on a form input is a regression — remove it.
+
+---
+
 ## Pill Buttons — Liquid Hover
 
 All clickable pill buttons participate in the **liquid-pill hover effect**: a radial fill that expands from the cursor's entry point over `0.6s cubic-bezier(0.33, 0, 0.15, 1)`. Text is wrapped in a `<span>` so it color-flips on the same timing.
@@ -314,10 +353,11 @@ When adding a new page that uses `.empty-state`, also add `position: relative` t
 ## Text & Copy Rules
 
 - All placeholder + empty-state text **lowercase** (except proper nouns: Google Sheets, Monday.com, EMPIRE, BMI, distributor names, etc.)
-- Button labels follow existing patterns:
-  - Action pills with leading `+`: Title Case (`+ Diligence`, `+ Import Data`)
-  - Toggle pills: Title Case (`Combined`, `Individual`)
-  - Plain text-link buttons (`back`): lowercase
+- **All pill button text is lowercase.** The global `button { text-transform: lowercase }` rule enforces this. JSX strings can be written in any case (`+ Diligence`, `B2B`, `Individual`, `Combined`) — the CSS lowercases at render. Do NOT add `text-transform: none` overrides on pill button classes.
+  - Applies to: action pills, toggle pills, modal radio buttons, combobox triggers, recoup toggles, etc.
+  - Plain text-link buttons (`.back-btn`): lowercase JSX too (no transform difference).
+  - Exception — dropdown **list items** (rendered as `<div>` inside `.combobox-menu`): display in the data's source case (typically Title Case, e.g. "Publishing", "Individual"). The trigger button lowercases the selected label visually; the menu itself preserves source casing.
+  - Exception — buttons whose label is a filename / proper-noun template name pulled from data (e.g. `.template-item`, `.category-toggle`, `.agreements-type-btn`): use `text-transform: none` because the source case is meaningful.
 - Subtitles: uppercase + `letter-spacing: 0.08em` + primary-mid color
 - Chart titles inside cards: lowercase in source, `text-transform: uppercase` in CSS
 

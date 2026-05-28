@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
+import Sparkline from './Sparkline.jsx'
 import './ValuatePage.css'
 
 function fmtCurrency(v) {
@@ -10,6 +11,17 @@ function fmtCurrency(v) {
 function fmtPercent(v) {
   if (v == null || !Number.isFinite(v)) return '—'
   return (v * 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%'
+}
+
+function fmtYears(v) {
+  if (v == null || !Number.isFinite(v)) return '—'
+  return v.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'y'
+}
+
+// Signed percentage. Positive = annual decay (loss), negative = growth.
+function fmtSignedPercent(v) {
+  if (v == null || !Number.isFinite(v)) return '—'
+  return (v * 100).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%'
 }
 
 // Mirror of server's parseMonthHeader → key-only. Used to align per-platform months
@@ -47,13 +59,16 @@ function monthKey(label) {
 }
 
 // Compute the Key Metrics block rows from the diligence-workbook response.
-// For each platform we pick its "net paid" line — tracksAdjLine when it differs
-// from tracksLine, else tracksLine. Combined values = sum of those per platform,
-// so per-platform shares of TTM always total 100%. "(net paid)" annotation only
-// appears on platforms whose Adj differs from Rep.
-function buildKeyMetrics(data) {
+// `view` is the active toggle — 'combined' or a platform name.
+// - Combined view: aggregates all platforms via "net paid where distinct" rule
+//   (Adj line per platform when it differs from Rep, else Rep). Includes
+//   per-platform % of Lifetime share rows.
+// - Per-platform view: scopes Lifetime/TTM/Dollar Age to that platform only.
+//   No share rows (we're already inside the single-platform context).
+function buildKeyMetrics(data, view) {
   if (!data || !data.platforms || data.platforms.length === 0) return []
 
+  // Build per-platform { name, months, line, isNetPaid } — same as before.
   const perPlatform = data.platforms.map(p => {
     const matches = p.tracksAdjLine.length === p.tracksLine.length
       && p.tracksLine.every((v, i) => v === p.tracksAdjLine[i])
@@ -62,9 +77,16 @@ function buildKeyMetrics(data) {
     return { name: p.name, months: p.months, line, isNetPaid }
   })
 
+  // Restrict to the active platform when not in combined view.
+  const isCombined = view === 'combined' || !view
+  const activePlatforms = isCombined
+    ? perPlatform
+    : perPlatform.filter(p => p.name === view)
+  if (activePlatforms.length === 0) return []
+
   // Bucket by parsed month key: { label, total, byPlatform: { name -> value } }
   const byKey = new Map()
-  for (const p of perPlatform) {
+  for (const p of activePlatforms) {
     for (let i = 0; i < p.months.length; i++) {
       const k = monthKey(p.months[i])
       if (!byKey.has(k)) byKey.set(k, { label: p.months[i], total: 0, byPlatform: {} })
@@ -108,22 +130,35 @@ function buildKeyMetrics(data) {
   }
   const ttmTotal = ttmKeys.reduce((s, k) => s + byKey.get(k).total, 0)
 
-  // Per-platform % of LTV (lifetime denominator — always sums to 100% under
-  // "net paid where distinct" rule).
-  const platformShareRows = []
-  for (const p of perPlatform) {
-    let pSum = 0
-    for (const k of sortedKeys) pSum += byKey.get(k).byPlatform[p.name] || 0
-    const share = lifetimeTotal > 0 ? pSum / lifetimeTotal : 0
-    const annot = p.isNetPaid ? ' (net paid)' : ''
-    platformShareRows.push({ label: `${p.name} % of Lifetime${annot}`, value: fmtPercent(share) })
+  // Suffix for labels: "Combined" in combined view, the platform name otherwise.
+  const scopeLabel = isCombined ? 'Combined' : view
+
+  // Catalog Dollar Age — server already provides per-platform values via
+  // data.tracksByPlatform[name].dollarAge. Combined uses data.dollarAge.
+  const dollarAge = isCombined
+    ? data.dollarAge
+    : (data.tracksByPlatform && data.tracksByPlatform[view] && data.tracksByPlatform[view].dollarAge)
+
+  // Assemble metric rows.
+  const rows = []
+  rows.push({ label: `Lifetime (${lifetimeWindow}) — ${scopeLabel}`, value: fmtCurrency(lifetimeTotal) })
+  rows.push({ label: `TTM (${ttmWindow}) — ${scopeLabel}`, value: fmtCurrency(ttmTotal) })
+  if (Number.isFinite(dollarAge)) {
+    rows.push({ label: `Dollar Age — ${scopeLabel}`, value: fmtYears(dollarAge) })
   }
 
-  // Assemble in spec order
-  const rows = []
-  rows.push({ label: `Lifetime (${lifetimeWindow}) — Combined`, value: fmtCurrency(lifetimeTotal) })
-  rows.push({ label: `TTM (${ttmWindow}) — Combined`, value: fmtCurrency(ttmTotal) })
-  for (const r of platformShareRows) rows.push(r)
+  // Per-platform % of Lifetime — combined view only (in per-platform view
+  // it would always be 100% on a single row, which is meaningless).
+  if (isCombined) {
+    for (const p of perPlatform) {
+      let pSum = 0
+      for (const k of sortedKeys) pSum += byKey.get(k).byPlatform[p.name] || 0
+      const share = lifetimeTotal > 0 ? pSum / lifetimeTotal : 0
+      const annot = p.isNetPaid ? ' (net paid)' : ''
+      rows.push({ label: `${p.name} % of Lifetime${annot}`, value: fmtPercent(share) })
+    }
+  }
+
   return rows
 }
 
@@ -156,7 +191,7 @@ function ChartTooltip({ active, payload, label }) {
   if (!active || !payload || !payload.length) return null
   const row = payload[0].payload || {}
   const breakdown = Object.keys(row)
-    .filter(k => k !== 'month' && k !== 'total' && Number.isFinite(row[k]) && row[k] !== 0)
+    .filter(k => k !== 'month' && k !== 'total' && k !== 'decayFromPrev' && Number.isFinite(row[k]) && row[k] !== 0)
   return (
     <div className="valuate-tooltip">
       <div className="valuate-tooltip-month">{label}</div>
@@ -164,6 +199,9 @@ function ChartTooltip({ active, payload, label }) {
       {breakdown.map(k => (
         <div key={k} className="valuate-tooltip-row">{k}: {fmtCurrency(row[k])}</div>
       ))}
+      {Number.isFinite(row.decayFromPrev) && (
+        <div className="valuate-tooltip-row valuate-tooltip-decay">decay: {fmtSignedPercent(row.decayFromPrev)}</div>
+      )}
     </div>
   )
 }
@@ -286,12 +324,18 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
       }
     }
   }
+  // Build chart rows. `decayFromPrev` = 1 - (current.total / prev.total) for each
+  // consecutive pair of periods. Positive = decay (revenue dropped vs prior period);
+  // negative = growth. Null on the first row (no prior) and when the prior was 0
+  // (undefined ratio). Displayed in the chart tooltip on hover.
   const tracksRows = series.months.map((m, i) => {
     const row = { month: m, total: series.tracksLine[i] || 0 }
     if (isCombined) {
       const k = monthKey(m)
       for (const p of data.platforms) row[p.name] = platformRepByMonth[p.name][k] || 0
     }
+    const prev = i > 0 ? (series.tracksLine[i - 1] || 0) : 0
+    row.decayFromPrev = i > 0 && prev > 0 ? 1 - (row.total / prev) : null
     return row
   })
   const tracksAdjRows = series.months.map((m, i) => {
@@ -300,12 +344,14 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
       const k = monthKey(m)
       for (const p of data.platforms) row[p.name] = platformAdjByMonth[p.name][k] || 0
     }
+    const prev = i > 0 ? (series.tracksAdjLine[i - 1] || 0) : 0
+    row.decayFromPrev = i > 0 && prev > 0 ? 1 - (row.total / prev) : null
     return row
   })
   const adjMatchesRep = series.tracksLine.length === series.tracksAdjLine.length
     && series.tracksLine.every((v, i) => v === series.tracksAdjLine[i])
 
-  const keyMetrics = buildKeyMetrics(data)
+  const keyMetrics = buildKeyMetrics(data, view)
 
   return (
     <div className="valuate-page">
@@ -321,11 +367,14 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
           {keyMetrics.length > 0 && (
             <div className="valuate-chart-card">
               <h3 className="valuate-chart-title">key metrics</h3>
-              <div className="valuate-metric-list">
+              <div
+                className="valuate-metric-grid"
+                style={{ gridTemplateColumns: `repeat(${keyMetrics.length}, 1fr)` }}
+              >
                 {keyMetrics.map(m => (
-                  <div className="valuate-metric-row" key={m.label}>
-                    <span className="valuate-metric-label">{m.label}</span>
-                    <span className="valuate-metric-value">{m.value}</span>
+                  <div className="valuate-metric-tile" key={m.label}>
+                    <span className="valuate-metric-tile-value">{m.value}</span>
+                    <span className="valuate-metric-tile-label">{m.label}</span>
                   </div>
                 ))}
               </div>
@@ -352,7 +401,10 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
 
           {!adjMatchesRep && tracksAdjRows.length > 0 && (
             <div className="valuate-chart-card">
-              <h3 className="valuate-chart-title">adjusted revenue</h3>
+              <h3
+                className="valuate-chart-title calc-tip"
+                data-tip="Reported revenue minus diligence adjustments. Removes non-recurring items (sync stripped, foreign catch-up bridges, layer adjustments, fee strip-outs) so the baseline reflects sustainable catalog earnings used for valuation."
+              >adjusted revenue</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={tracksAdjRows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(82,0,190,0.08)" />
@@ -369,39 +421,61 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
             </div>
           )}
 
-          {(data.tracks && data.tracks.length > 0) && (
-            <div className="valuate-chart-card">
-              <h3 className="valuate-chart-title">tracks</h3>
-              <table className="valuate-tracks-table">
-                <thead>
-                  <tr>
-                    <th className="valuate-tracks-rank">#</th>
-                    <th className="valuate-tracks-label">track</th>
-                    <th className="valuate-tracks-num">lifetime</th>
-                    <th className="valuate-tracks-num">% of LTV</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.tracks.map((t, i) => (
-                    <tr key={t.label}>
-                      <td className="valuate-tracks-rank">{i + 1}</td>
-                      <td className="valuate-tracks-label">{t.label}</td>
-                      <td className="valuate-tracks-num">{fmtCurrency(t.lifetime)}</td>
-                      <td className="valuate-tracks-num">{fmtPercent(t.pctOfLtv)}</td>
+          {(() => {
+            // Pick the active tracks list based on the current view toggle.
+            // Combined view uses the top-level `data.tracks` + `data.other`.
+            // Per-platform view picks from `data.tracksByPlatform[name]` which
+            // has its own top-80% / OTHER split scoped to that platform's revenue.
+            const activeTracks = view === 'combined'
+              ? { tracks: data.tracks, other: data.other }
+              : (data.tracksByPlatform && data.tracksByPlatform[view]) || { tracks: [], other: null }
+            if (!activeTracks.tracks || activeTracks.tracks.length === 0) return null
+            return (
+              <div className="valuate-chart-card">
+                <h3 className="valuate-chart-title">tracks</h3>
+                <table className="valuate-tracks-table">
+                  <thead>
+                    <tr>
+                      <th className="valuate-tracks-rank">#</th>
+                      <th className="valuate-tracks-label">track</th>
+                      <th className="valuate-tracks-spark"></th>
+                      <th className="valuate-tracks-num">% of LTR</th>
+                      <th className="valuate-tracks-num">lifetime</th>
+                      <th className="valuate-tracks-num">ttm</th>
+                      <th className="valuate-tracks-num">dollar age</th>
+                      <th className="valuate-tracks-num">decay rate</th>
                     </tr>
-                  ))}
-                  {data.other && (
-                    <tr key="OTHER" className="valuate-tracks-other">
-                      <td className="valuate-tracks-rank">—</td>
-                      <td className="valuate-tracks-label">{data.other.label}</td>
-                      <td className="valuate-tracks-num">{fmtCurrency(data.other.lifetime)}</td>
-                      <td className="valuate-tracks-num">{fmtPercent(data.other.pctOfLtv)}</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {activeTracks.tracks.map((t, i) => (
+                      <tr key={t.label}>
+                        <td className="valuate-tracks-rank">{i + 1}</td>
+                        <td className="valuate-tracks-label">{t.label}</td>
+                        <td className="valuate-tracks-spark"><Sparkline values={t.line} /></td>
+                        <td className="valuate-tracks-num">{fmtPercent(t.pctOfLtv)}</td>
+                        <td className="valuate-tracks-num">{fmtCurrency(t.lifetime)}</td>
+                        <td className="valuate-tracks-num">{fmtCurrency(t.ttm)}</td>
+                        <td className="valuate-tracks-num">{fmtYears(t.ageYears)}</td>
+                        <td className="valuate-tracks-num">{fmtSignedPercent(t.decayRate)}</td>
+                      </tr>
+                    ))}
+                    {activeTracks.other && (
+                      <tr key="OTHER" className="valuate-tracks-other">
+                        <td className="valuate-tracks-rank">—</td>
+                        <td className="valuate-tracks-label">{activeTracks.other.label}</td>
+                        <td className="valuate-tracks-spark"><Sparkline values={activeTracks.other.line} /></td>
+                        <td className="valuate-tracks-num">{fmtPercent(activeTracks.other.pctOfLtv)}</td>
+                        <td className="valuate-tracks-num">{fmtCurrency(activeTracks.other.lifetime)}</td>
+                        <td className="valuate-tracks-num">{fmtCurrency(activeTracks.other.ttm)}</td>
+                        <td className="valuate-tracks-num">{fmtYears(activeTracks.other.ageYears)}</td>
+                        <td className="valuate-tracks-num">{fmtSignedPercent(activeTracks.other.decayRate)}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>

@@ -1088,22 +1088,28 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
     const basename = path.basename(folder)
     const ddFolder = path.join(folder, `${basename}_Due Diligence`)
     if (!fs.existsSync(ddFolder)) return res.status(404).json({ error: 'no diligence folder yet' })
-    const wbPath = path.join(ddFolder, `${basename} - Diligence Workbook.xlsx`)
-    if (!fs.existsSync(wbPath)) return res.status(404).json({ error: 'no diligence workbook yet' })
+    const wbPath = resolveDiligenceWorkbookPath(ddFolder, basename)
+    if (!wbPath) return res.status(404).json({ error: 'no diligence workbook yet' })
 
     const wb = XLSX.readFile(wbPath, { cellDates: true })
-    // Matches `<Platform> <dash> {Track|Breakdown|Brkdn} {Rep|Adj}`. `Brkdn` is the
-    // abbreviated form some diligence-skill versions emit.
-    const sheetKindRe = /^(.+?)\s*[–—―\-]\s*(Track|Brkdn|Breakdown)\s+(Rep|Adj)\s*$/i
+    // Sheet-name patterns accepted (case-insensitive):
+    //   `<Platform> – Track Rep`              (multi-platform standard)
+    //   `Track Rep`                            (bare, single-platform — uses deal name)
+    //   `<Platform> – Breakdown Adj`           (Brkdn alias also accepted)
+    //   `By Track (Reported)` / `By Source (Adjusted)`  (legacy Hirschmann-style)
+    // Normalizes: "By Track" → track, "By Source" → breakdown, "Reported"/"Adjusted"
+    // → Rep/Adj. Bare sheet names attribute to deal folder name as platform.
+    const sheetKindRe = /^(?:(.+?)\s*[–—―\-]\s*)?(?:By\s+)?(Track|Source|Brkdn|Breakdown)\s+\(?(Rep|Reported|Adj|Adjusted)\)?\s*$/i
 
-    // Pass 1: group matching sheet names by platform.
+    // Pass 1: group matching sheet names by platform. Bare sheet names (no prefix)
+    // use the deal folder name as the platform identifier.
     const platformSheets = new Map() // name -> { entries: [{isTrack, isAdj, sheetName}] }
     for (const sheetName of wb.SheetNames) {
       const m = sheetName.match(sheetKindRe)
       if (!m) continue
-      const name = m[1].trim()
+      const name = (m[1] || basename).trim()
       const isTrack = /^Track$/i.test(m[2])
-      const isAdj = /^Adj$/i.test(m[3])
+      const isAdj = /^Adj/i.test(m[3])
       if (!platformSheets.has(name)) platformSheets.set(name, { entries: [] })
       platformSheets.get(name).entries.push({ isTrack, isAdj, sheetName })
     }
@@ -1125,13 +1131,37 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
         }
         if (headerIdx < 0) continue
         const headerLen = (rows[headerIdx] || []).length
+        // Projection-section boundary detector: scan headers left→right tracking the
+        // max date seen. When we encounter a date column whose key is NOT strictly
+        // later than the prior max, treat that as the start of a projection section
+        // and ignore columns from that point onward.
+        // Used by Lomeli's workbook — it has historical columns, then a "Decay"
+        // parameter column, then projected future columns that repeat (and re-set)
+        // the month labels. Without this boundary, projections double-count into
+        // their corresponding historical buckets, inflating recent-month values
+        // and skewing TTM. Standard workbooks (strictly chronological) are unaffected.
+        let projectionStartCol = headerLen
+        {
+          let lastKey = ''
+          for (let c = 2; c < headerLen; c++) {
+            const mInfo = colMonths[c]
+            if (!mInfo) continue
+            if (mInfo.key <= lastKey) { projectionStartCol = c; break }
+            lastKey = mInfo.key
+          }
+        }
         for (let r = headerIdx + 1; r < rows.length; r++) {
           const row = rows[r] || []
           const label = row[0]
           if (label == null) continue
           const labelStr = String(label).trim()
-          if (!labelStr || /^grand total$/i.test(labelStr) || /^total$/i.test(labelStr)) continue
-          for (let c = 2; c < headerLen; c++) {
+          // Use the shared isAggregateRow filter — the prior narrow "^total$|^grand total$"
+          // missed qualified aggregates ("Reported Total", "Adjusted Total",
+          // "GRAND TOTAL (Gross Royalty)", "(a) Reported Total", "Bridge", "Less:",
+          // etc.) which then got double-counted into the per-month buckets — inflating
+          // Lifetime / TTM / chart values 2x+. Now consistent with the per-track pass.
+          if (!labelStr || isAggregateRow(labelStr)) continue
+          for (let c = 2; c < projectionStartCol; c++) {
             const mInfo = colMonths[c]
             if (!mInfo) continue
             const cell = row[c]
@@ -1162,122 +1192,18 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
       platforms.push({ name, ...buildSeries(useEntries) })
     }
 
-    // Pass 2b: count source statement FILES per platform by scanning the deal folder.
-    // "Statement" = one logical source delivery from a publisher/distributor.
-    // A statement may be delivered as a single file (TuneCore monthly CSV, UMPG
-    // semi-annual "Financial Summary <period>.pdf") OR as paired files (ASCAP
-    // delivers each period as a CSV + PDF with the same basename). We dedupe by
-    // (directory + basename), so CSV+PDF pairs count as one statement.
+    // Pass 2b: statements count = number of distinct reporting periods present
+    // for each platform in the diligence workbook. This is derived directly from
+    // the data that drives the chart, so the count always matches what the user
+    // sees graphed — "if you can draw the line, you have the statements".
     //
-    // Matching workbook platform name → source file uses TOKENIZED + ALIASED
-    // substring checks: split the platform name on whitespace, require every
-    // token to appear somewhere in the file's relative path, with known
-    // abbreviation expansions (DOM ↔ Domestic, INTL ↔ International, etc.).
-    // A single-contiguous substring check ("ascap dom" anywhere in the path)
-    // would silently fail when folders/files use the expanded form — exactly
-    // what happened on Scott Storch (ASCAP DOM, ASCAP INTL).
-    //
-    // Aggregates excluded by FOLDER DEPTH (deal-root files are quotes/summaries/
-    // agendas, not statements) and by filename keyword (quote/merged/consolidated/
-    // agreement/agenda/contract). We do NOT filter on "summary" because real
-    // publisher statements are literally named that (UMPG canonical case).
-    const STATEMENT_EXTS = new Set(['.csv', '.tsv', '.pdf', '.xls', '.xlsx', '.xlsm', '.txt'])
-    const PLATFORM_ALIAS_GROUPS = [
-      ['dom', 'domestic'],
-      ['intl', 'int', 'international'],
-      ['pub', 'publishing', 'publisher'],
-      ['mech', 'mechanical'],
-      ['perf', 'performance'],
-    ]
-    function tokenAliases(token) {
-      for (const group of PLATFORM_ALIAS_GROUPS) {
-        if (group.includes(token)) return group
-      }
-      return [token]
-    }
-    function platformMatchesPath(platformName, pathLower) {
-      const tokens = platformName.toLowerCase().split(/\s+/).filter(Boolean)
-      return tokens.every(t => tokenAliases(t).some(a => pathLower.includes(a)))
-    }
-    function shouldSkipStatementFile(name) {
-      if (name.startsWith('.') || name.startsWith('~$')) return true
-      // Always-skip filename keywords — these never represent statements.
-      if (/(quote|merged|consolidated|agreement|agenda|contract)/i.test(name)) return true
-      // "Summary" requires a period marker to count. Aggregate summary files
-      // typically don't have one ("LOMELI TuneCore Summary.xlsx", "Earnings
-      // Summary - Jive + UMPG.xlsx"). Real publisher statements that include
-      // "Summary" do have one ("Financial Summary 1H2023.pdf" → UMPG canonical).
-      if (/summary/i.test(name) && !/(\b\d{4}\b|1H|2H|H1|H2|Q[1-4]|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(name)) {
-        return true
-      }
-      return false
-    }
-    function shouldSkipStatementDir(name) {
-      if (/_(due diligence|data engine)$/i.test(name)) return true
-      const lower = name.toLowerCase()
-      if (lower === 'csv' || lower === 'merged') return true
-      if (/agreements?$/i.test(name)) return true
-      return false
-    }
-    const platformNames = platforms.map(p => p.name)
-    const isSinglePlatform = platformNames.length === 1
-    const statementBasenames = new Map(platformNames.map(n => [n, new Set()]))
-    function walkForStatements(dir, depth) {
-      let entries
-      try { entries = fs.readdirSync(dir, { withFileTypes: true }) } catch { return }
-      for (const ent of entries) {
-        if (ent.isDirectory()) {
-          if (shouldSkipStatementDir(ent.name)) continue
-          walkForStatements(path.join(dir, ent.name), depth + 1)
-        } else if (ent.isFile()) {
-          // Multi-platform deals: skip files at the deal root (depth 0) — those
-          // are almost always aggregates (Quote, Earnings Summary, legal docs).
-          // Single-platform deals: the lone statement is sometimes at the root
-          // (e.g. Starz Lil D's `royalties_detailed_Starz Lil D.csv` consolidates
-          // all EMPIRE data into one file). Allow depth 0 in that case and let
-          // the filename filter screen out the obvious aggregates.
-          if (depth === 0 && !isSinglePlatform) continue
-          if (shouldSkipStatementFile(ent.name)) continue
-          const ext = path.extname(ent.name).toLowerCase()
-          if (!STATEMENT_EXTS.has(ext)) continue
-          const fullPath = path.join(dir, ent.name)
-          const rel = path.relative(folder, fullPath)
-          const relLower = rel.toLowerCase()
-          const baseName = path.basename(ent.name, path.extname(ent.name))
-          const baseKey = (path.dirname(rel) + path.sep + baseName).toLowerCase()
-          let matched = null
-          for (const p of platformNames) {
-            if (platformMatchesPath(p, relLower)) { matched = p; break }
-          }
-          if (matched) {
-            statementBasenames.get(matched).add(baseKey)
-          } else if (isSinglePlatform) {
-            statementBasenames.get(platformNames[0]).add(baseKey)
-          }
-        }
-      }
-    }
-    walkForStatements(folder, 0)
-    const statementCounts = new Map(
-      [...statementBasenames.entries()].map(([k, v]) => [k, v.size])
-    )
-
-    // Sanity gate: a platform with non-zero revenue MUST have ≥1 statement file
-    // attributed to it. If the scanner can't find any, surface that as null
-    // (UI can render "?") rather than a misleading 0. Data integrity > UX polish.
-    const statementWarnings = []
+    // Replaces the old folder-walk heuristic, which guessed at file attribution
+    // by matching platform-name tokens against file paths. That broke whenever
+    // folder names didn't include the platform name (CMG → "Back Catalog (Create)",
+    // quote-sourced platforms, etc.) and produced misleading "?" markers despite
+    // the workbook having full data.
     for (const p of platforms) {
-      const c = statementCounts.get(p.name) || 0
-      const hasRevenue = (p.tracksLine || []).some(v => v > 0) || (p.tracksAdjLine || []).some(v => v > 0)
-      if (c === 0 && hasRevenue) {
-        p.statementsCount = null
-        statementWarnings.push(`platform "${p.name}" has revenue in the diligence workbook but no source statement files were attributed to it by the folder scan`)
-      } else {
-        p.statementsCount = c
-      }
-    }
-    if (statementWarnings.length > 0) {
-      console.warn('[diligence-workbook]', statementWarnings.join('; '))
+      p.statementsCount = (p.months || []).length
     }
 
     // Pass 3: combined view — union all platforms' months by YYYY-MM key, sum lines.
@@ -1295,6 +1221,7 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
     }
     const combinedSorted = [...combinedByMonth.entries()].sort(([a], [b]) => a.localeCompare(b))
     const combined = {
+      keys: combinedSorted.map(([k]) => k),
       months: combinedSorted.map(([, v]) => v.label),
       tracksLine: combinedSorted.map(([, v]) => v.rep),
       tracksAdjLine: combinedSorted.map(([, v]) => v.adj),
@@ -1322,34 +1249,6 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
     //   • "Adjustment Bridge" / "Bridge note" / "Bridge Tie" / "Bridge per X"
     //   • "— Memo: X" / "Net Payable to Seller" / "Source field: X"
     //   • "Statement PDF total" / "Reserve Account Release"
-    function isAggregateRow(label) {
-      const s = String(label).trim()
-      if (!s) return true
-      // "Total" anywhere as a word — catches all the total/grand total variants
-      if (/\btotal\b/i.test(s)) return true
-      // Bridge rows — adjustment-bridge sections + per-row bridge ties/notes
-      if (/\bbridge\b/i.test(s)) return true
-      // "Less:" line items (sync stripped, fee stripped, catch-up adjustments)
-      if (/\bless:\s/i.test(s)) return true
-      // Layer N — X / Stripped notes
-      if (/^layer\s+\d/i.test(s)) return true
-      if (/\bstripped\b/i.test(s)) return true
-      // Net Payable to Seller (current state — masters only, no distribution)
-      if (/^net\s+payable/i.test(s)) return true
-      // Memo lines (with or without leading em-dash)
-      if (/^—?\s*memo\b/i.test(s)) return true
-      // Source-field captions ("Source field: 'Earnings (USD)' from ...")
-      if (/^source\s+field\s*:/i.test(s)) return true
-      // Statement PDF reconciliation lines
-      if (/^statement\s+pdf/i.test(s)) return true
-      // Reserve account release lines
-      if (/^reserve\s+account/i.test(s)) return true
-      // Lettered list prefixes "(a) ..." / "(b) ..." / "(c) ..."  — only when followed
-      // by a recognizable aggregate keyword to avoid hitting song titles like "(a) Song".
-      if (/^\([a-z]\)\s+(reported|adjusted|less:)/i.test(s)) return true
-      return false
-    }
-
     function trackLifetimeFromEntries(entries) {
       const trackMap = new Map()
       for (const e of entries) {
@@ -1363,29 +1262,170 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
         }
         if (headerIdx < 0) continue
         const headerLen = (rows[headerIdx] || []).length
+        // Projection boundary — see buildSeries doc.
+        let projectionStartCol = headerLen
+        {
+          let lastKey = ''
+          for (let c = 2; c < headerLen; c++) {
+            const mInfo = colMonths[c]
+            if (!mInfo) continue
+            if (mInfo.key <= lastKey) { projectionStartCol = c; break }
+            lastKey = mInfo.key
+          }
+        }
         for (let r = headerIdx + 1; r < rows.length; r++) {
           const row = rows[r] || []
-          const label = row[0]
-          if (label == null) continue
-          const labelStr = String(label).trim()
+          // Track-label extraction. Most workbooks have title in col 0 and Work ID
+          // / ISRC in col 1, but some (e.g. Landstrip Chip BMI sheets) swap them
+          // — col 0 holds the numeric BMI Work # and col 1 holds the title. Detect
+          // this by checking if col 0 is purely digits AND col 1 is non-numeric text.
+          const a0 = row[0]; const a1 = row[1]
+          const s0 = a0 == null ? '' : String(a0).trim()
+          const s1 = a1 == null ? '' : String(a1).trim()
+          if (!s0) continue
+          // 6+ digits required so short numeric titles ("22", "42") aren't mistaken for Work IDs.
+          const labelStr = (/^\d{6,}$/.test(s0) && s1 && !/^\d+$/.test(s1)) ? s1 : s0
           if (!labelStr) continue
           if (isAggregateRow(labelStr)) continue
           let lifetime = 0
-          for (let c = 2; c < headerLen; c++) {
+          let firstKey = null // first month with non-zero earnings — drives Dollar Age
+          const monthly = new Map() // YYYY-MM key -> summed value (for sparkline)
+          for (let c = 2; c < projectionStartCol; c++) {
             const mInfo = colMonths[c]
             if (!mInfo) continue
             const cell = row[c]
             const val = typeof cell === 'number' ? cell : Number(cell)
             if (!Number.isFinite(val)) continue
             lifetime += val
+            monthly.set(mInfo.key, (monthly.get(mInfo.key) || 0) + val)
+            if (val !== 0 && (!firstKey || mInfo.key < firstKey)) firstKey = mInfo.key
           }
-          if (lifetime !== 0) trackMap.set(labelStr, (trackMap.get(labelStr) || 0) + lifetime)
+          if (lifetime !== 0) {
+            const existing = trackMap.get(labelStr) || { lifetime: 0, firstKey: null, monthly: new Map() }
+            existing.lifetime += lifetime
+            if (firstKey && (!existing.firstKey || firstKey < existing.firstKey)) {
+              existing.firstKey = firstKey
+            }
+            for (const [k, v] of monthly) existing.monthly.set(k, (existing.monthly.get(k) || 0) + v)
+            trackMap.set(labelStr, existing)
+          }
         }
       }
       return trackMap
     }
 
-    const allTrackLifetimes = new Map() // label -> total lifetime across platforms
+    // Dollar Age helper — years between the track's first earning month and "now".
+    // Anchors to today's calendar date so the age advances naturally over time.
+    // Returns null when firstKey is missing (track never had a non-zero month).
+    const now = new Date()
+    function ageYearsFromKey(key) {
+      if (!key) return null
+      const [y, m] = key.split('-').map(Number)
+      if (!Number.isFinite(y) || !Number.isFinite(m)) return null
+      const months = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m)
+      return Math.max(0, months / 12)
+    }
+
+    // Per-track TTM — sum of monthly values within the 12 months ending at
+    // `lastKey` (the latest data month for this scope: combined or platform).
+    // Anchored to a shared window so all tracks in a view are comparable.
+    function ttmFromMonthly(monthly, lastKey) {
+      if (!lastKey) return 0
+      const [ly, lm] = lastKey.split('-').map(Number)
+      let sm = lm - 11, sy = ly
+      while (sm <= 0) { sm += 12; sy -= 1 }
+      const startKey = `${sy}-${String(sm).padStart(2, '0')}`
+      let sum = 0
+      for (const [k, v] of monthly) {
+        if (k >= startKey && k <= lastKey) sum += v
+      }
+      return sum
+    }
+
+    // Per-track Decay Rate — simple arithmetic mean of period-to-period decay
+    // rates for the track. For each pair of consecutive entries in the track's
+    // own time series, compute (1 - curr/prev) and average them. Positive
+    // average = revenue decays on average per period; negative = grows.
+    // Skips pairs where prev = 0 (decay undefined when starting from zero) —
+    // covers track-debut periods and dormant→active transitions.
+    // Returns null when there are no valid pairs.
+    function decayRateFromMonthly(monthly) {
+      const entries = [...monthly.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+      if (entries.length < 2) return null
+      const rates = []
+      for (let i = 1; i < entries.length; i++) {
+        const prev = entries[i - 1][1]
+        const curr = entries[i][1]
+        if (prev > 0) rates.push(1 - (curr / prev))
+      }
+      if (rates.length === 0) return null
+      return rates.reduce((s, r) => s + r, 0) / rates.length
+    }
+
+    // Reusable: take a Map<label, {lifetime, firstKey, monthly}> + an axis key
+    // array and produce the { tracks, other, dealLifetime, dollarAge } shape
+    // used by both the combined view and each per-platform view.
+    function buildTracksOutput(trackMap, axisKeys) {
+      const lastKey = axisKeys.length > 0 ? axisKeys[axisKeys.length - 1] : null
+      const sortedTracks = [...trackMap.entries()]
+        .map(([label, info]) => ({ label, lifetime: info.lifetime, firstKey: info.firstKey, monthly: info.monthly }))
+        .filter(t => t.lifetime > 0)
+        .sort((a, b) => b.lifetime - a.lifetime)
+      const dealLifetime = sortedTracks.reduce((s, t) => s + t.lifetime, 0)
+      const tracksTop = []
+      const tracksOtherRaw = []
+      if (dealLifetime > 0) {
+        let cum = 0
+        let cumReached = false
+        for (const t of sortedTracks) {
+          if (cumReached) { tracksOtherRaw.push(t); continue }
+          tracksTop.push(t)
+          cum += t.lifetime
+          if (cum / dealLifetime >= 0.80) cumReached = true
+        }
+      }
+      const lineFor = t => axisKeys.map(k => t.monthly.get(k) || 0)
+      const tracks = tracksTop.map(t => ({
+        label: t.label,
+        lifetime: t.lifetime,
+        pctOfLtv: dealLifetime > 0 ? t.lifetime / dealLifetime : 0,
+        ageYears: ageYearsFromKey(t.firstKey),
+        ttm: ttmFromMonthly(t.monthly, lastKey),
+        decayRate: decayRateFromMonthly(t.monthly),
+        line: lineFor(t),
+      }))
+      const otherTotal = tracksOtherRaw.reduce((s, t) => s + t.lifetime, 0)
+      const otherAvgAge = (() => {
+        const ages = tracksOtherRaw.map(t => ageYearsFromKey(t.firstKey)).filter(a => a != null)
+        return ages.length > 0 ? ages.reduce((s, a) => s + a, 0) / ages.length : null
+      })()
+      // OTHER's TTM = sum of tail tracks' TTMs in the same window.
+      const otherTtm = tracksOtherRaw.reduce((s, t) => s + ttmFromMonthly(t.monthly, lastKey), 0)
+      // OTHER's Decay Rate = simple average of tail tracks' rates (skip nulls).
+      const otherDecays = tracksOtherRaw.map(t => decayRateFromMonthly(t.monthly)).filter(r => r != null)
+      const otherDecayRate = otherDecays.length > 0 ? otherDecays.reduce((s, r) => s + r, 0) / otherDecays.length : null
+      const otherLine = axisKeys.map(k => tracksOtherRaw.reduce((s, t) => s + (t.monthly.get(k) || 0), 0))
+      const other = tracksOtherRaw.length > 0 ? {
+        label: `OTHER (${tracksOtherRaw.length} track${tracksOtherRaw.length === 1 ? '' : 's'})`,
+        lifetime: otherTotal,
+        pctOfLtv: dealLifetime > 0 ? otherTotal / dealLifetime : 0,
+        componentCount: tracksOtherRaw.length,
+        ageYears: otherAvgAge,
+        ttm: otherTtm,
+        decayRate: otherDecayRate,
+        line: otherLine,
+      } : null
+      // Catalog-level Dollar Age — simple unweighted average of every track's age.
+      const allAges = sortedTracks.map(t => ageYearsFromKey(t.firstKey)).filter(a => a != null)
+      const dollarAge = allAges.length > 0 ? allAges.reduce((s, a) => s + a, 0) / allAges.length : null
+      return { tracks, other, dealLifetime, dollarAge }
+    }
+
+    // Per-platform track maps + the combined map. Iterate each platform once,
+    // run trackLifetimeFromEntries scoped to that platform's relevant sheets,
+    // and merge into the combined aggregate.
+    const allTrackLifetimes = new Map() // combined: label -> { lifetime, firstKey, monthly }
+    const tracksByPlatformMap = new Map() // platformName -> Map<label, {lifetime, firstKey, monthly}>
     for (const [name, ps] of platformSheets) {
       const trackOnly = ps.entries.filter(e => e.isTrack)
       if (trackOnly.length === 0) continue // Brkdn-only platforms not eligible for track list
@@ -1397,43 +1437,41 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
       if (relevant.length === 0) relevant = trackOnly.filter(e => e.isAdj === false)
       if (relevant.length === 0) relevant = trackOnly
       const platformTracks = trackLifetimeFromEntries(relevant)
-      for (const [label, lifetime] of platformTracks) {
-        allTrackLifetimes.set(label, (allTrackLifetimes.get(label) || 0) + lifetime)
+      tracksByPlatformMap.set(name, platformTracks)
+      for (const [label, info] of platformTracks) {
+        const existing = allTrackLifetimes.get(label) || { lifetime: 0, firstKey: null, monthly: new Map() }
+        existing.lifetime += info.lifetime
+        if (info.firstKey && (!existing.firstKey || info.firstKey < existing.firstKey)) {
+          existing.firstKey = info.firstKey
+        }
+        for (const [k, v] of info.monthly) existing.monthly.set(k, (existing.monthly.get(k) || 0) + v)
+        allTrackLifetimes.set(label, existing)
       }
     }
 
-    const sortedTracks = [...allTrackLifetimes.entries()]
-      .map(([label, lifetime]) => ({ label, lifetime }))
-      .filter(t => t.lifetime > 0)
-      .sort((a, b) => b.lifetime - a.lifetime)
-    const dealLifetime = sortedTracks.reduce((s, t) => s + t.lifetime, 0)
+    // Combined view — uses combined.keys as the axis.
+    const combinedOutput = buildTracksOutput(allTrackLifetimes, combined.keys)
+    const tracks = combinedOutput.tracks
+    const other = combinedOutput.other
+    const dealLifetime = combinedOutput.dealLifetime
+    const dollarAge = combinedOutput.dollarAge
 
-    const tracksTop = []
-    const tracksOtherRaw = []
-    if (dealLifetime > 0) {
-      let cum = 0
-      let cumReached = false
-      for (const t of sortedTracks) {
-        if (cumReached) { tracksOtherRaw.push(t); continue }
-        tracksTop.push(t)
-        cum += t.lifetime
-        if (cum / dealLifetime >= 0.80) cumReached = true
+    // Per-platform views — each uses its own platform's month-key axis so the
+    // sparkline shape reflects that platform's reporting cadence, not the
+    // padded combined timeline.
+    const tracksByPlatform = {}
+    for (const [name, trackMap] of tracksByPlatformMap) {
+      // Build the platform's axis from the union of its own track months.
+      // (Equivalent to the platform's reported months in chronological order.)
+      const platformKeySet = new Set()
+      for (const info of trackMap.values()) {
+        for (const k of info.monthly.keys()) platformKeySet.add(k)
       }
+      const platformAxisKeys = [...platformKeySet].sort()
+      tracksByPlatform[name] = buildTracksOutput(trackMap, platformAxisKeys)
     }
-    const tracks = tracksTop.map(t => ({
-      label: t.label,
-      lifetime: t.lifetime,
-      pctOfLtv: dealLifetime > 0 ? t.lifetime / dealLifetime : 0,
-    }))
-    const otherTotal = tracksOtherRaw.reduce((s, t) => s + t.lifetime, 0)
-    const other = tracksOtherRaw.length > 0 ? {
-      label: `OTHER (${tracksOtherRaw.length} track${tracksOtherRaw.length === 1 ? '' : 's'})`,
-      lifetime: otherTotal,
-      pctOfLtv: dealLifetime > 0 ? otherTotal / dealLifetime : 0,
-      componentCount: tracksOtherRaw.length,
-    } : null
 
-    res.json({ folderName: basename, platforms, combined, tracks, other, dealLifetime })
+    res.json({ folderName: basename, platforms, combined, tracks, other, dealLifetime, dollarAge, tracksByPlatform })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -1476,32 +1514,100 @@ function parseMonthHeader(v) {
       return { key: `${yr}-${String(mo).padStart(2,'0')}`, label: s }
     }
   }
+  // Quarterly: Q1-25, Q1 25, Q1/25, Q1'25, Q1-2025, Q12025, 1Q25, 1Q2025, etc.
+  // Each quarter anchors to its START month so the YYYY-MM key sorts correctly and
+  // the bucket spacing is meaningful (Q1→Jan, Q2→Apr, Q3→Jul, Q4→Oct).
+  // The graph displays one point per reporting period (no interpolation across the
+  // gap months) — quarterly deals naturally show ~4 points/year, semi-annual ~2/year.
+  m = s.match(/^Q([1-4])['\-/\s]?(\d{2,4})$/i) || s.match(/^([1-4])Q(\d{2,4})$/i)
+  if (m) {
+    const q = Number(m[1])
+    const startMo = (q - 1) * 3 + 1
+    const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
+    return { key: `${yr}-${String(startMo).padStart(2,'0')}`, label: s }
+  }
   return null
 }
 
+// Shared aggregate-row filter — used by Valuate's track extraction AND
+// the Data Manager summary's track-count pass. See full doc in the
+// diligence-workbook handler for the exhaustive pattern coverage rationale.
+function isAggregateRow(label) {
+  const s = String(label).trim()
+  if (!s) return true
+  if (/\btotal\b/i.test(s)) return true
+  if (/\bbridge\b/i.test(s)) return true
+  if (/\bless:\s/i.test(s)) return true
+  if (/^layer\s+\d/i.test(s)) return true
+  if (/\bstripped\b/i.test(s)) return true
+  if (/^net\s+payable/i.test(s)) return true
+  if (/^—?\s*memo\b/i.test(s)) return true
+  if (/^source\s+field\s*:/i.test(s)) return true
+  if (/^statement\s+pdf/i.test(s)) return true
+  if (/^reserve\s+account/i.test(s)) return true
+  if (/^\([a-z]\)\s+(reported|adjusted|less:)/i.test(s)) return true
+  return false
+}
+
 // Lightweight per-deal summary used by /api/data/folders to populate the Data
-// Manager's sparkline / Lifetime / TTM columns. Reads the deal's diligence
-// workbook, builds the combined revenue series across all platforms, and
-// returns the line shape + headline totals. Uses the adjusted-revenue line
-// when it differs from reported (matches Valuate page's auto-choose rule),
-// else uses reported.
+// Manager's sparkline / Lifetime / TTM / Tracks / Top80% columns. Reads the
+// deal's diligence workbook, builds the combined revenue series + per-track
+// rankings across all platforms, returns the line shape + headline totals +
+// track counts. Uses the adjusted-revenue line when it differs from reported
+// (matches Valuate page's auto-choose rule), else uses reported.
 // Returns null when there's no workbook (frontend renders cells as "—").
+//
+// Cached in-memory by workbook mtime — re-reading + parsing every xlsx on
+// every /api/data/folders call was the cause of slow Data Manager mounts.
+// A quick fs.statSync (microseconds) gates the expensive XLSX.readFile.
+// Resolves the diligence workbook path inside `_Due Diligence/`. Most deals use the
+// canonical `<basename> - Diligence Workbook.xlsx`. Some legacy deals use variants
+// (`Hirschmann DD Workbook.xlsx`, `Lambo4oe_Catalog_Diligence_Workbook.xlsx`). We
+// accept any xlsx in the diligence folder whose name contains "workbook", except
+// the by-statement variant (which is a sibling artifact, not the primary workbook).
+// Returns null if no candidate found.
+function resolveDiligenceWorkbookPath(ddFolder, basename) {
+  try {
+    const canonical = path.join(ddFolder, `${basename} - Diligence Workbook.xlsx`)
+    if (fs.existsSync(canonical)) return canonical
+    const candidates = fs.readdirSync(ddFolder)
+      .filter(f => /\.xlsx$/i.test(f))
+      .filter(f => !f.startsWith('~$'))
+      .filter(f => /workbook/i.test(f))
+      .filter(f => !/by[-_\s]statement/i.test(f))
+      .sort((a, b) => a.length - b.length) // prefer closest-to-canonical
+    if (candidates.length === 0) return null
+    return path.join(ddFolder, candidates[0])
+  } catch { return null }
+}
+const summaryCache = new Map() // wbPath -> { mtimeMs, summary }
 function computeWorkbookSummary(folder) {
   try {
     const basename = path.basename(folder)
     const ddFolder = path.join(folder, `${basename}_Due Diligence`)
     if (!fs.existsSync(ddFolder)) return null
-    const wbPath = path.join(ddFolder, `${basename} - Diligence Workbook.xlsx`)
-    if (!fs.existsSync(wbPath)) return null
+    const wbPath = resolveDiligenceWorkbookPath(ddFolder, basename)
+    if (!wbPath) return null
+    const mtimeMs = fs.statSync(wbPath).mtimeMs
+    const cached = summaryCache.get(wbPath)
+    if (cached && cached.mtimeMs === mtimeMs) return cached.summary
+    const summary = computeWorkbookSummaryInner(wbPath, basename)
+    summaryCache.set(wbPath, { mtimeMs, summary })
+    return summary
+  } catch { return null }
+}
+function computeWorkbookSummaryInner(wbPath, dealName) {
+  try {
     const wb = XLSX.readFile(wbPath, { cellDates: true })
-    const sheetKindRe = /^(.+?)\s*[–—―\-]\s*(Track|Brkdn|Breakdown)\s+(Rep|Adj)\s*$/i
+    // See full pattern docs in computeDiligenceWorkbook above.
+    const sheetKindRe = /^(?:(.+?)\s*[–—―\-]\s*)?(?:By\s+)?(Track|Source|Brkdn|Breakdown)\s+\(?(Rep|Reported|Adj|Adjusted)\)?\s*$/i
     const platformSheets = new Map()
     for (const sheetName of wb.SheetNames) {
       const m = sheetName.match(sheetKindRe)
       if (!m) continue
-      const name = m[1].trim()
+      const name = (m[1] || dealName).trim()
       const isTrack = /^Track$/i.test(m[2])
-      const isAdj = /^Adj$/i.test(m[3])
+      const isAdj = /^Adj/i.test(m[3])
       if (!platformSheets.has(name)) platformSheets.set(name, { entries: [] })
       platformSheets.get(name).entries.push({ isTrack, isAdj, sheetName })
     }
@@ -1518,13 +1624,29 @@ function computeWorkbookSummary(folder) {
         }
         if (headerIdx < 0) continue
         const headerLen = (rows[headerIdx] || []).length
+        // Projection-section boundary — see full doc in Valuate handler's buildSeries.
+        let projectionStartCol = headerLen
+        {
+          let lastKey = ''
+          for (let c = 2; c < headerLen; c++) {
+            const mInfo = colMonths[c]
+            if (!mInfo) continue
+            if (mInfo.key <= lastKey) { projectionStartCol = c; break }
+            lastKey = mInfo.key
+          }
+        }
         for (let r = headerIdx + 1; r < rows.length; r++) {
           const row = rows[r] || []
           const label = row[0]
           if (label == null) continue
           const labelStr = String(label).trim()
-          if (!labelStr || /^grand total$/i.test(labelStr) || /^total$/i.test(labelStr)) continue
-          for (let c = 2; c < headerLen; c++) {
+          // Use the shared isAggregateRow filter — the prior narrow "^total$|^grand total$"
+          // missed qualified aggregates ("Reported Total", "Adjusted Total",
+          // "GRAND TOTAL (Gross Royalty)", "(a) Reported Total", "Bridge", "Less:",
+          // etc.) which then got double-counted into the per-month buckets — inflating
+          // Lifetime / TTM / chart values 2x+. Now consistent with the per-track pass.
+          if (!labelStr || isAggregateRow(labelStr)) continue
+          for (let c = 2; c < projectionStartCol; c++) {
             const mInfo = colMonths[c]
             if (!mInfo) continue
             const cell = row[c]
@@ -1587,7 +1709,104 @@ function computeWorkbookSummary(folder) {
         if (keys[i] >= ttmStartKey && keys[i] <= lastKey) ttm += line[i] || 0
       }
     }
-    return { line, lifetime, ttm, hasAdj: !adjMatchesRep }
+
+    // Track counts — mirrors the per-track extraction in /api/data/diligence-workbook.
+    // trackCount = total distinct tracks with non-zero lifetime across all platforms
+    //              (Track sheets only; Brkdn-only platforms contribute nothing).
+    // top80Count = number of those tracks whose cumulative lifetime reaches 80% of
+    //              total deal lifetime (rest get bundled as OTHER on the Valuate page).
+    const trackTotals = new Map() // label -> summed lifetime across platforms
+    for (const [name, ps] of platformSheets) {
+      const trackOnly = ps.entries.filter(e => e.isTrack)
+      if (trackOnly.length === 0) continue
+      // Pick adj vs rep at the platform level — match Valuate's auto-choose rule.
+      const p = platforms.find(x => x.name === name)
+      const platMatches = p && p.rep.length === p.adj.length && p.rep.every((v, i) => v === p.adj[i])
+      const wantAdj = !platMatches
+      let relevant = trackOnly.filter(e => e.isAdj === wantAdj)
+      if (relevant.length === 0) relevant = trackOnly.filter(e => !e.isAdj)
+      if (relevant.length === 0) relevant = trackOnly
+      for (const e of relevant) {
+        const ws = wb.Sheets[e.sheetName]
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null })
+        let headerIdx = -1, colMonths = null
+        for (let i = 0; i < Math.min(rows.length, 8); i++) {
+          const cand = (rows[i] || []).map(parseMonthHeader)
+          if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+        }
+        if (headerIdx < 0) continue
+        const headerLen = (rows[headerIdx] || []).length
+        // Projection boundary — see buildSeries doc.
+        let projectionStartCol = headerLen
+        {
+          let lastKey = ''
+          for (let c = 2; c < headerLen; c++) {
+            const mInfo = colMonths[c]
+            if (!mInfo) continue
+            if (mInfo.key <= lastKey) { projectionStartCol = c; break }
+            lastKey = mInfo.key
+          }
+        }
+        for (let r = headerIdx + 1; r < rows.length; r++) {
+          const row = rows[r] || []
+          // Track-label extraction with swapped-column heuristic — see same logic
+          // in /api/data/diligence-workbook for context (Landstrip Chip case).
+          const a0 = row[0]; const a1 = row[1]
+          const s0 = a0 == null ? '' : String(a0).trim()
+          const s1 = a1 == null ? '' : String(a1).trim()
+          if (!s0) continue
+          // 6+ digits required so short numeric titles ("22", "42") aren't mistaken for Work IDs.
+          const labStr = (/^\d{6,}$/.test(s0) && s1 && !/^\d+$/.test(s1)) ? s1 : s0
+          if (!labStr || isAggregateRow(labStr)) continue
+          let life = 0
+          let firstKey = null
+          for (let c = 2; c < projectionStartCol; c++) {
+            const mInfo = colMonths[c]
+            if (!mInfo) continue
+            const v = row[c]
+            const num = typeof v === 'number' ? v : Number(v)
+            if (!Number.isFinite(num)) continue
+            life += num
+            if (num !== 0 && (!firstKey || mInfo.key < firstKey)) firstKey = mInfo.key
+          }
+          if (life !== 0) {
+            const existing = trackTotals.get(labStr) || { lifetime: 0, firstKey: null }
+            existing.lifetime += life
+            if (firstKey && (!existing.firstKey || firstKey < existing.firstKey)) {
+              existing.firstKey = firstKey
+            }
+            trackTotals.set(labStr, existing)
+          }
+        }
+      }
+    }
+    const trackInfos = [...trackTotals.values()].filter(t => t.lifetime > 0)
+    const ranked = trackInfos.map(t => t.lifetime).sort((a, b) => b - a)
+    const trackCount = ranked.length
+    const dealLife = ranked.reduce((s, v) => s + v, 0)
+    let top80Count = 0
+    if (dealLife > 0) {
+      let cum = 0
+      for (const v of ranked) {
+        top80Count += 1
+        cum += v
+        if (cum / dealLife >= 0.80) break
+      }
+    }
+    // Catalog Dollar Age — simple unweighted average of per-track ages (years
+    // from each track's first non-zero earning month to today). Matches the
+    // Valuate-page convention. Tracks with no firstKey are skipped.
+    const now = new Date()
+    function ageY(key) {
+      if (!key) return null
+      const [y, m] = key.split('-').map(Number)
+      if (!Number.isFinite(y) || !Number.isFinite(m)) return null
+      return Math.max(0, ((now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m)) / 12)
+    }
+    const ages = trackInfos.map(t => ageY(t.firstKey)).filter(a => a != null)
+    const dollarAge = ages.length > 0 ? ages.reduce((s, a) => s + a, 0) / ages.length : null
+
+    return { line, lifetime, ttm, hasAdj: !adjMatchesRep, trackCount, top80Count, dollarAge }
   } catch { return null }
 }
 
@@ -1673,17 +1892,20 @@ app.get('/api/data/folders', (req, res) => {
       .map(e => {
         const fullPath = path.join(CURRENT_DIR, e.name)
         const stat = fs.statSync(fullPath)
-        let hasDiligence = false
         let hasExtract = false
         try {
           const subs = fs.readdirSync(fullPath, { withFileTypes: true })
-          hasDiligence = subs.some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_due diligence'))
           hasExtract = subs.some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_data engine'))
         } catch {}
         const hasDeal = dealNames.has(e.name.trim().toLowerCase())
         const staleSkills = staleSkillsFor(e.name)
-        // Summary (sparkline line + Lifetime + TTM) — only when workbook exists.
-        const summary = hasDiligence ? computeWorkbookSummary(fullPath) : null
+        // Summary (sparkline line + Lifetime + TTM). Returns null when there's no
+        // diligence folder, no workbook, or the workbook is unparseable.
+        const summary = computeWorkbookSummary(fullPath)
+        // Rule: diligence is "done" only when we can actually read a parseable
+        // workbook. An empty `_Due Diligence` folder doesn't count — if you can't
+        // draw the line, diligence isn't done from the app's perspective.
+        const hasDiligence = summary != null
         return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasExtract, hasDeal, staleSkills, summary }
       })
       .sort((a, b) => b.mtime.localeCompare(a.mtime))
@@ -1873,4 +2095,29 @@ app.get('/api/heartbeat', (req, res) => {
 
 
 const PORT = 3001
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`)
+  // Pre-warm the Data Manager summary cache so the first /api/data/folders
+  // request doesn't pay the cold-cache XLSX-parse cost. Walks every deal
+  // folder once on a 100ms delay and runs computeWorkbookSummary on each;
+  // the cache (keyed by workbook mtime) is then hot for any subsequent call.
+  setTimeout(() => {
+    try {
+      const dir = path.join(DATA_ROOT, '1. Current')
+      if (!fs.existsSync(dir)) return
+      const entries = fs.readdirSync(dir, { withFileTypes: true })
+      const t0 = Date.now()
+      let warmed = 0
+      for (const e of entries) {
+        if (!e.isDirectory()) continue
+        try {
+          const summary = computeWorkbookSummary(path.join(dir, e.name))
+          if (summary) warmed += 1
+        } catch {}
+      }
+      console.log(`[prewarm] data manager summary cache: ${warmed} folders in ${Date.now() - t0}ms`)
+    } catch (err) {
+      console.warn('[prewarm] failed:', err.message)
+    }
+  }, 100)
+})

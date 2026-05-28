@@ -7,11 +7,25 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
   const [deals, setDeals] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editIndex, setEditIndex] = useState(null)
+  const [selectedDealIdx, setSelectedDealIdx] = useState(null)
 
   useEffect(() => {
     loadDeals()
     window.addEventListener('focus', loadDeals)
     return () => window.removeEventListener('focus', loadDeals)
+  }, [])
+
+  // Mirror Data Manager's outside-click deselect — exempt the table wrap and the
+  // page header (so right-clicks on row names and clicks on "+ Create New Deal"
+  // don't deselect).
+  useEffect(() => {
+    function handleDocMouseDown(e) {
+      if (!e.target.closest('.deals-table-wrap, .deals-page-header')) {
+        setSelectedDealIdx(null)
+      }
+    }
+    document.addEventListener('mousedown', handleDocMouseDown)
+    return () => document.removeEventListener('mousedown', handleDocMouseDown)
   }, [])
 
   function loadDeals() {
@@ -80,7 +94,15 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
             </thead>
             <tbody>
               {deals.map((deal) => (
-                <tr key={deal._idx}>
+                <tr
+                  key={deal._idx}
+                  className={selectedDealIdx === deal._idx ? 'selected' : ''}
+                  onClick={e => {
+                    // Don't toggle when clicking row buttons / links — let them do their own thing.
+                    if (e.target.closest('button, a')) return
+                    setSelectedDealIdx(prev => prev === deal._idx ? null : deal._idx)
+                  }}
+                >
                   <td className="deals-td-name" title={deal.name} onContextMenu={e => { e.preventDefault(); setEditIndex(deal._idx); setShowModal(true) }}>
                     <div className="deals-cell-truncate">{deal.name}</div>
                   </td>

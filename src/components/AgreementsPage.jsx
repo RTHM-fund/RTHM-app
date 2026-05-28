@@ -291,6 +291,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
               <div className="modal-field">
                 <label className="modal-label">B2B TEMPLATE</label>
                 <Combobox
+                  className="combobox--form"
                   value={b2bTemplate}
                   placeholder="select template"
                   options={b2bTemplates.map(t => ({ value: t.filename, label: t.name.replace(/_?Template$/i, '').trim() }))}
