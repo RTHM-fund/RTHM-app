@@ -195,7 +195,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
                 <div className="modal-search-wrap">
                   <input
                     className="modal-search"
-                    placeholder="Search by deal name or platform"
+                    placeholder="search by deal name or platform"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                   />

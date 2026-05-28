@@ -1,0 +1,129 @@
+/* Wider variant of the base .modal — chart needs horizontal room to read. */
+.modal.projection-modal {
+  width: 1000px;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+/* Match .valuate-chart-title font + spacing so the modal title reads as
+   the same family of label as the on-page chart titles. */
+.projection-modal .modal-title {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Center the title like a chart-card title; absolutely position the close X
+   in the top-right corner so it doesn't disturb the centering. */
+.projection-modal .modal-header {
+  justify-content: center;
+  position: relative;
+}
+
+.projection-modal .modal-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+}
+
+.projection-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24px;  /* footer owns the bottom gap so save button sits exactly
+                       20px below the last field */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;  /* matches the form's row-gap so chart→first-label spacing
+                 equals the inter-row spacing inside the form */
+}
+
+/* Chart sits directly on the modal's glass surface — no nested glass
+   container. Stacking another 0.45-alpha-white layer here turns the modal's
+   central area opaque (visible as solid white instead of glass). */
+.projection-modal-chart {
+  padding: 0;
+}
+
+/* Kill focus outlines on chart elements — clicking the chart shouldn't draw
+   a frame around it. Same pattern as .valuate-chart-card on the page. */
+.projection-modal-chart svg,
+.projection-modal-chart svg:focus,
+.projection-modal-chart .recharts-wrapper,
+.projection-modal-chart .recharts-wrapper:focus,
+.projection-modal-chart .recharts-surface,
+.projection-modal-chart .recharts-surface:focus,
+.projection-modal-chart *:focus,
+.projection-modal-chart *:focus-visible {
+  outline: none !important;
+  border: none !important;
+}
+
+.projection-modal-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+
+.projection-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.projection-field label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* Match the .rate-input style on ValuationPage exactly — same lavender-tinted
+   glass pill (0.18 white + backdrop blur), 4px radius, 4px 6px padding,
+   13px font, centered text. `!important` on background guards against the
+   global `.field-input` rule from RPAForm.css winning by source order. */
+.projection-field .field-input {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--ink);
+  text-align: left;
+  outline: none;
+  background: rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+.projection-field .field-input::-webkit-outer-spin-button,
+.projection-field .field-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.projection-modal-error {
+  color: var(--error);
+  font-size: 12px;
+  margin: 0;
+}
+
+.projection-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 24px;  /* save button gets exactly 20px above (to last field
+                          bottom) and 20px below (to modal edge) */
+  flex-shrink: 0;
+}
+
+/* Bump footer buttons to 700 to match other pill buttons (e.g. the active
+   .valuate-toggle-btn "combined" which renders at 700 via the global rule).
+   .modal-cancel / .modal-import-btn declare `font-weight: 600 !important` in
+   ImportModal.css; this scoped 0,2,0 selector wins the !important-vs-!important
+   resolution. Other modals untouched. .modal-close already inherits 700. */
+.projection-modal .modal-cancel,
+.projection-modal .modal-import-btn {
+  font-weight: 700 !important;
+}

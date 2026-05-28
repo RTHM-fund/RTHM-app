@@ -210,7 +210,11 @@ function getAuthenticatedClient() {
 
 const app = express()
 app.use(cors())
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))  // raised for V2 engine — pivot payloads can be large
+
+// V2 royalty engine (Data Manager only — modularity-safe)
+const dataManagerRoutes = require('./data-manager/routes')
+app.use('/api/data-manager', dataManagerRoutes)
 
 const CATEGORIES = [
   { id: 'Deal Sheets', label: 'Deal Sheets' },
@@ -1176,6 +1180,7 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
       }
       const sorted = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b))
       return {
+        keys: sorted.map(([k]) => k),
         months: sorted.map(([, v]) => v.label),
         tracksLine: sorted.map(([, v]) => v.rep),
         tracksAdjLine: sorted.map(([, v]) => v.adj),
@@ -1578,7 +1583,7 @@ function resolveDiligenceWorkbookPath(ddFolder, basename) {
       .sort((a, b) => a.length - b.length) // prefer closest-to-canonical
     if (candidates.length === 0) return null
     return path.join(ddFolder, candidates[0])
-  } catch { return null }
+  } catch (e) { console.warn('[resolveDiligenceWorkbookPath]', ddFolder, e.message); return null }
 }
 const summaryCache = new Map() // wbPath -> { mtimeMs, summary }
 function computeWorkbookSummary(folder) {
@@ -1594,7 +1599,7 @@ function computeWorkbookSummary(folder) {
     const summary = computeWorkbookSummaryInner(wbPath, basename)
     summaryCache.set(wbPath, { mtimeMs, summary })
     return summary
-  } catch { return null }
+  } catch (e) { console.warn('[computeWorkbookSummary]', folder, e.message); return null }
 }
 function computeWorkbookSummaryInner(wbPath, dealName) {
   try {
@@ -1817,6 +1822,69 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
 //   - Data Manager's folder-name right-click (path: <folder path>)
 //   - Deal Manager's Deal Materials unlinked button (key: 'materials-root')
 // When `path` is supplied, it's resolved and must live inside DATA_ROOT (security guard).
+// Projection params storage — one JSON per deal folder at
+// `<folder>/<folder>_Projection.json`. Shape:
+//   { catalogDefaults: {...} | null, trackOverrides: { [trackLabel]: {...} } }
+// `chart:total` and `chart:adjusted` graphIds both write to catalogDefaults
+// (they represent the same catalog projection from different views).
+// `track:<label>` writes to trackOverrides[label].
+function projectionJsonPathFor(folderPath) {
+  const folderName = path.basename(folderPath)
+  return path.join(folderPath, `${folderName}_Projection.json`)
+}
+
+app.get('/api/data/projection-params', (req, res) => {
+  const folder = req.query.folder
+  if (!folder || typeof folder !== 'string') return res.status(400).json({ error: 'folder required' })
+  if (!fs.existsSync(folder)) return res.status(404).json({ error: 'folder not found' })
+  const jsonPath = projectionJsonPathFor(folder)
+  if (!fs.existsSync(jsonPath)) return res.json({ catalogDefaults: null, trackOverrides: {} })
+  try {
+    const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
+    res.json({
+      catalogDefaults: data.catalogDefaults || null,
+      trackOverrides: data.trackOverrides || {},
+    })
+  } catch (err) {
+    res.status(500).json({ error: 'failed to read projection json: ' + err.message })
+  }
+})
+
+app.post('/api/data/projection-params', (req, res) => {
+  const { folder, graphId, params } = req.body || {}
+  if (!folder || typeof folder !== 'string') return res.status(400).json({ error: 'folder required' })
+  if (!fs.existsSync(folder)) return res.status(404).json({ error: 'folder not found' })
+  if (!graphId || typeof graphId !== 'string') return res.status(400).json({ error: 'graphId required' })
+  if (!params || typeof params !== 'object') return res.status(400).json({ error: 'params required' })
+  const jsonPath = projectionJsonPathFor(folder)
+  let data = { catalogDefaults: null, trackOverrides: {} }
+  if (fs.existsSync(jsonPath)) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
+      data = {
+        catalogDefaults: existing.catalogDefaults || null,
+        trackOverrides: existing.trackOverrides || {},
+      }
+    } catch (err) {
+      return res.status(500).json({ error: 'failed to read existing projection json: ' + err.message })
+    }
+  }
+  if (graphId === 'chart:total' || graphId === 'chart:adjusted') {
+    data.catalogDefaults = params
+  } else if (graphId.startsWith('track:')) {
+    const label = graphId.slice('track:'.length)
+    data.trackOverrides[label] = params
+  } else {
+    return res.status(400).json({ error: 'unknown graphId: ' + graphId })
+  }
+  try {
+    fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2))
+    res.json({ ok: true })
+  } catch (err) {
+    res.status(500).json({ error: 'failed to write projection json: ' + err.message })
+  }
+})
+
 app.post('/api/data/open-folder', (req, res) => {
   try {
     const { key, path: pathParam } = req.body || {}

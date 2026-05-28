@@ -1,11 +1,24 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import Sparkline from './Sparkline.jsx'
+import ProjectionModal from './ProjectionModal.jsx'
+import QuoteModal from './QuoteModal.jsx'
 import './ValuatePage.css'
 
 function fmtCurrency(v) {
   if (v == null || !Number.isFinite(v)) return '—'
   return v.toLocaleString('en-US', { maximumFractionDigits: 0 })
+}
+
+// Difference between two YYYY-MM keys in months. Used to detect reporting
+// cadence (1 = monthly, 3 = quarterly, 6 = semi-annual).
+function monthsBetween(a, b) {
+  if (!a || !b) return 1
+  const [ya, ma] = a.split('-').map(Number)
+  const [yb, mb] = b.split('-').map(Number)
+  const diff = (yb - ya) * 12 + (mb - ma)
+  return diff > 0 ? diff : 1
 }
 
 function fmtPercent(v) {
@@ -187,13 +200,33 @@ function summarizeCycle(platforms) {
   return unique.length === 1 ? unique[0] : 'mixed'
 }
 
-function ChartTooltip({ active, payload, label }) {
+// Portal-rendered chart tooltip. Renders into document.body so it escapes ALL
+// parent overflow / stacking contexts. Position computed from the chart host's
+// viewport rect + recharts' chart-space coordinate. pointer-events: none so
+// nothing beneath is affected.
+function ChartTooltip({ active, payload, label, coordinate, chartHostRef }) {
   if (!active || !payload || !payload.length) return null
+  const rect = chartHostRef && chartHostRef.current
+    ? chartHostRef.current.getBoundingClientRect()
+    : null
+  if (!rect) return null
   const row = payload[0].payload || {}
   const breakdown = Object.keys(row)
     .filter(k => k !== 'month' && k !== 'total' && k !== 'decayFromPrev' && Number.isFinite(row[k]) && row[k] !== 0)
-  return (
-    <div className="valuate-tooltip">
+  const x = rect.left + (coordinate && coordinate.x ? coordinate.x : 0)
+  const y = rect.top  + (coordinate && coordinate.y ? coordinate.y : 0)
+  return createPortal(
+    <div
+      className="valuate-tooltip"
+      style={{
+        position: 'fixed',
+        left: x + 14,
+        top: y - 14,
+        transform: 'translateY(-100%)',
+        pointerEvents: 'none',
+        zIndex: 10000,
+      }}
+    >
       <div className="valuate-tooltip-month">{label}</div>
       <div className="valuate-tooltip-row valuate-tooltip-total">total: {fmtCurrency(row.total)}</div>
       {breakdown.map(k => (
@@ -202,7 +235,8 @@ function ChartTooltip({ active, payload, label }) {
       {Number.isFinite(row.decayFromPrev) && (
         <div className="valuate-tooltip-row valuate-tooltip-decay">decay: {fmtSignedPercent(row.decayFromPrev)}</div>
       )}
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -267,12 +301,35 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   const [view, setView] = useState('combined')
+  // Unified single-selection state. Holds a namespaced ID:
+  //   'track:<label>'  — a row in the Tracks table (incl. OTHER)
+  //   'chart:total'    — the total-revenue chart card
+  //   'chart:adjusted' — the adjusted-revenue chart card
+  // Anything on the page that's selectable resolves to one of these IDs.
+  const [selectedGraph, setSelectedGraph] = useState(null)
+  const [projectionOpen, setProjectionOpen] = useState(false)
+  const [quoteOpen, setQuoteOpen] = useState(false)
+  // Mirrors `<dealFolder>/<dealName>_Projection.json` shape. Used to gate
+  // the Quote button — quote requires catalogDefaults to be set.
+  const [projectionData, setProjectionData] = useState(null)
+  // Per-chart container refs — used by portal ChartTooltip to position itself
+  // in viewport coords (escapes all parent overflow contexts).
+  const totalChartHostRef    = useRef(null)
+  const adjustedChartHostRef = useRef(null)
 
   useEffect(() => {
     if (!folderPath) return
     setError(null)
     setData(null)
     setView('combined')
+    setSelectedGraph(null)
+    setProjectionOpen(false)
+    setQuoteOpen(false)
+    setProjectionData(null)
+    fetch(`/api/data/projection-params?folder=${encodeURIComponent(folderPath)}`)
+      .then(r => r.json())
+      .then(setProjectionData)
+      .catch(() => setProjectionData(null))
     fetch(`/api/data/diligence-workbook?folder=${encodeURIComponent(folderPath)}`)
       .then(r => r.json().then(body => ({ ok: r.ok, body })))
       .then(({ ok, body }) => {
@@ -282,12 +339,49 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
       .catch(err => setError(err.message))
   }, [folderPath])
 
+  useEffect(() => {
+    function handleDocMouseDown(e) {
+      // Footer is exempted so clicking +Project / +Quote doesn't deselect
+      // on mousedown before the button's onClick fires. Modal overlay is
+      // exempted so clicks inside the projection modal (chart area, input
+      // fields, anywhere) don't wipe selectedGraph while the modal is open.
+      if (!e.target.closest('.valuate-tracks-card, .valuate-chart-selectable, .valuate-footer, .modal-overlay')) {
+        setSelectedGraph(null)
+      }
+    }
+    document.addEventListener('mousedown', handleDocMouseDown)
+    return () => document.removeEventListener('mousedown', handleDocMouseDown)
+  }, [])
+
+  // Footer button activation rules:
+  // - PROJECT → any selection (track row or a revenue chart)
+  // - QUOTE   → catalog projection exists AND a revenue chart is selected
+  const projectActive = selectedGraph != null
+  const hasCatalogProjection = projectionData && projectionData.catalogDefaults != null
+  const quoteActive = hasCatalogProjection
+    && (selectedGraph === 'chart:total' || selectedGraph === 'chart:adjusted')
+
+  // Refetch projection JSON after the modal closes so quote-button state
+  // updates if user just saved a catalog projection.
+  function handleProjectionClose() {
+    setProjectionOpen(false)
+    if (!folderPath) return
+    fetch(`/api/data/projection-params?folder=${encodeURIComponent(folderPath)}`)
+      .then(r => r.json())
+      .then(setProjectionData)
+      .catch(() => {})
+  }
+
   if (error) {
     return (
       <div className="valuate-page">
         <Header folderName={folderName} platforms={[]} view={view} setView={setView} onBack={onBack} />
         <div className="valuate-body">
           <div className="empty-state"><p className="empty-hint">{error}</p></div>
+        </div>
+        <div className="valuate-footer">
+          <button className="valuate-project-btn" disabled={!projectActive}><span>+ Project</span></button>
+          <button className="valuate-quote-btn" disabled={!quoteActive}><span>+ Quote</span></button>
         </div>
       </div>
     )
@@ -299,6 +393,10 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
         <Header folderName={folderName} platforms={[]} view={view} setView={setView} onBack={onBack} />
         <div className="valuate-body">
           <div className="empty-state"><p className="empty-hint">loading workbook...</p></div>
+        </div>
+        <div className="valuate-footer">
+          <button className="valuate-project-btn" disabled={!projectActive}><span>+ Project</span></button>
+          <button className="valuate-quote-btn" disabled={!quoteActive}><span>+ Quote</span></button>
         </div>
       </div>
     )
@@ -380,44 +478,68 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
               </div>
             </div>
           )}
-          {tracksRows.length > 0 && (
-            <div className="valuate-chart-card">
+          {tracksRows.length > 0 && (() => {
+            // Selection rule: if Adjusted Revenue exists, only Adjusted is
+            // selectable (it's the curated figure used for valuation). Total
+            // remains visible for context but is locked. If no Adjusted exists
+            // (adjusted matches reported, or no adj data), Total IS selectable
+            // as the only revenue chart.
+            const totalSelectable = adjMatchesRep || tracksAdjRows.length === 0
+            return (
+            <div
+              className={`valuate-chart-card${totalSelectable ? ' valuate-chart-selectable' : ''}${totalSelectable && selectedGraph === 'chart:total' ? ' selected' : ''}`}
+              onClick={totalSelectable ? (e => {
+                if (e.target.closest('button, a')) return
+                setSelectedGraph(prev => prev === 'chart:total' ? null : 'chart:total')
+              }) : undefined}
+            >
               <h3 className="valuate-chart-title">total revenue</h3>
-              <ResponsiveContainer width="100%" height={280}>
-                <LineChart data={tracksRows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(82,0,190,0.08)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6B6580' }} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6B6580' }} tickFormatter={fmtCurrency} width={80} />
-                  <Tooltip
-                    content={<ChartTooltip />}
-                    wrapperStyle={{ outline: 'none' }}
-                    allowEscapeViewBox={{ x: true, y: true }}
-                  />
-                  <Line type="monotone" dataKey="total" stroke="#5200BE" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              <div ref={totalChartHostRef}>
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart data={tracksRows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(82,0,190,0.08)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6B6580' }} />
+                    <YAxis tick={{ fontSize: 11, fill: '#6B6580' }} tickFormatter={fmtCurrency} width={80} />
+                    <Tooltip
+                      content={(props) => <ChartTooltip {...props} chartHostRef={totalChartHostRef} />}
+                      wrapperStyle={{ display: 'none' }}
+                      allowEscapeViewBox={{ x: true, y: true }}
+                    />
+                    <Line type="monotone" dataKey="total" stroke="#5200BE" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          )}
+            )
+          })()}
 
           {!adjMatchesRep && tracksAdjRows.length > 0 && (
-            <div className="valuate-chart-card">
+            <div
+              className={`valuate-chart-card valuate-chart-selectable${selectedGraph === 'chart:adjusted' ? ' selected' : ''}`}
+              onClick={e => {
+                if (e.target.closest('button, a')) return
+                setSelectedGraph(prev => prev === 'chart:adjusted' ? null : 'chart:adjusted')
+              }}
+            >
               <h3
                 className="valuate-chart-title calc-tip"
                 data-tip="Reported revenue minus diligence adjustments. Removes non-recurring items (sync stripped, foreign catch-up bridges, layer adjustments, fee strip-outs) so the baseline reflects sustainable catalog earnings used for valuation."
               >adjusted revenue</h3>
-              <ResponsiveContainer width="100%" height={280}>
-                <LineChart data={tracksAdjRows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(82,0,190,0.08)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6B6580' }} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6B6580' }} tickFormatter={fmtCurrency} width={80} />
-                  <Tooltip
-                    content={<ChartTooltip />}
-                    wrapperStyle={{ outline: 'none' }}
-                    allowEscapeViewBox={{ x: true, y: true }}
-                  />
-                  <Line type="monotone" dataKey="total" stroke="#5200BE" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              <div ref={adjustedChartHostRef}>
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart data={tracksAdjRows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(82,0,190,0.08)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6B6580' }} />
+                    <YAxis tick={{ fontSize: 11, fill: '#6B6580' }} tickFormatter={fmtCurrency} width={80} />
+                    <Tooltip
+                      content={(props) => <ChartTooltip {...props} chartHostRef={adjustedChartHostRef} />}
+                      wrapperStyle={{ display: 'none' }}
+                      allowEscapeViewBox={{ x: true, y: true }}
+                    />
+                    <Line type="monotone" dataKey="total" stroke="#5200BE" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
 
@@ -431,7 +553,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
               : (data.tracksByPlatform && data.tracksByPlatform[view]) || { tracks: [], other: null }
             if (!activeTracks.tracks || activeTracks.tracks.length === 0) return null
             return (
-              <div className="valuate-chart-card">
+              <div className="valuate-chart-card valuate-tracks-card">
                 <h3 className="valuate-chart-title">tracks</h3>
                 <table className="valuate-tracks-table">
                   <thead>
@@ -448,7 +570,15 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
                   </thead>
                   <tbody>
                     {activeTracks.tracks.map((t, i) => (
-                      <tr key={t.label}>
+                      <tr
+                        key={t.label}
+                        className={selectedGraph === `track:${t.label}` ? 'selected' : ''}
+                        onClick={e => {
+                          if (e.target.closest('button, a')) return
+                          const id = `track:${t.label}`
+                          setSelectedGraph(prev => prev === id ? null : id)
+                        }}
+                      >
                         <td className="valuate-tracks-rank">{i + 1}</td>
                         <td className="valuate-tracks-label">{t.label}</td>
                         <td className="valuate-tracks-spark"><Sparkline values={t.line} /></td>
@@ -460,7 +590,15 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
                       </tr>
                     ))}
                     {activeTracks.other && (
-                      <tr key="OTHER" className="valuate-tracks-other">
+                      <tr
+                        key="OTHER"
+                        className={`valuate-tracks-other${selectedGraph === `track:${activeTracks.other.label}` ? ' selected' : ''}`}
+                        onClick={e => {
+                          if (e.target.closest('button, a')) return
+                          const id = `track:${activeTracks.other.label}`
+                          setSelectedGraph(prev => prev === id ? null : id)
+                        }}
+                      >
                         <td className="valuate-tracks-rank">—</td>
                         <td className="valuate-tracks-label">{activeTracks.other.label}</td>
                         <td className="valuate-tracks-spark"><Sparkline values={activeTracks.other.line} /></td>
@@ -478,6 +616,78 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
           })()}
         </div>
       </div>
+      <div className="valuate-footer">
+        <button
+          className={`valuate-project-btn${projectionOpen ? ' is-open' : ''}`}
+          disabled={!projectActive}
+          onClick={() => setProjectionOpen(true)}
+        ><span>+ Project</span></button>
+        <button
+          className={`valuate-quote-btn${quoteOpen ? ' is-open' : ''}`}
+          disabled={!quoteActive}
+          onClick={() => setQuoteOpen(true)}
+        ><span>+ Quote</span></button>
+      </div>
+      {projectionOpen && (() => {
+        // Resolve the selected graph into (graphName, chartData) for the modal.
+        // chartData shape matches the on-page chart rows: { month, total }.
+        let graphName = ''
+        let chartData = []
+        if (selectedGraph === 'chart:total') {
+          graphName = 'total revenue'
+          chartData = tracksRows
+        } else if (selectedGraph === 'chart:adjusted') {
+          graphName = 'adjusted revenue'
+          chartData = tracksAdjRows
+        } else if (selectedGraph && selectedGraph.startsWith('track:')) {
+          const label = selectedGraph.slice('track:'.length)
+          const track = (data.tracks || []).find(t => t.label === label)
+            || (data.other && data.other.label === label ? data.other : null)
+            || (() => {
+              // fall back to per-platform view if track lives there
+              if (data.tracksByPlatform) {
+                for (const k of Object.keys(data.tracksByPlatform)) {
+                  const platform = data.tracksByPlatform[k]
+                  const hit = (platform.tracks || []).find(t => t.label === label)
+                  if (hit) return hit
+                  if (platform.other && platform.other.label === label) return platform.other
+                }
+              }
+              return null
+            })()
+          if (track) {
+            graphName = track.label
+            chartData = series.months.map((m, i) => ({
+              month: m,
+              total: (track.line && track.line[i]) || 0,
+            }))
+          }
+        }
+        // Detect the reporting cadence from consecutive YYYY-MM keys.
+        // The whole deal shares one cadence so combined.keys is the
+        // source of truth even when a per-platform view is active.
+        const keys = series.keys || data.combined?.keys || []
+        const stepMonths = keys.length >= 2 ? monthsBetween(keys[0], keys[1]) : 1
+        const lastHistoricalKey = keys.length > 0 ? keys[keys.length - 1] : null
+        return (
+          <ProjectionModal
+            folderPath={folderPath}
+            graphId={selectedGraph}
+            graphName={graphName}
+            chartData={chartData}
+            stepMonths={stepMonths}
+            lastHistoricalKey={lastHistoricalKey}
+            onClose={handleProjectionClose}
+          />
+        )
+      })()}
+      {quoteOpen && (
+        <QuoteModal
+          folderPath={folderPath}
+          graphName={selectedGraph === 'chart:adjusted' ? 'adjusted revenue' : 'total revenue'}
+          onClose={() => setQuoteOpen(false)}
+        />
+      )}
     </div>
   )
 }

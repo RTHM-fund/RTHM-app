@@ -89,9 +89,12 @@ Per-track overrides: each top track + OTHER can override any parameter. Blank = 
 - candidateB = longAvg * floor_pct
 - floor = MAX(candidateA, candidateB)
 
-### Decay Projection (90 periods)
+### Decay Projection (90-month horizon)
+- Horizon = 90 MONTHS, not 90 periods. Period count = CEIL(90 / stepMonths) → 90 / 30 / 15 for monthly / quarterly / semi-annual cadence.
 - k0, k_inf, gamma stored as per-month values; auto-scaled by stepMonths
-- k(p) = k_inf + (k0 - k_inf) * e^(-gamma * p)
+- k(p) = k_inf + (k0 - k_inf) * e^(-gamma * stepMonths * (p - 1))   *(per-period decay rate; p starts at 1, k(1) = k0)*
+- k_period = k(p) * stepMonths                                     *(monthly rate scaled to the actual step size)*
+- cumulative_k accumulates k_period each period (running total)
 - projected(p) = floor + (baseline - floor) * e^(-cumulative_k)
 - Curve decays from baseline toward floor, never below floor
 

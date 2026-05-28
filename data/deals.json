@@ -2776,7 +2776,7 @@
       },
       "commission": 4,
       "b2bMarginRate": 5,
-      "recoupLocked": false
+      "recoupLocked": true
     },
     "agreements": [
       {
@@ -2948,6 +2948,363 @@
         "fileName": "Earl Jam Deal Sheet_Courtney Morrison.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Courtney Morrison.docx",
         "createdAt": "2026-05-22T01:44:20.574Z"
+      }
+    ]
+  },
+  {
+    "name": "Shaun Milli",
+    "platform": "ONErpm",
+    "initialQuote": {
+      "AC": 94600,
+      "AD": 106800,
+      "AE": 174800,
+      "AF": 230600,
+      "AG": 204100,
+      "AH": 301800,
+      "AI": 215500,
+      "AJ": 345300
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12119736399",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-27T18:25:16.641Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "77",
+        "36 months": "67",
+        "60 months": "57",
+        "84 months": "52.2"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Shaun Milli.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Shaun Milli.docx",
+        "createdAt": "2026-05-27T18:29:20.859Z"
+      }
+    ]
+  },
+  {
+    "name": "Roykeisha Rockette",
+    "platform": "Sony Score, BMI",
+    "initialQuote": {
+      "AC": 44500,
+      "AD": 51200,
+      "AE": 97000,
+      "AF": 134100,
+      "AG": 123900,
+      "AH": 200900,
+      "AI": 138700,
+      "AJ": 258000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12119797300",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-27T18:32:16.590Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 70,
+        "36 months": 60,
+        "60 months": "50",
+        "84 months": "44"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Roykeisha Rockette.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Roykeisha Rockette.docx",
+        "createdAt": "2026-05-27T18:36:27.931Z"
+      }
+    ]
+  },
+  {
+    "name": "22gfay",
+    "platform": "Foundation Media",
+    "initialQuote": {
+      "AC": 45400,
+      "AD": 51455,
+      "AE": 92900,
+      "AF": 125700,
+      "AG": 116000,
+      "AH": 182100,
+      "AI": 127600,
+      "AJ": 226000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12119883983",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-27T18:37:54.189Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "76",
+        "36 months": "66",
+        "60 months": "56",
+        "84 months": "50"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_22gfay.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_22gfay.docx",
+        "createdAt": "2026-05-27T18:40:27.720Z"
+      }
+    ]
+  },
+  {
+    "name": "Lil Candy Paint",
+    "platform": "DistroKid",
+    "initialQuote": {
+      "AC": 2700,
+      "AD": 3100,
+      "AE": 3800,
+      "AF": 4700,
+      "AG": null,
+      "AH": null,
+      "AI": null,
+      "AJ": null
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": 2430,
+      "AS": 2790,
+      "AT": 3420,
+      "AU": 4230,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12119949083",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-27T18:41:32.923Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 70,
+        "36 months": 60,
+        "60 months": 50,
+        "84 months": 45
+      },
+      "commission": 5,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Lil Candy Paint.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lil Candy Paint.docx",
+        "createdAt": "2026-05-27T18:42:24.014Z"
+      }
+    ]
+  },
+  {
+    "name": "Lambo4oe",
+    "platform": "APG",
+    "initialQuote": {
+      "AC": 27200,
+      "AD": 30000,
+      "AE": 55300,
+      "AF": 71200,
+      "AG": 67000,
+      "AH": 98700,
+      "AI": 72700,
+      "AJ": 120000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12119964570",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-27T18:44:04.977Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 70,
+        "36 months": 60,
+        "60 months": 50,
+        "84 months": "45"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Lambo4oe.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lambo4oe.docx",
+        "createdAt": "2026-05-28T04:54:30.445Z"
+      }
+    ]
+  },
+  {
+    "name": "Starz Lil D",
+    "platform": "Empire",
+    "initialQuote": {
+      "AC": 3400,
+      "AD": 3900,
+      "AE": 5000,
+      "AF": 6100,
+      "AG": 5200,
+      "AH": 6800,
+      "AI": null,
+      "AJ": null
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12119999520",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-27T18:45:41.388Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "70",
+        "36 months": "60",
+        "60 months": "50",
+        "84 months": 50
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Earl Jam",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Starz Lil D.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Starz Lil D.docx",
+        "createdAt": "2026-05-27T18:46:38.127Z"
+      },
+      {
+        "type": "Earl Jam Deal Sheet",
+        "fileName": "Earl Jam Deal Sheet_Starz Lil D.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Starz Lil D.docx",
+        "createdAt": "2026-05-27T18:46:38.127Z"
+      }
+    ]
+  },
+  {
+    "name": "Heavyweight Hank",
+    "platform": "Empire",
+    "initialQuote": {
+      "AC": 6000,
+      "AD": 6800,
+      "AE": 12100,
+      "AF": 16400,
+      "AG": 14500,
+      "AH": 22200,
+      "AI": 15500,
+      "AJ": 26000
+    },
+    "percent": null,
+    "variableQuote": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12120015340",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-05-27T18:47:58.733Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 70,
+        "36 months": 60,
+        "60 months": 50,
+        "84 months": "46.23"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Heavyweight Hank.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Heavyweight Hank.docx",
+        "createdAt": "2026-05-27T19:53:27.792Z"
       }
     ]
   }

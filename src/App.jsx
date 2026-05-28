@@ -305,6 +305,7 @@ export default function App() {
       '.combobox-trigger',
       '.export-btn',
       '.valuate-toggle-btn',
+      '.valuate-project-btn', '.valuate-quote-btn',
       '.deals-monday-btn'
     ].join(',')
     function handler(e) {

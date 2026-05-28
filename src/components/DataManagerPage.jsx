@@ -34,6 +34,7 @@ function clearCompletedSkills(prev, list) {
 // previously-fetched list stays visible during the refresh.
 export default function DataManagerPage({ runningSkills, setRunningSkills, folders, setFolders, onOpenValuate }) {
   const [selectedFolderPath, setSelectedFolderPath] = useState(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     loadFolders()
@@ -44,7 +45,7 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
   useEffect(() => {
     function handleDocMouseDown(e) {
       // Don't clear selection when clicking action buttons that operate on the selected row.
-      if (!e.target.closest('.data-manager-table-wrap, .data-manager-header-actions')) {
+      if (!e.target.closest('.data-manager-table-wrap, .data-manager-header-actions, .data-manager-header-right')) {
         setSelectedFolderPath(null)
       }
     }
@@ -126,6 +127,9 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
   const valuateDisabled = !selectedFolder || selectedFolder.hasDeal
   const extractDisabled = !selectedFolder || selectedFolder.hasExtract
 
+  const q = search.trim().toLowerCase()
+  const visibleFolders = q ? folders.filter(f => (f.name || '').toLowerCase().includes(q)) : folders
+
   return (
     <div className="data-manager-page">
       <div className="data-manager-header">
@@ -142,7 +146,15 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
             <button className="data-manager-extract-btn" disabled={extractDisabled} onClick={() => runSkill('catalog-extract')}><span>Extract</span></button>
           </div>
         </div>
-        <button className="data-manager-import-btn" onClick={openDataFolder}><span>+ Import Data</span></button>
+        <div className="data-manager-header-right">
+          <input
+            className="data-manager-search"
+            placeholder="search by folder name"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <button className="data-manager-import-btn" onClick={openDataFolder}><span>+ Import Data</span></button>
+        </div>
       </div>
 
       {folders.length === 0 ? (
@@ -167,7 +179,7 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
               </tr>
             </thead>
             <tbody>
-              {folders.map((f) => {
+              {visibleFolders.map((f) => {
                 const isSelected = selectedFolderPath === f.path
                 const isRunning = runningSkills.has(f.path)
                 const trClass = [isSelected && 'selected', isRunning && 'running'].filter(Boolean).join(' ')

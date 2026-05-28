@@ -80,6 +80,41 @@ If a new input class is added, it must match this schema. Any `border: 1.5px sol
 
 ---
 
+## Search Bars
+
+Used for filtering tables / lists. Current instances: `.deals-search` (Deal Manager header), `.data-manager-search` (Data Manager header), `.modal-search` (Import modal select-rows view).
+
+**Schema (all search inputs share this):**
+```css
+padding: 8px 12px 8px 30px;       /* 30px left padding = room for the 12px icon + 6px gap to text */
+border: none;
+border-radius: var(--radius);
+font-size: 13px;
+font-family: 'Montserrat', sans-serif;
+color: var(--ink);
+outline: none;
+background: transparent url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236B6580' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><circle cx='7' cy='7' r='5'/><path d='m10.5 10.5 3.5 3.5'/></svg>") no-repeat 12px calc(50% + 2px) / 12px 12px;
+```
+
+**Rules:**
+- **Borderless transparent** — the parent surface (page-header lavender body / modal glass) shows through. Inherits the no-borders, no-focus-ring form-input convention.
+- **Leading magnifying-glass icon** — inline SVG data URI baked into `background`. Sized 12px, stroke color `#6B6580` (= `--ink-light`, matches placeholder text). Sits in the 30px left padding at 12px from the left edge, with a 6px gap to the start of the text. Vertical position is `calc(50% + 2px)` — the +2px nudge aligns the icon's center with the lowercase **x-height midpoint** of the placeholder text (excluding ascenders like `h`/`d`/`b`), not the geometric center of the input box.
+- **Icon rationale** — Montserrat has no magnifying-glass glyph, so we use an inline SVG sized + colored to be visually integrated with the text. Do not swap for `🔍` (emoji) — it renders in the system emoji font and breaks the typographic feel.
+- **Width** — `flex: 1` in modal contexts (`.modal-search` inside `.modal-search-wrap`). In **header contexts** (Deal Manager / Data Manager) the input grows from right to left as the user types:
+  - `field-sizing: content` — input auto-fits its content (or placeholder when empty)
+  - `max-width: 240px` — caps growth; further typing scrolls within the input
+  - `text-align: right` — text is anchored to the right edge of the input, sitting "right next to" the adjacent header button (separated only by the wrapper's 12px flex `gap`)
+  - The icon stays at `12px` from the input's left edge, so it physically shifts leftward as the input grows. At max-width the icon reaches its furthest-left position
+  - **Vertical alignment with the adjacent button**: the search bar and the adjacent pill button align middle-to-middle via the wrapper's `align-items: center`. The button's position is sacred — do not nudge it. The search input owns the alignment burden, but with `align-items: center` doing the work, no per-input vertical transform is needed
+  - Browser support note: `field-sizing: content` is Chromium 123+ (no Firefox/Safari yet). This app is Chromium-only so it's safe; do not adopt the header-growth variant in cross-browser contexts
+- **Placeholder copy is lowercase** — `"search by <field>"`. Examples: `"search by deal name"`, `"search by folder name"`, `"search by deal name or platform"`. Follows the global Text & Copy lowercase rule.
+- **Placement** — header search bars sit immediately to the left of the primary header action button (`+ Import Data`, `+ Create New Deal`) inside a right-group flex wrapper (`.deals-header-right`, `.data-manager-header-right`) with `gap: 12px` and `align-items: center` for perfect vertical centering with the button.
+- **Outside-click selection** — when adding a header search bar to a page that has table-row selection with outside-click-to-deselect, add the search bar's wrapper class to the exemption list so typing in the search doesn't drop the selected row.
+
+**For a new search bar:** copy the schema above verbatim into the new class. If a different icon is genuinely needed, encode it inline (no separate file) at 12×12 within a 16×16 viewBox, stroke `#6B6580` to keep parity with placeholder text.
+
+---
+
 ## Pill Buttons — Liquid Hover
 
 All clickable pill buttons participate in the **liquid-pill hover effect**: a radial fill that expands from the cursor's entry point over `0.6s cubic-bezier(0.33, 0, 0.15, 1)`. Text is wrapped in a `<span>` so it color-flips on the same timing.
@@ -172,30 +207,75 @@ Examples:
 
 All tooltips use the **Glass Surface** pattern. Two implementation styles:
 
-### 1. Recharts (graph tooltips)
-Inline style on `<Tooltip contentStyle={...}>`:
-```js
-contentStyle={{
-  fontSize: 12,
-  background: 'rgba(255, 255, 255, 0.45)',
-  backdropFilter: 'blur(20px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-  border: 'none',
-  borderRadius: 'var(--radius)',
-  boxShadow: '0 4px 20px rgba(82,0,190,0.08)',
-  isolation: 'isolate',
-}}
-wrapperStyle={{ outline: 'none' }}
-allowEscapeViewBox={{ x: true, y: true }}
+### 1. Recharts (graph tooltips) — portal-rendered (LOCKED)
+
+**Rule**: every chart tooltip MUST render via `createPortal` to `document.body`. Recharts' `wrapperStyle` is set to `display: none` so recharts' own positioned wrapper never participates in layout; the actual tooltip content is portaled out and positioned in viewport coords using `position: fixed`. This is the ONLY way to guarantee:
+1. Tooltip is always the top layer (never clipped by ANY parent: modal body `overflow-y: auto`, table `overflow`, etc.)
+2. Tooltip never affects layout — `pointer-events: none` + portal escape means nothing beneath is touched, no scrollbar can appear, no container resizes
+
+**Implementation pattern** — reference impls live in `ProjectionModal.jsx` and `ValuatePage.jsx`:
+
+```jsx
+import { createPortal } from 'react-dom'
+
+const chartHostRef = useRef(null)
+
+// Wrap ResponsiveContainer with a ref'd div — the div's bounding rect drives
+// portal positioning. ResponsiveContainer itself doesn't expose a usable ref.
+<div ref={chartHostRef}>
+  <ResponsiveContainer width="100%" height={280}>
+    <LineChart ...>
+      <Tooltip
+        content={(props) => <MyTooltip {...props} chartHostRef={chartHostRef} />}
+        wrapperStyle={{ display: 'none' }}
+        allowEscapeViewBox={{ x: true, y: true }}
+      />
+      ...
+    </LineChart>
+  </ResponsiveContainer>
+</div>
+
+function MyTooltip({ active, payload, label, coordinate, chartHostRef }) {
+  if (!active || !payload?.length) return null
+  const rect = chartHostRef?.current?.getBoundingClientRect()
+  if (!rect) return null
+  const x = rect.left + (coordinate?.x || 0)
+  const y = rect.top  + (coordinate?.y || 0)
+  return createPortal(
+    <div style={{
+      position: 'fixed',
+      left: x + 14, top: y - 14, transform: 'translateY(-100%)',
+      pointerEvents: 'none', zIndex: 10000,
+      // Glass surface (standard):
+      fontSize: 12,
+      background: 'rgba(255, 255, 255, 0.45)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      borderRadius: 'var(--radius)',
+      boxShadow: '0 4px 20px rgba(82,0,190,0.08)',
+      isolation: 'isolate',
+      padding: '8px 12px',
+    }}>
+      …content…
+    </div>,
+    document.body
+  )
+}
 ```
+
+Standard offset: `left: x + 14, top: y - 14, transform: translateY(-100%)` — tooltip appears above-right of the cursor, anchored at its bottom-left. `zIndex: 10000` ensures top layer above modal overlay.
 
 ### 2. `.calc-tip` (form/table tooltips)
 CSS-only pseudo-element triggered by hover. Used in `ValuationPage`, `RPAForm`, `InvoiceForm`, `OfferLetterForm`. Reads from a `data-tip` attribute and renders via `::after content: attr(data-tip)`.
 
 Positioning: anchored above the trigger element via `bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%)`. Max-width 280px with `white-space: normal` so long formulas wrap instead of being clipped.
 
-### No-clipping rule
-Parent containers that host tooltip triggers MUST NOT have `overflow: hidden`. For tables specifically, use **per-corner border-radius on the corner cells** (see Border Radius below) instead of `overflow: hidden` on the table.
+### No-clipping rule (universal)
+
+**Tooltips are always the top layer, never clipped, and never affect the page beneath.** Concretely:
+- Chart tooltips: portal-rendered per pattern (1) above — escapes ALL parent overflow/stacking contexts. Locked rule.
+- `.calc-tip` tooltips: parent containers that host tooltip triggers MUST NOT have `overflow: hidden`. For tables specifically, use per-corner border-radius on the corner cells instead of `overflow: hidden` on the table.
+- Any tooltip implementation must satisfy: (a) `pointer-events: none` so nothing beneath is affected, (b) `z-index` above page chrome (10000 for chart tooltips, ≥100 for `.calc-tip`), (c) never causes a scrollbar to appear, never resizes its container.
 
 ---
 

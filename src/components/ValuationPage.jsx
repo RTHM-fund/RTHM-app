@@ -25,6 +25,19 @@ function hasValues(obj, pairs) {
   return pairs.some(([a, b]) => obj[a] || obj[b])
 }
 
+// Format a raw cleaned string with thousands-separator commas in the whole part.
+// Preserves the decimal point + trailing digits/zeros so the cursor doesn't jump
+// while mid-typing decimals. No-op when whole part < 1000. App-wide convention —
+// same helper lives in ProjectionModal + QuoteModal.
+function withCommas(raw) {
+  if (raw == null || raw === '') return ''
+  const s = String(raw)
+  const dotIdx = s.indexOf('.')
+  const whole = dotIdx === -1 ? s : s.slice(0, dotIdx)
+  const dec   = dotIdx === -1 ? '' : s.slice(dotIdx)
+  return whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + dec
+}
+
 function RateInput({ label, value, onChange, disabled }) {
   return (
     <div className="commission-inline">
@@ -33,7 +46,7 @@ function RateInput({ label, value, onChange, disabled }) {
         className={`rate-input${disabled ? ' rate-input-locked' : ''}`}
         type="text"
         inputMode="numeric"
-        value={String(Number(value))}
+        value={withCommas(String(Number(value)))}
         onFocus={e => e.target.select()}
         onChange={e => {
           if (disabled) return
@@ -88,6 +101,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
   const [b2bMarginRate, setB2bMarginRate] = useState(valuationState?.b2bMarginRate ?? 5)
   const [recoupLocked, setRecoupLocked] = useState(valuationState?.recoupLocked || false)
   const [advanceDraft, setAdvanceDraft] = useState({})
+  const [marginDraft, setMarginDraft] = useState({})
   const [creatingSheet, setCreatingSheet] = useState(false)
   const [sheetError, setSheetError] = useState(null)
   const [showB2BModal, setShowB2BModal] = useState(false)
@@ -226,7 +240,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                 <th>RTHM Advance</th>
                 <th>Recoup Rate</th>
                 <th>RAS Recoup</th>
-                <th>Margin</th>
+                <th>RTHM Margin</th>
               </tr>
             </thead>
             <tbody>
@@ -246,7 +260,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                           className="rate-input advance-input"
                           type="text"
                           inputMode="numeric"
-                          value={advanceDraft[term] !== undefined ? advanceDraft[term] : String(rthmAdvance)}
+                          value={withCommas(advanceDraft[term] !== undefined ? advanceDraft[term] : String(rthmAdvance))}
                           onFocus={e => { setAdvanceDraft(prev => ({ ...prev, [term]: String(rthmAdvance) })); e.target.select() }}
                           onChange={e => {
                             const digits = e.target.value.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '')
@@ -274,7 +288,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                             className="rate-input"
                             type="text"
                             inputMode="decimal"
-                            value={rates[term] != null ? String(rates[term]) : ''}
+                            value={withCommas(rates[term] != null ? String(rates[term]) : '')}
                             onFocus={e => e.target.select()}
                             onChange={e => {
                               let v = e.target.value.replace(/[^0-9.]/g, '')
@@ -294,7 +308,43 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                     </td>
                     <td>{fmt(rasRecoup)}</td>
                     <td className={margin < 0 ? 'negative' : ''}>
-                      <span className="calc-tip" data-tip={marginTip}>{fmt(margin)}</span>
+                      {recoupLocked ? (
+                        <span className="calc-tip" data-tip={marginTip}>{fmt(margin)}</span>
+                      ) : (
+                        <input
+                          className="rate-input advance-input"
+                          type="text"
+                          inputMode="numeric"
+                          value={withCommas(marginDraft[term] !== undefined ? marginDraft[term] : String(margin))}
+                          onFocus={e => { setMarginDraft(prev => ({ ...prev, [term]: String(margin) })); e.target.select() }}
+                          onChange={e => {
+                            // Allow leading minus; strip everything else non-numeric.
+                            const raw = e.target.value
+                            const sign = raw.startsWith('-') ? '-' : ''
+                            const digits = raw.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '')
+                            setMarginDraft(prev => ({ ...prev, [term]: sign + digits }))
+                          }}
+                          onBlur={() => {
+                            // Inverse-solve for rate so the displayed margin matches the typed value.
+                            // B2B:        margin = rasAdvance − rthmAdvance
+                            //             → rthmAdvance = rasAdvance − margin
+                            // Individual: margin = rasAdvance − rthmAdvance − rthmAdvance × (marginRate/100)
+                            //             → rthmAdvance = (rasAdvance − margin) / (1 + marginRate/100)
+                            // Then rate = (rthmAdvance / rasRecoup) × 100.
+                            const draftVal = marginDraft[term]
+                            if (draftVal != null && rasRecoup > 0) {
+                              const m = parseInt(draftVal) || 0
+                              const newRthmAdvance = dealType === 'B2B'
+                                ? (rasAdvance - m)
+                                : (rasAdvance - m) / (1 + marginRate / 100)
+                              const newRate = Math.round((newRthmAdvance / rasRecoup) * 10000) / 100
+                              setRate(term, String(newRate))
+                            }
+                            setMarginDraft(prev => { const next = { ...prev }; delete next[term]; return next })
+                          }}
+                          onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
+                        />
+                      )}
                     </td>
                   </tr>
                 )

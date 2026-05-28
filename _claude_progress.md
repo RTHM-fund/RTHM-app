@@ -1,184 +1,115 @@
 # Claude Progress — Session Save
 
-Long session — Data Manager v3 polish, Valuate page Tracks table buildout, app-wide form-input glass schema unification, major data-integrity fixes on diligence workbook parsing, dynamic per-platform metrics, and a brief color exploration (reverted).
+Massive session — built the entire V2 royalty pipeline (PROJECT + QUOTE end-to-end), ran a 134-agent comprehensive audit, applied 6 audit-driven fixes, then a wave of UI polish on the Valuate-page modals and a universal portal-tooltip design rule.
 
 ---
 
 ## Accomplished This Session
 
-### Data Manager Page
+### V2 Royalty Pipeline — full build (Stages A → D)
 
-**Clickable ✓/? in Diligence / Valuation / Extract columns.** Each mark is now a button:
-- **Diligence ✓** → opens `<folder>/<folder>_Due Diligence` in native Finder/Explorer
-- **Valuation ✓** → opens that folder's Valuate page (graph view)
-- **Extract ✓** → opens `<folder>/<folder>_Data Engine` in native Finder/Explorer
-- **Diligence ?** → kicks off `runSkill('diligence', f.path)` for that row
-- **Valuation ?** → opens Valuate page (same as ✓ — no skill to run)
-- **Extract ?** → kicks off `runSkill('catalog-extract', f.path)`
+**Stage A — `RAS Quote_Template.xlsx`** at `server/templates/`:
+- 8 scenarios (18m / 24m / 36m / 48m / 60m / 84m / 144m / Req)
+- Parameterized stepping via `$B$8` so the same template works monthly / quarterly / semi-annual
+- Inputs block (rows 1–9), scenario summary (rows 11–19, cols A–I), cashflow strip (cols K–HC = 200 periods)
+- Live LET + XNPV / XIRR / MAP / SEQUENCE formulas; Req solver SEQUENCE(200,1) matching spec
+- L11 period-label LET anchors on `$B$6` (not `$B$7`) so headers match the lookup dates beneath them
+- Generated via `build_quote_template.py` (in user's Temp folder)
 
-`runSkill` now accepts optional explicit folderPath so per-row buttons work without requiring row selection first. Row-toggle bails on `closest('button, a')`.
+**Stage B — V2 server engine** at `server/data-manager/`:
+- `xfin.js` — XNPV (Actual/365), XIRR (Newton-Raphson seeded 0.1 with bisection fallback on [-0.999, 100])
+- `params.js` — `PORTFOLIO_DEFAULTS` (frozen), `PRESETS` (EVERGREEN + HIP_HOP), `resolveParams` with `_provenance` audit trail, `validateParams` with locked ranges
+- `projections.js` — stages 7–11 (rank+split @ 80% / baseline blend / floor / 90-month decay / TOTAL row). `projectDecay` and `buildProjections` accept optional `customProjPeriods` for the preview UI
+- `advance.js` — stages 16–22 (8 scenarios, closed-form advance solver via XNPV, recoupment, IRR, 200-period Req solver). Uses `Number.isFinite` ternaries for default fallback (audit fix)
+- `pivot.js` — workbook → engine pivot with three legacy parity rules ported byte-for-byte from `index.js`: swapped-column track-label heuristic (BMI Work IDs), adj-vs-rep compare-then-pick, zero-cell `allKeys.add` skip. Audit `_meta.droppedCells` trail
+- `routes.js` — POST `/quote-engine` (pure math), `/quote/preview` (lean scenarios for live UI), `/quote/export` (full Excel pipeline), `/projection-preview` (canonical TOTAL projection for catalog graphs)
+- `_tests.js` — 30/30 PS sanity tests passing throughout the session
 
-**Hover effect (Option A — glow pulse, no box):** ✓ stays green at rest, on hover the text-shadow intensifies (3 layered shadows tight-to-loose, inner at full alpha) and scales 1.1× via 0.25s ease transition. Same hot-halo treatment in red for the `?`. Font weight stays 500 (Montserrat is static-discrete, can't smoothly tween weight).
+**Stage C — `quote.py`** at `1. RTHM Fund/1. Data/.claude/skills/quote/`:
+- Copies diligence workbook → `<deal folder>/<deal> - Quote.xlsx` (overwrites; original never touched)
+- Appends `Projections` sheet (engine TOTAL row, Date | $Value | YYYY-MM key, + metadata block)
+- Appends `Quote` sheet by cell-by-cell copy from the template (preserves formulas, formats, fills, freeze panes)
+- Est. Payment row 13 cols L+ filled with live `INDEX/MATCH` against `Projections!C` (YYYY-MM key column) — keeps Excel-side recalc working
+- `STRIP_PERIODS = 200` matching the template width
+- `SKILL.md` doc explaining it's invoked directly via Node spawn (no Claude CLI in the loop — work is deterministic)
 
-**New columns:** Tracks, Top 80%, Dollar Age — all left-aligned numeric. Header centering applied to Diligence/Valuation/Extract via `nth-child` rules.
+**Stage D — UI**:
+- `QuoteModal.jsx` + `QuoteModal.css` — mirrors ProjectionModal exactly (1000px, X top-right, close/save footer). Body has a scenario table (8 cols × 7 metric rows) at top, advance-inputs form (2 col × 3 row) below
+- 6 input fields: investment date, 1st royalty payment, target IRR, referral %, other fees, req advance
+- Debounced 300ms POST to `/quote/preview` on every input change → table recalculates live
+- Save button POSTs to `/quote/export` → writes `<deal> - Quote.xlsx` into the deal folder. Disabled until inputs ready; "saving..." state while in flight
+- Quote button on ValuatePage wired with `is-open` class + outside-click exemption
 
-**Move column attempt + revert.** Briefly added a "Move" pill button (transparent-tinted primary-mid variant) that opened `1. Current/` with the row's folder selected via `revealInParent()` (windows `explorer.exe /select,`, Mac `open -R`). User deleted the column entirely; all related code (JSX, CSS, index.css liquid-pill wiring, App.jsx LIQUID_SELECTOR, server `revealInParent` helper, `reveal:true` endpoint flag) removed.
+### Comprehensive Audit (134 agents, 42 verified findings)
+Ran a 12-dimension workflow audit covering xfin, every PS-spec stage, params, pivot, both modals, the template + `quote.py`, the Valuate page reader, master.xlsm parity, and end-to-end provenance. Each finding was adversarially refuted by an independent verifier.
+- **Verdict**: math kernel is solid; 5 critical fixes applied (below); audit report saved to `/tmp` task output.
 
-**Faster cold-start.** Server pre-warms summary cache on `app.listen` (walks every folder ~100ms after server start, populates `computeWorkbookSummary` cache). Client `App.jsx` prefetches `/api/data/folders` on mount, not when Data Manager opens — by the time user navigates there, data is in lifted React state.
+### 6 Audit Fixes Applied
+- **Fix A — template**: SEQUENCE(150)→(200), L11 anchor `$B$7`→`$B$6`, widen strip 150→200, `quote.py` `STRIP_PERIODS` to 200
+- **Fix B — QuoteModal Periods cell**: `Math.ceil(months / stepMonths)` instead of `Math.ceil(months)` (was wrong by stepMonths factor on non-monthly cadence). Also switched Advance/Recoup row to use server-canonical `recoupMultiple`
+- **Fix C — pivot parser**: ported 3 legacy rules from `index.js` (swapped-column heuristic, adj-vs-rep compare-then-pick, zero-cell skip)
+- **Fix D — `/projection-preview` endpoint + ProjectionModal catalog wiring**: catalog graphs (`chart:total`, `chart:adjusted`) now fetch canonical per-track-summed TOTAL from server instead of running client decay on already-summed historical (mathematically wrong). Track graphs unchanged (client-side compute is correct for single-track decay)
+- **Fix E — defense-in-depth**: `buildAdvance` uses `Number.isFinite()` guards instead of `??` (catches NaN / Infinity / strings). Bare `catch {}` blocks replaced with logged warnings (`routes.js`, `index.js` workbook-resolve/summary)
+- **Fix F — spec doc**: `v2_specs.md` decay formula corrected (`k(p) = k_inf + (k0 - k_inf) × exp(-gamma × stepMonths × (p-1))`), clarified "90-month horizon" wording
 
-**Selected row mechanics** ported from Data Manager to Deal Manager (left accent bar + faint primary wash, outside-click deselect, inline-button bypass).
+### UI / UX Polish (Valuate-page modals)
+- **Search bars** (Deal Manager + Data Manager): right-justified, magnifying-glass icon at calc(50% + 2px), `field-sizing: content` for grow-from-button, locked color + sizing tokens
+- **Quote modal `PMNT` → `PAYMENT`** label
+- **Table column 1 labels Title Case + `IRR` all caps**; removed lowercase text-transform
+- **Selection rule**: if Adjusted Revenue chart exists, Total Revenue card stays visible but is NOT selectable. If only Total exists, it IS selectable. Locked via `totalSelectable = adjMatchesRep || tracksAdjRows.length === 0`
+- **Leading-zero strip** on every numeric input in both modals (`cleanNumeric`)
+- **Max-threshold clamp** on 7 bounded fields (k0/k_inf/gamma/floor%/haircut/target IRR/referral %) — keystrokes that would exceed max are silently rejected
+- **Zero-prefix lock** on 5 fields where `max < 1` (k0/k_inf/floor%/haircut/referral %): once user types, `"0."` is always present; can clear back to empty via select-all + delete
+- **Comma formatting** on ALL numeric inputs across ProjectionModal / QuoteModal / ValuationPage: state stays raw digits, `withCommas()` wraps display value. No-op when whole < 1000
+- **Arrow key step** on the 7 sub-1-step fields: ↑/↓ adds/subtracts the field's step value, clamps to [0, max], strips trailing zeros, re-applies zero-prefix for locked fields
+- **Quote modal Save button** wired to `/quote/export` (was disabled — backend now hooked)
+- **Portal-rendered chart tooltips** (universal design rule): both ProjectionModal and ValuatePage charts now use `createPortal` to `document.body` with `position: fixed`, computed from chart container's `getBoundingClientRect() + coordinate`. `wrapperStyle: { display: 'none' }` hides recharts' own wrapper. Solves clipping + the modal-widening scrollbar bug
 
-### Valuate Page
-
-**Tracks table** — full buildout. Columns now: `# | TRACK | SPARKLINE | % OF LTR | LIFETIME | TTM | DOLLAR AGE | DECAY RATE`. Per-track values:
-- **Dollar Age:** years from each track's first non-zero earning month to today
-- **TTM:** sum of monthly revenue in the 12-month window ending at the active view's lastKey (combined or platform-specific)
-- **Decay Rate:** simple arithmetic mean of period-to-period decay rates (`1 - curr/prev`) across consecutive non-zero-prev pairs. Positive = decaying, negative = growing
-- **Sparkline:** per-track revenue line aligned to the active view's month axis; 0 in months with no earnings
-- **% of LTR:** lifetime revenue share (was "% of LTV" — relabeled since LTV is reserved for Loan-to-Value)
-
-OTHER bundle row aggregates each metric: simple averages for Dollar Age + Decay Rate, sums for Lifetime + TTM, element-wise sum for the sparkline.
-
-**Dynamic per-platform view.** Server now returns `tracksByPlatform[name] = {tracks, other, dealLifetime, dollarAge}` — each platform gets its own top-80% ranking + OTHER bundle scoped to its revenue, with the platform's own month axis for sparklines. Toggling platforms re-ranks the table the same way it switches charts and header stats.
-
-**Key Metrics card.**
-- Pivoted from row-list to single-row tile grid (value above, label below per tile)
-- Tiles evenly distributed via inline `gridTemplateColumns: repeat(N, 1fr)`
-- Added Dollar Age — Combined row
-- Per-platform view: scopes Lifetime/TTM/Dollar Age to that platform only, drops the per-platform % of Lifetime rows (would trivially be 100%)
-- Labels stay source-case (no `text-transform: uppercase`)
-
-**Charts.**
-- Added period-to-period decay row to the recharts hover tooltip: `decayFromPrev = 1 - (current.total / prev.total)` per row, shown as a signed `%` at the bottom of the tooltip
-- Added hover tooltip on "adjusted revenue" chart title via `.calc-tip` schema — explains what adjusted revenue is and why it's adjusted
-- Chart card lifts to `z-index: 10` on hover so recharts tooltip can overflow downward without being clipped by the next card's stacking context
-
-### Diligence Workbook Parsing — Data Integrity Overhaul
-
-**This was the session's biggest area of fixes.** All work in `computeDiligenceWorkbook` (Valuate endpoint) and `computeWorkbookSummary` (Data Manager).
-
-**Bug 1: 2-4x inflated Lifetime/TTM across most deals.** The narrow `/^total$|^grand total$/i` row filter in `buildSeries` missed qualified aggregate rows (`Reported Total`, `Adjusted Total`, `GRAND TOTAL (Gross Royalty)`, `(a) Reported Total`, `Bridge`, `Less:`, etc.). Those rows' values got double-counted into per-month buckets. Lifted `isAggregateRow()` to module scope and use it everywhere. Lil Candy Paint $1.49M → $496K, Lomeli $68K → $22K, Charles Rhodes $223K → $56K, etc.
-
-**Bug 2: Projection-data bleed.** Lomeli's workbook contains decay-modeled projections appended after a `Decay` parameter column — same month labels repeat past Feb-2026, into Mar-2038. Without detection, projected values double-counted into their corresponding historical months. Added "projection boundary detector" — scan headers left→right tracking max date seen, stop reading columns at the first key reset. Applied to `buildSeries` + `trackLifetimeFromEntries` (Valuate) and the inline track loop in `computeWorkbookSummaryInner` (Data Manager).
-
-**Bug 3: Track-label extraction read Work IDs as titles.** Landstrip Chip's BMI sheets have col 0 = Work # ("24348906") and col 1 = title ("10 000 HOURS") — swapped from the typical convention. Heuristic: if col 0 is **6+ digits** and col 1 is non-numeric text, use col 1 as the label. 6-digit minimum so short numeric titles like "22" (Lil Candy Paint) and "42" (22gfay) aren't misclassified. Audited across all 17 deals with diligence workbooks — 16 correctly read titles after fix; Too $hort still shows asset codes ("Z0089") because the diligence skill didn't capture track titles for that deal (workbook content issue, not app).
-
-**Bug 4: 4 deals weren't producing summaries at all.**
-- **AJ McQueen** — uses quarterly headers (`Q1-25, Q2-25, Q3-25, Q4-25, Q1-26`). Extended `parseMonthHeader` to handle `Q[1-4][-/'\s]?\d{2,4}` and `[1-4]Q\d{2,4}`. Each quarter anchors to its start month (Q1→Jan, Q2→Apr, etc.).
-- **Hirschmann** — workbook is `Hirschmann DD Workbook.xlsx` (non-canonical name), sheets are `By Track (Reported)` (non-standard), headers are `Q3'22` (apostrophe quarterly). Added `resolveDiligenceWorkbookPath()` helper that falls back to scanning the diligence folder for any `.xlsx` containing "workbook" (excludes `(by-statement)` variants). Extended sheet regex to accept `By (Track|Source) (Reported|Adjusted)`. Quarterly parser accepts `'` separator.
-- **Lambo4oe** — workbook is `Lambo4oe_Catalog_Diligence_Workbook.xlsx`. Same filename-variant fix as Hirschmann.
-- **BPG Records, Charles Rhodes** — single-platform workbooks with bare sheet names (`Track Rep` / `Track Adj` instead of `<Platform> – Track Rep`). Extended `sheetKindRe` to make the platform prefix optional; bare sheets use the deal folder name as the platform identifier.
-
-**Bug 5: Empty `_Due Diligence` folders were showing green ✓.** `hasDiligence` was just "folder exists" — Narvent and Romano had empty folders. Changed to `hasDiligence = summary != null` so the indicator reflects actual parseable data.
-
-**Bug 6: Statement count from heuristic folder scan was wrong/missing.** Replaced the 117-line folder-walk Pass 2b with `p.statementsCount = p.months.length` — derived directly from the workbook data that drives the chart. Per the design rule "if you can draw the line, you have the statements."
-
-**Bug 7: App was non-currency-agnostic for Barretta.** Briefly added README-parsing currency detection (Barretta is in COP) — reverted per user directive: "app is currency agnostic, value in, value out, currency blind." The app now displays raw workbook numbers regardless of currency; conversion is the diligence skill's responsibility.
-
-### Track-level Server Outputs (new fields exposed)
-
-The `/api/data/diligence-workbook` response now returns:
-- `combined.keys[]` — YYYY-MM axis for the combined view (paired with `months[]`)
-- `tracks[].line[]` — per-track monthly revenue aligned to `combined.keys`
-- `tracks[].ageYears` — years since first non-zero earning
-- `tracks[].ttm` — sum in the trailing-12-months window from `combined.keys[last]`
-- `tracks[].decayRate` — simple-average period-to-period decay
-- `other.line[]`, `other.ageYears`, `other.ttm`, `other.decayRate` — same metrics for the OTHER bundle (sum for sparkline + ttm, simple avg for age + decay)
-- `dollarAge` — catalog-level simple average of all per-track ages
-- `tracksByPlatform[name]` — same `{tracks, other, dealLifetime, dollarAge}` shape, scoped per-platform with its own month axis
-
-`/api/data/folders` summary endpoint adds `summary.trackCount`, `summary.top80Count`, `summary.dollarAge` (all computed via the same per-track extraction with aggregate filter + projection boundary applied).
-
-### App-Wide Form Input Glass Schema
-
-**Unified rule:** all form-entry text fields (text inputs, textareas, comboboxes, search inputs, rate inputs, checkboxes) use `background: rgba(255,255,255,0.18)` + `backdrop-filter: blur(20px) saturate(180%)` + `border: none` + `outline: none`. No focus rings. Padding/sizing per context.
-
-Classes updated to comply:
-- `.field-input` (RPAForm, OfferLetterForm, InvoiceForm)
-- `.field-locked` (locked auto-calc variant — same glass + ink-light text)
-- `.modal-input` (ImportModal)
-- `.modal-search` (ImportModal search bar — borderless, sits directly on the modal's glass)
-- `.line-items-count` (InvoiceForm counter)
-- `.income-cell .rate-input` (OfferLetterForm Income Sharing Summary %)
-- `.field-checkbox` + `.modal-table input[type="checkbox"]` — 15×15 glass squares, primary fill + white check on `:checked`, check centered via translate
-- `.combo-dropdown` (InvoiceForm type-or-pick menu — matches `.combobox-menu` styling)
-
-**Native `<select>` is forbidden** in form contexts. Replaced 3 in `ImportModal`, `OfferLetterForm`, `RPAForm` with `<Combobox className="combobox--form">`. Combobox got a new `combobox--form` variant — full-width filled-primary purple pill (inherits default trigger styling) with liquid-pill hover. Also applied to B2B Template combobox in `ValuationPage` and `AgreementsPage`.
-
-**Combobox menu** — added `max-height: 320px` + `overflow-y: auto` so long lists scroll instead of clipping at viewport bottom.
-
-**Selected row schema** (`.modal-table` in ImportModal) — converted from heavy fill to design-system pattern: left 3px primary bar (`inset 3px 0 0 0 var(--primary)`) + faint primary wash (`rgba(82,0,190,0.05)`).
-
-**Dropdown buttons must show white font on purple, with white-bubble hover transition** — wired Combobox triggers into all four index.css liquid-pill selector groups + LIQUID_SELECTOR array in App.jsx + filled-primary text-flip group.
-
-### Locked Valuation Page
-
-**Locked Margin cell** keeps subtle 0.18-alpha glass (matches `.rate-input` editable state) — distinguishes it from the plain-text Advance/Rate cells which mirror the Initial Quote table. Other locked values (Advance, Recoup Rate) render as plain text.
-
-**Top-level Margin and Commission rate inputs** stay editable even when recoup is locked — moved this out of `disabled={recoupLocked}` per user instruction: "broker / b2b margin is what you want to edit, not rthm margin".
-
-**Per-term Margin column edit feature** added then reverted — user wanted only the broker/B2B margin rate (top-level), not per-term column editing.
-
-### Pill Buttons + Tooltips + Misc Polish
-
-**Pill button lowercase rule** documented in design_system.md — global `button { text-transform: lowercase }` enforced. Removed `text-transform: none` overrides from `.combobox.combobox--form .combobox-trigger` and `.modal-radio-btn` (the two violations from the user's screenshot).
-
-**`.calc-tip` global tooltip** — added explicit `font-weight: 500`, `text-transform: none`, `letter-spacing: normal` overrides so tooltip text doesn't inherit parent's typography (chart titles are bold/uppercase). Widened `max-width: 280 → 360px`.
-
-**Hover tooltip on "adjusted revenue" chart title** — explains the metric: "Reported revenue minus diligence adjustments. Removes non-recurring items (sync stripped, foreign catch-up bridges, layer adjustments, fee strip-outs) so the baseline reflects sustainable catalog earnings used for valuation."
-
-**Tile pivot of Key Metrics card** — value-above-label, single horizontal row with `gridTemplateColumns: repeat(N, 1fr)`. Matches header-stats typography (18px primary purple value, 11px ink-light source-case label).
-
-**Tracks table polish:**
-- All numeric columns left-aligned (was right-aligned)
-- Sparkline cell width 110px with padding-right 32px so the line doesn't crowd the next column
-- Column reorder: `# | TRACK | SPARKLINE | % OF LTR | LIFETIME | TTM | DOLLAR AGE | DECAY RATE` (track name stays prominent in column 2)
-
-**Tracks table headers** in Data Manager left-aligned with values, `white-space: nowrap` on all headers so "DOLLAR AGE" stays on one line.
-
-### Sparkline Component
-
-Extracted from inline `DataManagerPage.jsx` to shared `src/components/Sparkline.jsx`. Both Data Manager rows and Valuate Tracks table import it. CSS class renamed `data-manager-sparkline → sparkline-svg` (used in both pages).
-
-### Color Exploration (REVERTED)
-
-User asked about toning down `#5200BE` to a darker/cooler purple closer to the sidebar tone. Tested `#420099` (HSL 266°, 100%, 30%) — 61 replacements across 14 files (`#5200BE` → `#420099`, `rgba(82,0,190,…)` → `rgba(66,0,153,…)`). User: "nope it looks bad revert, we had the perfect color all along." Fully reverted; zero residual references to the new color.
+### Design System updates
+- `docs/design_system.md`: new **Search Bars** section, **Tooltips section rewritten** with locked portal rule + reference implementation. No-clipping rule expanded to mandate `pointer-events: none`, `z-index ≥ 10000`, no layout side-effects
 
 ---
 
 ## Current State
 
 - **Working path**: `C:\Users\richa\RTHM Dropbox\RTHM Fund\RTHM\4. Operations\RTHM App\App Files`
-- **Branch**: `master`, repo `https://github.com/RTHM-fund/RTHM-app`
-- **App state**: Vite + Node server hot-reloading. Several backend changes this session — server restart required to clear summary caches + load new track-level outputs.
-- **23 modified files + 1 new file** (`Sparkline.jsx`) staged for commit.
+- **Branch**: `master`
+- **Server status**: requires restart — new endpoints (`/api/data-manager/quote/preview`, `/quote/export`, `/projection-preview`) won't load via Vite HMR
+- **Engine tests**: 30/30 passing throughout the session
+- **Audit verdict**: math kernel sound; critical fixes applied; engine is production-ready
+
+### Files modified / created this session
+**New**:
+- `server/data-manager/{xfin,params,projections,advance,pivot,routes,_tests}.js`
+- `server/templates/RAS Quote_Template.xlsx`
+- `src/components/QuoteModal.jsx`, `QuoteModal.css`
+- `<Data>/.claude/skills/quote/quote.py`, `SKILL.md`
+
+**Modified**:
+- `server/index.js` (mounted `/api/data-manager` router, logged catch blocks, raised body limit)
+- `src/components/ProjectionModal.jsx` (catalog server-preview, portal tooltip, numeric input UX, arrow steps)
+- `src/components/ValuatePage.jsx` (Quote button wiring, selection rule, portal tooltips)
+- `src/components/ValuatePage.css` (`.is-open` for quote button, comma helpers, portal handling)
+- `src/components/ValuationPage.jsx` (comma formatting on advance / rate / margin inputs)
+- `src/components/DealsPage.jsx`, `DealsPage.css` (search bar)
+- `src/components/DataManagerPage.jsx`, `DataManagerPage.css` (search bar)
+- `src/components/ImportModal.jsx`, `ImportModal.css` (search-bar polish)
+- `docs/design_system.md` (Search Bars + Tooltips sections)
+- `docs/v2_specs.md` (decay formula doc fix)
 
 ---
 
 ## What's Next
 
-### V2 Royalty Projection + Advance-Calc Engine (stages 7-22)
+### Audit follow-ups (deferred — low/medium severity)
+- `xfin.js` `toDay()` timezone-safety hardening (dormant — no callers trigger today)
+- Newton-Raphson tight-loop break when residual fails (perf only)
+- Stage-22 no-solution branch: cleaner `null`-on-failure for `recoupment` + `recoupMultiple` (UX clarity in QuoteModal Req column)
+- `pivot.js` parses Excel-native Date headers in local timezone — convert to UTC (`getUTCFullYear`/`getUTCMonth`)
+- `detectStepMonths` flag mixed-cadence catalogs (semi-annual + monthly mix)
+- Extend `_tests.js` Test F to loop over `[1, 3, 6]` step sizes
+- Master `.xlsm` bugs flagged for user to fix in Excel: `W20` references wrong columns (T/U instead of W/X); VBA `CreateOrRefreshPortfolioDefaults` writes wrong defaults
 
-Per the task spec re-confirmed this session, the projection + advance-calc engine is the next major build. Already-built foundation:
-- Per-track `monthly: Map<YYYY-MM, value>` is computed for every track (= pivot input rows)
-- Top-80% / OTHER split is running in `buildTracksOutput` (Stage 7 logic, but scoped to display)
-- Per-platform track maps + combined map both available
-- `firstKey`, lifetime, TTM, decay rate, dollar age per track
-
-Not built — the actual engine:
-- `server/data-manager/projections.js` (stages 7-11: rank/split, baseline, floor, decay, TOTAL)
-- `server/data-manager/params.js` (stages 12-15: defaults / overrides / presets / resolve / validate)
-- `server/data-manager/advance.js` (stages 16-22: scenarios, cashflow, advance solver, recoupment, IRR, req-months)
-- `server/data-manager/xfin.js` (XNPV + XIRR primitives — hand-written, no deps)
-- `server/data-manager/routes.js` (single endpoint returning the full `{projections, advance}` result)
-
-**Process when starting** — per CLAUDE.md spec-first workflow:
-1. Explain the full plan (module layout, function signatures, data flow, tests)
-2. End with "understand?" and wait for "go"
-3. Build stage-by-stage with sanity tests A-E after each
-
-### Known Open Issues / Flags
-- **Too $hort** Track Rep sheet has asset codes ("Z0089") in col 0 and descriptions in col 1 — neither contains actual song titles. Workbook content issue, not app. Needs diligence re-run with track titles populated.
-- **Lomeli** workbook contains projection data through 2038. App now correctly cuts off at the projection boundary, but the projection rows in the workbook itself violate "diligence is 100% historical" data-integrity rule. Flagged for diligence-skill cleanup.
-- **Barretta** workbook is in Colombian Pesos (COP) — app displays raw numbers regardless of currency per user directive ("currency-agnostic, value in, value out").
-- **Hirschmann** workbook uses non-standard sheet names + filename — handled via fallback resolvers and extended regex. Real catalog (7K+ sync cues) so the absurdly high track count is correct, not a bug.
+### Possible UI follow-ups
+- Saved-projection indicator on graphs (user tried Pattern A — small dot — didn't like it; abandoned)
+- `.calc-tip` form/table tooltips could optionally adopt the same portal pattern for symmetry (chart tooltips are now portal-rendered; CSS-pseudo-element tooltips still use their existing positioning)

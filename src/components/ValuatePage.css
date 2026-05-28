@@ -47,8 +47,62 @@
 .valuate-body {
   flex: 1;
   overflow-y: auto;
-  padding: 40px;
+  padding: 40px 40px 81px;
   position: relative; /* positioning context for absolute-centered .empty-state */
+}
+
+.valuate-footer {
+  position: fixed;
+  bottom: 20px;
+  left: 256px;  /* sidebar width — span only the main area */
+  right: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;  /* split main area at its midpoint */
+  z-index: 100;
+  pointer-events: none; /* let the gap between buttons pass clicks through */
+}
+
+.valuate-footer > button {
+  pointer-events: auto;
+}
+
+.valuate-footer > button:nth-child(1) {
+  justify-self: end;
+  margin-right: 10px;  /* right edge sits 10px left of midpoint */
+}
+
+.valuate-footer > button:nth-child(2) {
+  justify-self: start;
+  margin-left: 10px;   /* left edge sits 10px right of midpoint */
+}
+
+/* Projection buttons default to transparent-tinted unclickable per design
+   system's non-clickable convention. Will get unset (disabled removed) when
+   functionality is wired. */
+.valuate-project-btn:disabled,
+.valuate-quote-btn:disabled {
+  background: rgba(82, 0, 190, 0.1);
+  color: var(--primary);
+  cursor: not-allowed;
+}
+
+/* PROJECT button stays in its hovered/active visual while the projection
+   modal is open — mirrors :hover (bubble expanded, white bg, primary text +
+   glow). Same dimensions as :hover so the transition is seamless when the
+   cursor moves off the button after click. */
+.valuate-project-btn.is-open,
+.valuate-quote-btn.is-open {
+  background: white;
+}
+.valuate-project-btn.is-open::before,
+.valuate-quote-btn.is-open::before {
+  width: 1500px;
+  height: 1500px;
+}
+.valuate-project-btn.is-open > span,
+.valuate-quote-btn.is-open > span {
+  color: var(--primary);
+  text-shadow: 0 0 12px rgba(82, 0, 190, 0.4);
 }
 
 .valuate-charts {
@@ -130,7 +184,7 @@
 .valuate-header-stat-label {
   font-size: 10px;
   font-weight: 600;
-  color: var(--ink-light);
+  color: var(--ink);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -175,7 +229,7 @@
   padding: 9px 12px;
   font-size: 10px;
   font-weight: 600;
-  color: var(--ink-light);
+  color: var(--ink);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border-bottom: 1px solid rgba(82, 0, 190, 0.08);
@@ -189,6 +243,33 @@
 
 .valuate-tracks-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.valuate-tracks-table tbody tr {
+  cursor: pointer;
+}
+
+.valuate-tracks-table tbody tr.selected,
+.valuate-tracks-table tbody tr.selected:hover {
+  background: rgba(82, 0, 190, 0.05);
+  box-shadow: inset 3px 0 0 0 var(--primary);
+}
+
+/* Selectable chart cards (total revenue, adjusted revenue). Design rule
+   exception: chart cards are large — left-only bar reads as accidental.
+   Selected state combines a crisp 2px inset ring with a soft purple
+   drop-shadow halo, giving the card a subtle "lift" without breaking
+   the glass surface. Track rows keep the left-bar pattern. */
+.valuate-chart-card.valuate-chart-selectable {
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+}
+
+.valuate-chart-card.valuate-chart-selectable.selected {
+  box-shadow:
+    inset 0 0 0 2px var(--primary),
+    0 6px 24px rgba(82, 0, 190, 0.13),
+    0 2px 6px rgba(82, 0, 190, 0.07);
 }
 
 .valuate-tracks-rank {
@@ -221,7 +302,7 @@
 }
 
 .valuate-tracks-table thead th.valuate-tracks-num {
-  color: var(--ink-light);
+  color: var(--ink);
   font-weight: 600;
 }
 
@@ -259,7 +340,7 @@
 
 .valuate-metric-tile-label {
   font-size: 11px;
-  color: var(--ink-light);
+  color: var(--ink);
   font-weight: 500;
   text-align: center;
   line-height: 1.3;

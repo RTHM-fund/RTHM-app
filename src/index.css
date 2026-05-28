@@ -56,6 +56,33 @@ body {
 }
 
 /* ============================================================
+   SCROLLBARS — glass-language, app-wide
+   Transparent track + soft primary-tinted thumb. The sidebar nav keeps its
+   own dark-theme scrollbar rules (higher selector specificity wins).
+   ============================================================ */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(82, 0, 190, 0.18);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(82, 0, 190, 0.32);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(82, 0, 190, 0.18) transparent;
+}
+
+/* ============================================================
    AURORA BACKGROUND — wandering orbs + film grain (Bystro pattern)
    Orb layer + animation lives in App.jsx (DOM mutated imperatively for
    per-frame transforms). LOCKED constants in the JS match the source.
@@ -92,6 +119,7 @@ h1, h2, h3 {
 }
 
 button { cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform: lowercase; font-weight: 700 !important; border-radius: 999px !important; }
+button:focus, button:focus-visible, a:focus, a:focus-visible { outline: none; }
 .template-item, .category-toggle { text-transform: none; }
 .arr { color: inherit; font-size: 0.5em; line-height: 1; position: relative; top: -1px; }
 input, select, textarea { font-family: 'Montserrat', sans-serif; }
@@ -114,6 +142,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 
 
 .deals-new-btn,
+.valuate-project-btn,
+.valuate-quote-btn,
 .deals-valuation-btn,
 .deals-forms-btn,
 .deals-materials-btn,
@@ -143,6 +173,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 }
 
 .deals-new-btn::before,
+.valuate-project-btn::before,
+.valuate-quote-btn::before,
 .deals-valuation-btn::before,
 .deals-forms-btn::before,
 .deals-materials-btn::before,
@@ -183,6 +215,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 }
 
 .deals-new-btn > span,
+.valuate-project-btn > span,
+.valuate-quote-btn > span,
 .deals-valuation-btn > span,
 .deals-forms-btn > span,
 .deals-materials-btn > span,
@@ -215,6 +249,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-light); }
 }
 
 .deals-new-btn:hover::before,
+.valuate-project-btn:hover::before,
+.valuate-quote-btn:hover::before,
 .deals-valuation-btn:hover::before,
 .deals-forms-btn:hover::before,
 .deals-materials-btn:hover::before,
@@ -263,6 +299,8 @@ button:disabled:hover > span,
 /* Filled primary buttons: white circle (default), text flips white → primary
    + super-subtle purple glow on the text to lift it off the white bubble. */
 .deals-new-btn:hover > span,
+.valuate-project-btn:hover > span,
+.valuate-quote-btn:hover > span,
 .data-manager-import-btn:hover > span,
 .data-manager-summarize-btn:hover > span,
 .data-manager-valuate-btn:hover > span,
@@ -332,5 +370,91 @@ button:disabled:hover > span,
 .deals-materials-btn.linked:hover > span {
   color: var(--primary);
   text-shadow: 0 0 12px rgba(82, 0, 190, 0.4);
+}
+
+/* =====================================================================
+   Pill bg follows bubble color on hover — eliminates the anti-alias
+   fringe at the pill's curved clip edge. At full expansion the bubble
+   covers the button, but the browser AA's the clip and blends the
+   bubble color with the button's rest-state bg, producing a sub-pixel
+   ring of the rest color around the edge. Setting bg to match bubble
+   color on hover (synced to the bubble's 0.6s) makes the AA blend
+   bubble-with-bubble — invisible.
+   `button.foo` (0,1,1) overrides component CSS `.foo` (0,1,0) which
+   typically sets `transition: all 0.15s`.
+   ===================================================================== */
+button.deals-new-btn,
+button.valuate-project-btn,
+button.valuate-quote-btn,
+button.data-manager-import-btn,
+button.data-manager-summarize-btn,
+button.data-manager-valuate-btn,
+button.data-manager-extract-btn,
+button.valuation-new-btn,
+button.agreements-new-btn,
+button.agreements-type-btn,
+button.modal-import-btn,
+button.modal-connect-btn,
+button.modal-cancel,
+button.export-btn,
+button.recoup-btn,
+button.deals-valuation-btn,
+button.deals-forms-btn,
+button.deals-materials-btn,
+button.agreements-edit-btn,
+button.agreements-export-btn,
+button.modal-radio-btn,
+button.valuate-toggle-btn,
+button.deals-delete-btn,
+button.data-manager-delete-btn,
+button.agreements-delete-btn,
+button.combobox-trigger {
+  transition: all 0.15s, background 0.6s cubic-bezier(0.33, 0, 0.15, 1);
+}
+
+/* Filled primary → white */
+.deals-new-btn:hover,
+.valuate-project-btn:not(:disabled):hover,
+.valuate-quote-btn:not(:disabled):hover,
+.data-manager-import-btn:hover,
+.data-manager-summarize-btn:hover,
+.data-manager-valuate-btn:hover,
+.data-manager-extract-btn:hover,
+.valuation-new-btn:not(:disabled):hover,
+.agreements-new-btn:hover,
+.agreements-type-btn:not(:disabled):hover,
+.modal-import-btn:not(.disabled):hover,
+.modal-connect-btn:hover,
+.combobox-trigger:hover,
+.combobox.open .combobox-trigger,
+.export-btn:not(.disabled):hover,
+.recoup-btn-active:hover,
+.deals-valuation-btn.linked:hover,
+.deals-forms-btn.linked:hover,
+.deals-materials-btn.linked:hover {
+  background: white;
+}
+
+/* Outline-primary deal-manager type → primary */
+.deals-valuation-btn:not(.linked):hover,
+.modal-cancel:hover {
+  background: var(--primary);
+}
+
+/* Outline-primary form-link type → primary-mid */
+.deals-forms-btn:not(.linked):hover,
+.deals-materials-btn:not(.linked):hover,
+.agreements-edit-btn:hover,
+.agreements-export-btn:hover,
+.modal-radio-btn:hover,
+.valuate-toggle-btn:not(.active):hover {
+  background: var(--primary-mid);
+}
+
+/* Outline-error → error */
+.deals-delete-btn:hover,
+.data-manager-delete-btn:hover,
+.agreements-delete-btn:hover {
+  background: var(--error);
 }
 

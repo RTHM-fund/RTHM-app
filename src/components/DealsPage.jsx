@@ -8,6 +8,7 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
   const [showModal, setShowModal] = useState(false)
   const [editIndex, setEditIndex] = useState(null)
   const [selectedDealIdx, setSelectedDealIdx] = useState(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     loadDeals()
@@ -62,6 +63,9 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
     }
   }
 
+  const q = search.trim().toLowerCase()
+  const visibleDeals = q ? deals.filter(d => (d.name || '').toLowerCase().includes(q)) : deals
+
   return (
     <div className="deals-page">
       <div className="deals-page-header">
@@ -69,7 +73,15 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
           <h1 className="deals-page-title">DEAL MANAGER</h1>
           <span className="deals-count-badge">{deals.length}</span>
         </div>
-        <button className="deals-new-btn" onClick={() => setShowModal(true)}><span>+ Create New Deal</span></button>
+        <div className="deals-header-right">
+          <input
+            className="deals-search"
+            placeholder="search by deal name"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <button className="deals-new-btn" onClick={() => setShowModal(true)}><span>+ Create New Deal</span></button>
+        </div>
       </div>
 
       {deals.length === 0 ? (
@@ -93,7 +105,7 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
               </tr>
             </thead>
             <tbody>
-              {deals.map((deal) => (
+              {visibleDeals.map((deal) => (
                 <tr
                   key={deal._idx}
                   className={selectedDealIdx === deal._idx ? 'selected' : ''}
