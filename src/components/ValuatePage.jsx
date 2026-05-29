@@ -312,10 +312,28 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
   // Mirrors `<dealFolder>/<dealName>_Projection.json` shape. Used to gate
   // the Quote button — quote requires catalogDefaults to be set.
   const [projectionData, setProjectionData] = useState(null)
+  // Whether `<deal> - Quote.xlsx` exists in the deal folder — gates the key-metrics
+  // purple title (the page-complete easter egg requires the Quote to have been exported).
+  const [quoteSaved, setQuoteSaved] = useState(false)
   // Per-chart container refs — used by portal ChartTooltip to position itself
   // in viewport coords (escapes all parent overflow contexts).
   const totalChartHostRef    = useRef(null)
   const adjustedChartHostRef = useRef(null)
+
+  // Lightweight deal-state refresh — re-reads saved projection params + whether the Quote
+  // file exists, WITHOUT resetting `data` or the current selection. Used by the initial load,
+  // on window focus, and after the projection/quote modals close.
+  function refreshDealState() {
+    if (!folderPath) return
+    fetch(`/api/data/projection-params?folder=${encodeURIComponent(folderPath)}`)
+      .then(r => r.json())
+      .then(setProjectionData)
+      .catch(() => {})
+    fetch(`/api/data/quote-exists?folder=${encodeURIComponent(folderPath)}`)
+      .then(r => r.json())
+      .then(d => setQuoteSaved(!!(d && d.exists)))
+      .catch(() => setQuoteSaved(false))
+  }
 
   useEffect(() => {
     if (!folderPath) return
@@ -326,10 +344,8 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
     setProjectionOpen(false)
     setQuoteOpen(false)
     setProjectionData(null)
-    fetch(`/api/data/projection-params?folder=${encodeURIComponent(folderPath)}`)
-      .then(r => r.json())
-      .then(setProjectionData)
-      .catch(() => setProjectionData(null))
+    setQuoteSaved(false)
+    refreshDealState()
     fetch(`/api/data/diligence-workbook?folder=${encodeURIComponent(folderPath)}`)
       .then(r => r.json().then(body => ({ ok: r.ok, body })))
       .then(({ ok, body }) => {
@@ -353,23 +369,46 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
     return () => document.removeEventListener('mousedown', handleDocMouseDown)
   }, [])
 
+  // Re-read deal state when the window regains focus (matches Deals/Agreements/DataManager) —
+  // e.g. the user exported a Quote or edited a projection in Excel, then returned to the app.
+  useEffect(() => {
+    if (!folderPath) return
+    window.addEventListener('focus', refreshDealState)
+    return () => window.removeEventListener('focus', refreshDealState)
+  }, [folderPath])
+
   // Footer button activation rules:
   // - PROJECT → any selection (track row or a revenue chart)
   // - QUOTE   → catalog projection exists AND a revenue chart is selected
   const projectActive = selectedGraph != null
   const hasCatalogProjection = projectionData && projectionData.catalogDefaults != null
+  // Saved-projection accent: a track/graph turns primary when its params are saved.
+  const trackSaved = label => !!(projectionData && projectionData.trackOverrides && projectionData.trackOverrides[label])
+  // Active track list for the current view (combined vs per-platform); empty when data isn't loaded.
+  const activeTracks = data
+    ? (view === 'combined'
+        ? { tracks: data.tracks, other: data.other }
+        : (data.tracksByPlatform && data.tracksByPlatform[view]) || { tracks: [], other: null })
+    : { tracks: [], other: null }
+  // All visible rows (top tracks + OTHER) projected → the "tracks" card title goes brand purple.
+  const allTracksSaved = (activeTracks.tracks || []).length > 0
+    && [...activeTracks.tracks, ...(activeTracks.other ? [activeTracks.other] : [])].every(t => trackSaved(t.label))
+  // Key-metrics "complete" purple title: shown once the Quote has been exported for this deal
+  // (does NOT require every track to be individually projected).
+  const pageComplete = quoteSaved
   const quoteActive = hasCatalogProjection
     && (selectedGraph === 'chart:total' || selectedGraph === 'chart:adjusted')
 
-  // Refetch projection JSON after the modal closes so quote-button state
-  // updates if user just saved a catalog projection.
+  // Refetch deal state after a modal closes so the quote-button + title gates update
+  // (e.g. user just saved a catalog projection, or exported a Quote).
   function handleProjectionClose() {
     setProjectionOpen(false)
-    if (!folderPath) return
-    fetch(`/api/data/projection-params?folder=${encodeURIComponent(folderPath)}`)
-      .then(r => r.json())
-      .then(setProjectionData)
-      .catch(() => {})
+    refreshDealState()
+  }
+
+  function handleQuoteClose() {
+    setQuoteOpen(false)
+    refreshDealState()
   }
 
   if (error) {
@@ -464,7 +503,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
         <div className="valuate-charts">
           {keyMetrics.length > 0 && (
             <div className="valuate-chart-card">
-              <h3 className="valuate-chart-title">key metrics</h3>
+              <h3 className={`valuate-chart-title${pageComplete ? ' projected' : ''}`}>key metrics</h3>
               <div
                 className="valuate-metric-grid"
                 style={{ gridTemplateColumns: `repeat(${keyMetrics.length}, 1fr)` }}
@@ -493,7 +532,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
                 setSelectedGraph(prev => prev === 'chart:total' ? null : 'chart:total')
               }) : undefined}
             >
-              <h3 className="valuate-chart-title">total revenue</h3>
+              <h3 className={`valuate-chart-title${hasCatalogProjection || pageComplete ? ' projected' : ''}`}>total revenue</h3>
               <div ref={totalChartHostRef}>
                 <ResponsiveContainer width="100%" height={280}>
                   <LineChart data={tracksRows} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
@@ -522,7 +561,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
               }}
             >
               <h3
-                className="valuate-chart-title calc-tip"
+                className={`valuate-chart-title calc-tip${hasCatalogProjection || pageComplete ? ' projected' : ''}`}
                 data-tip="Reported revenue minus diligence adjustments. Removes non-recurring items (sync stripped, foreign catch-up bridges, layer adjustments, fee strip-outs) so the baseline reflects sustainable catalog earnings used for valuation."
               >adjusted revenue</h3>
               <div ref={adjustedChartHostRef}>
@@ -544,17 +583,11 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
           )}
 
           {(() => {
-            // Pick the active tracks list based on the current view toggle.
-            // Combined view uses the top-level `data.tracks` + `data.other`.
-            // Per-platform view picks from `data.tracksByPlatform[name]` which
-            // has its own top-80% / OTHER split scoped to that platform's revenue.
-            const activeTracks = view === 'combined'
-              ? { tracks: data.tracks, other: data.other }
-              : (data.tracksByPlatform && data.tracksByPlatform[view]) || { tracks: [], other: null }
+            // activeTracks + allTracksSaved are computed at component level (shared with the key-metrics easter egg).
             if (!activeTracks.tracks || activeTracks.tracks.length === 0) return null
             return (
               <div className="valuate-chart-card valuate-tracks-card">
-                <h3 className="valuate-chart-title">tracks</h3>
+                <h3 className={`valuate-chart-title${allTracksSaved || pageComplete ? ' projected' : ''}`}>tracks</h3>
                 <table className="valuate-tracks-table">
                   <thead>
                     <tr>
@@ -580,7 +613,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
                         }}
                       >
                         <td className="valuate-tracks-rank">{i + 1}</td>
-                        <td className="valuate-tracks-label">{t.label}</td>
+                        <td className={`valuate-tracks-label${trackSaved(t.label) ? ' projected' : ''}`}>{t.label}</td>
                         <td className="valuate-tracks-spark"><Sparkline values={t.line} /></td>
                         <td className="valuate-tracks-num">{fmtPercent(t.pctOfLtv)}</td>
                         <td className="valuate-tracks-num">{fmtCurrency(t.lifetime)}</td>
@@ -600,7 +633,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
                         }}
                       >
                         <td className="valuate-tracks-rank">—</td>
-                        <td className="valuate-tracks-label">{activeTracks.other.label}</td>
+                        <td className={`valuate-tracks-label${trackSaved(activeTracks.other.label) ? ' projected' : ''}`}>{activeTracks.other.label}</td>
                         <td className="valuate-tracks-spark"><Sparkline values={activeTracks.other.line} /></td>
                         <td className="valuate-tracks-num">{fmtPercent(activeTracks.other.pctOfLtv)}</td>
                         <td className="valuate-tracks-num">{fmtCurrency(activeTracks.other.lifetime)}</td>
@@ -685,7 +718,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
         <QuoteModal
           folderPath={folderPath}
           graphName={selectedGraph === 'chart:adjusted' ? 'adjusted revenue' : 'total revenue'}
-          onClose={() => setQuoteOpen(false)}
+          onClose={handleQuoteClose}
         />
       )}
     </div>

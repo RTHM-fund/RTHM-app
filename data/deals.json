@@ -3033,12 +3033,12 @@
     "importedAt": "2026-05-27T18:32:16.590Z",
     "valuationState": {
       "rates": {
-        "12 months": 70,
-        "36 months": 60,
-        "60 months": "50",
-        "84 months": "44"
+        "12 months": "74.61",
+        "36 months": "62.1",
+        "60 months": "52.95",
+        "84 months": "46.15"
       },
-      "commission": 4,
+      "commission": 6,
       "b2bMarginRate": 5,
       "recoupLocked": true
     },
@@ -3047,7 +3047,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Roykeisha Rockette.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Roykeisha Rockette.docx",
-        "createdAt": "2026-05-27T18:36:27.931Z"
+        "createdAt": "2026-05-29T03:09:36.945Z"
       }
     ]
   },

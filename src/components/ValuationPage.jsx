@@ -102,7 +102,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
   const [recoupLocked, setRecoupLocked] = useState(valuationState?.recoupLocked || false)
   const [advanceDraft, setAdvanceDraft] = useState({})
   const [marginDraft, setMarginDraft] = useState({})
-  const [creatingSheet, setCreatingSheet] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [sheetError, setSheetError] = useState(null)
   const [showB2BModal, setShowB2BModal] = useState(false)
   const [b2bTemplates, setB2bTemplates] = useState([])
@@ -137,7 +137,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
   const showPrUplift = deal.royaltyType !== 'Publishing'
 
   async function submitDealSheet(extraPayload = {}) {
-    setCreatingSheet(true)
+    setCreating(true)
     setSheetError(null)
     try {
       const res = await fetch(`/api/deals/${dealIndex}/create-agreement`, {
@@ -152,7 +152,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     } catch (err) {
       setSheetError(err.message)
     } finally {
-      setCreatingSheet(false)
+      setCreating(false)
     }
   }
 
@@ -212,8 +212,8 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
           {deal.platform && <span className="valuation-sub">{deal.platform}</span>}
         </div>
         <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4}}>
-          <button className="valuation-new-btn" onClick={handleCreateDealSheet} disabled={creatingSheet || !recoupLocked}>
-            <span>{creatingSheet ? 'creating...' : '+ create deal sheet'}</span>
+          <button className={`valuation-new-btn${creating ? ' is-processing' : ''}`} onClick={handleCreateDealSheet} disabled={creating || !recoupLocked}>
+            <span>{creating ? 'creating...' : '+ create deal sheet'}</span>
           </button>
           {sheetError && <span style={{fontSize:11, color:'var(--error)'}}>{sheetError}</span>}
         </div>
@@ -430,11 +430,11 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
             <div className="modal-footer">
               <button className="modal-cancel" onClick={() => setShowB2BModal(false)}><span>Cancel</span></button>
               <button
-                className={`modal-import-btn${(!b2bTemplate || creatingSheet) ? ' disabled' : ''}`}
+                className={`modal-import-btn${(!b2bTemplate || creating) ? ' disabled' : ''}${creating ? ' is-processing' : ''}`}
                 onClick={handleB2BCreate}
-                disabled={!b2bTemplate || creatingSheet}
+                disabled={!b2bTemplate || creating}
               >
-                <span>{creatingSheet ? 'creating...' : 'Create Sheets'}</span>
+                <span>{creating ? 'creating...' : 'Create Sheets'}</span>
               </button>
             </div>
           </div>

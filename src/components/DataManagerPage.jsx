@@ -94,13 +94,16 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
   // folderPath is optional — when omitted, falls back to selectedFolderPath
   // (header-pill buttons). Per-row ? buttons pass their own row path so the
   // skill kicks off without requiring a selection.
-  function runSkill(skill, explicitFolderPath) {
+  function runSkill(skill, explicitFolderPath, force) {
     const folderPath = explicitFolderPath || selectedFolderPath
     if (!folderPath) return
+    // Guard: never fire a second run for a folder+skill already running (the server also
+    // rejects with 409; this avoids the round-trip + error alert on a fast re-click).
+    if (runningSkills.get(folderPath)?.has(skill)) return
     fetch('/api/data/run-skill', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ skill, folderPath }),
+      body: JSON.stringify({ skill, folderPath, force: !!force }),
     })
       .then(r => r.json())
       .then(data => {
@@ -121,11 +124,11 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
 
   // Action availability per the table columns: each button is enabled only when
   // a folder is selected AND that folder's corresponding column shows ?.
-  // Diligence ↔ hasDiligence,  Valuate ↔ hasDeal (Quote column),  Extract ↔ hasExtract.
+  // Diligence ↔ hasDiligence,  Valuate ↔ hasQuote (Valuation column),  Extract ↔ hasExtract.
   const selectedFolder = folders.find(f => f.path === selectedFolderPath) || null
-  const diligenceDisabled = !selectedFolder || selectedFolder.hasDiligence
-  const valuateDisabled = !selectedFolder || selectedFolder.hasDeal
-  const extractDisabled = !selectedFolder || selectedFolder.hasExtract
+  const diligenceDisabled = !selectedFolder || selectedFolder.hasDiligence || !!runningSkills.get(selectedFolderPath)?.has('diligence')
+  const valuateDisabled = !selectedFolder || selectedFolder.hasQuote
+  const extractDisabled = !selectedFolder || selectedFolder.hasExtract || !!runningSkills.get(selectedFolderPath)?.has('catalog-extract')
 
   const q = search.trim().toLowerCase()
   const visibleFolders = q ? folders.filter(f => (f.name || '').toLowerCase().includes(q)) : folders
@@ -182,6 +185,8 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
               {visibleFolders.map((f) => {
                 const isSelected = selectedFolderPath === f.path
                 const isRunning = runningSkills.has(f.path)
+                const dilRunning = !!runningSkills.get(f.path)?.has('diligence')
+                const extRunning = !!runningSkills.get(f.path)?.has('catalog-extract')
                 const trClass = [isSelected && 'selected', isRunning && 'running'].filter(Boolean).join(' ')
                 return (
                   <tr
@@ -196,9 +201,9 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
                     <td
                       className="data-manager-td-name"
                       title={f.name}
-                      onContextMenu={e => {
-                        e.preventDefault()
-                        e.stopPropagation()
+                      onClick={e => {
+                        if (!e.altKey) return  // plain click falls through to row selection
+                        e.stopPropagation()    // alt-click = open folder (super-user gesture)
                         fetch('/api/data/open-folder', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
@@ -235,23 +240,29 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
                       {f.hasDiligence ? (
                         <button
                           className="diligence-mark-btn"
-                          onClick={() => openFolderPath(`${f.path}/${f.name}_Due Diligence`)}
-                          title="open diligence folder"
+                          onClick={e => {
+                            if (!e.altKey) { openFolderPath(`${f.path}/${f.name}_Due Diligence`); return }
+                            if (window.confirm(`Re-run diligence for ${f.name}?\n\nThis regenerates the workbook from the latest data and replaces the current one. No archived copy is kept.`)) {
+                              runSkill('diligence', f.path, true)
+                            }
+                          }}
+                          title="open diligence folder · alt-click to re-run"
                         >
                           <span className="diligence-mark found">✓</span>
                         </button>
                       ) : (
                         <button
                           className="diligence-mark-btn"
+                          disabled={dilRunning}
                           onClick={() => runSkill('diligence', f.path)}
-                          title="run diligence"
+                          title={dilRunning ? 'diligence running…' : 'run diligence'}
                         >
                           <span className="diligence-mark missing">?</span>
                         </button>
                       )}
                     </td>
                     <td>
-                      {f.hasDeal ? (
+                      {f.hasQuote ? (
                         <button
                           className="diligence-mark-btn"
                           onClick={() => onOpenValuate?.({ path: f.path, name: f.name })}
@@ -281,8 +292,9 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
                       ) : (
                         <button
                           className="diligence-mark-btn"
+                          disabled={extRunning}
                           onClick={() => runSkill('catalog-extract', f.path)}
-                          title="run extract"
+                          title={extRunning ? 'extract running…' : 'run extract'}
                         >
                           <span className="diligence-mark missing">?</span>
                         </button>

@@ -100,6 +100,23 @@
   font-weight: 700;
 }
 
+/* Super-user inline advance editor — zero chrome: no border, no background, no ring.
+   Inherits the cell's exact look so it reads as the plain value, just editable. */
+.quote-advance-edit {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Standard row hover wash per design system (Selection State / Tables) */
 .quote-table tbody tr:hover {
   background: rgba(186, 156, 252, 0.18);

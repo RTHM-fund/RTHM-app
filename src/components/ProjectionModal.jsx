@@ -253,7 +253,7 @@ function computeProjection(historicalValues, params, stepMonths, nPeriods) {
 
 export default function ProjectionModal({ folderPath, graphId, graphName, chartData, stepMonths, lastHistoricalKey, onClose }) {
   const [form, setForm] = useState(paramsToFormState(PORTFOLIO_DEFAULTS))
-  const [years, setYears] = useState(30)
+  const [years, setYears] = useState(15)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -390,9 +390,12 @@ export default function ProjectionModal({ folderPath, graphId, graphName, chartD
     if (isCatalog) {
       if (serverProjection && Array.isArray(serverProjection.projection)) {
         const projected = serverProjection.projection.map(p => p.value)
+        // Catalog decay curve = sum of per-track unclamped decays (computed server-side,
+        // per-track-then-sum — consistent with the projected line, not decay-on-summed-total).
+        const decayUnclamped = serverProjection.projection.map(p => Number.isFinite(p.valueUnclamped) ? p.valueUnclamped : null)
         const baseline = Number.isFinite(serverProjection.totalBaseline) ? serverProjection.totalBaseline : 0
         const floor    = Number.isFinite(serverProjection.totalFloor)    ? serverProjection.totalFloor    : 0
-        return { baseline, floor, longAvg: baseline, projected, decayUnclamped: [] }
+        return { baseline, floor, longAvg: baseline, projected, decayUnclamped }
       }
       return { baseline: 0, floor: 0, longAvg: 0, projected: [], decayUnclamped: [] }
     }
@@ -536,7 +539,7 @@ export default function ProjectionModal({ folderPath, graphId, graphName, chartD
 
         <div className="projection-modal-footer">
           <button className="modal-cancel" onClick={onClose}><span>close</span></button>
-          <button className="modal-import-btn" onClick={handleApply} disabled={saving || loading}><span>{saving ? 'saving...' : 'save'}</span></button>
+          <button className={`modal-import-btn${saving ? ' is-processing' : ''}`} onClick={handleApply} disabled={saving || loading}><span>{saving ? 'saving...' : 'save'}</span></button>
         </div>
       </div>
     </div>

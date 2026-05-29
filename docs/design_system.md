@@ -189,6 +189,17 @@ When adding a new "two-state toggle" variant (active/inactive pair), name the in
 
 ---
 
+## Processing / Working State (`.is-processing`)
+
+A pill button that's **mid-async** (saving, exporting, importing, creating…) holds the **active** look — white background, primary-purple text + glow (the same palette as hover and `.linked`) — instead of going dim. It reads as "working," not "unavailable."
+
+- Add the class on the in-flight flag, alongside the button's existing disabled/label logic: `className={`<base>${saving ? ' is-processing' : ''}`}`.
+- **Keep the button HTML-disabled while processing** so it can't be re-clicked — `.is-processing` only changes the look, not the interactivity.
+- It's a deliberate **exception to the disabled-suppression rule** above: disabled-dim is for "not available yet"; processing-active is for "working." The CSS sits right after the suppression block in `src/index.css` and uses `!important` so it wins over each button's own `:disabled` / `.disabled` / `.saving` styling. `cursor: progress` while working.
+- Applied to **every async pill button** app-wide (Quote/Projection save, Import, Agreements export/create/partner, Valuation create-sheet, RPA/Offer-Letter/Invoice save). **Any new async pill button must add `is-processing` on its in-flight flag.**
+
+---
+
 ## Toggles
 
 Two-button or N-button mutually-exclusive selectors. The active button is statically filled-primary (no hover bubble — clicking it is a no-op). Inactive buttons use the transparent-tinted pattern with full liquid-pill hover.
@@ -200,6 +211,21 @@ Examples:
 **Rule for ordering N-option toggles:** if a "Combined" / "All" option exists, it goes **furthest right**. Individual options come before it.
 
 **Default selection** for N-option toggles defaults to Combined (or whatever the broadest aggregate is). Single-platform workbooks suppress the toggle entirely.
+
+---
+
+## Super-User Gestures
+
+Hidden power-user actions — not shown in the UI, never given a visible button. **Two gestures only:**
+
+- **Alt+click** (Option+click on Mac) — the app-wide super-user gesture. A direct hidden action on an element. `e.altKey` covers both Alt and Option.
+  - On a **button** with a normal click action: `onClick={e => e.altKey ? superAction() : normalAction()}`.
+  - On a **cell whose plain click bubbles to row selection**: `onClick={e => { if (e.altKey) { e.stopPropagation(); superAction() } }}` — alt does the action and stops the row from also selecting; plain click falls through unchanged.
+  - On an element with **no normal click**: `onClick={e => { if (e.altKey) superAction() }}`.
+  - Current uses: Data Manager folder name → open folder in Explorer; Deal Manager deal name → open edit modal, "Deal Materials" button → relink folder; Agreements partner name → open partner modal.
+- **Double right-click** — toggles **arcade mode** (`MainArea.jsx` `handleContextMenu`: 2 right-clicks within 400ms). The *only* exception to the Alt+click rule. `.main-area` `preventDefault`s right-click app-wide, so right-click never shows a browser menu anywhere.
+
+**When adding a new hidden action, use Alt+click** — never right-click (reserved for arcade), never a new visible button. No `preventDefault` needed (these elements aren't links).
 
 ---
 

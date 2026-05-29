@@ -115,7 +115,7 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
                     setSelectedDealIdx(prev => prev === deal._idx ? null : deal._idx)
                   }}
                 >
-                  <td className="deals-td-name" title={deal.name} onContextMenu={e => { e.preventDefault(); setEditIndex(deal._idx); setShowModal(true) }}>
+                  <td className="deals-td-name" title={deal.name} onClick={e => { if (!e.altKey) return; e.stopPropagation(); setEditIndex(deal._idx); setShowModal(true) }}>
                     <div className="deals-cell-truncate">{deal.name}</div>
                   </td>
                   <td title={deal.platform || ''}>
@@ -139,8 +139,7 @@ export default function DealsPage({ onOpenValuation, onOpenAgreements, valuation
                   <td>
                     <button
                       className={`deals-materials-btn${deal.folderPath ? ' linked' : ''}`}
-                      onClick={() => handleDealMaterials(deal)}
-                      onContextMenu={e => { e.preventDefault(); handleRelink(deal._idx) }}
+                      onClick={e => e.altKey ? handleRelink(deal._idx) : handleDealMaterials(deal)}
                     ><span>Deal Materials</span></button>
                   </td>
                   <td><button className="deals-delete-btn" onClick={() => deleteDeal(deal._idx)}><span>Delete</span></button></td>

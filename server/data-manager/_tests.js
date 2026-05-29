@@ -3,7 +3,7 @@
 
 const { xnpv, xirr } = require('./xfin')
 const { buildProjections, computeBaseline, computeFloor, projectDecay } = require('./projections')
-const { buildAdvance, solveAdvance, solveReqMonths, buildTotalIndex, buildInflows } = require('./advance')
+const { buildAdvance, solveAdvance, solveReqMonths, buildInflows } = require('./advance')
 const { resolveParams, PORTFOLIO_DEFAULTS } = require('./params')
 
 let pass = 0, fail = 0
@@ -135,10 +135,9 @@ console.log('\n--- TEST E: Req months ---')
     const d = new Date(Date.UTC(2026, 1 + i, 1))
     totalProjection.push({ date: d.toISOString().slice(0, 10), value: 1000, period: i + 1 })
   }
-  const totalIdx = buildTotalIndex(totalProjection)
   const req = solveReqMonths({
     reqAdvance, referralPct, otherFees, targetIRR,
-    investmentDate, firstRoyaltyDate: '2026-02-01', stepMonths: 1, totalIdx,
+    investmentDate, firstRoyaltyDate: '2026-02-01', stepMonths: 1, totalProjection,
   })
   console.log(`  Req result: periods=${req.reqPeriods}, months=${req.reqMonths}, IRR=${req.irr}, flag=${req.flag}`)
   // Hand check: with $1000/mo inflow and $10100 outlay (10000 + 100 ref), recoup ~ month 11.

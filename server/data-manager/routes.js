@@ -15,7 +15,7 @@ const os = require('os')
 const path = require('path')
 const { spawnSync } = require('child_process')
 
-const { buildProjections } = require('./projections')
+const { buildProjections, MAX_PROJ_YEARS } = require('./projections')
 const { buildAdvance, DEFAULT_TARGET_IRR, DEFAULT_REFERRAL_PCT, DEFAULT_REQ_ADVANCE } = require('./advance')
 const { buildPivotFromWorkbook } = require('./pivot')
 
@@ -124,6 +124,10 @@ router.post('/quote/preview', (req, res) => {
     const projections = buildProjections(pivot, {
       defaults: savedParams.catalogDefaults || {},
       overrides: savedParams.trackOverrides || {},
+    }, {
+      // Quote preview projects to the full horizon (capped at MAX_PROJ_YEARS), matching
+      // the export — so the modal's scenario numbers equal the exported ones.
+      customProjPeriods: Math.ceil(MAX_PROJ_YEARS * 12 / pivot.stepMonths),
     })
 
     const advanceInputs = {
@@ -134,6 +138,7 @@ router.post('/quote/preview', (req, res) => {
       firstRoyaltyDate: advance.firstRoyaltyDate,
       reqAdvance:       Number.isFinite(advance.reqAdvance)  ? advance.reqAdvance  : DEFAULT_REQ_ADVANCE,
       scenarios:        advance.scenarios,
+      overrides:        advance.overrides || {},
     }
     if (!advanceInputs.investmentDate)   return res.status(400).json({ error: 'missing advance.investmentDate' })
     if (!advanceInputs.firstRoyaltyDate) return res.status(400).json({ error: 'missing advance.firstRoyaltyDate' })
@@ -205,10 +210,15 @@ router.post('/quote/export', (req, res) => {
       return res.status(422).json({ error: `pivot build failed: ${e.message}` })
     }
 
-    // 4. Run the engine (in-process — fast, no HTTP roundtrip)
+    // 4. Run the engine (in-process — fast, no HTTP roundtrip).
+    //    Project to the full horizon (capped at MAX_PROJ_YEARS) instead of the 90-month
+    //    default, so long scenarios (84m/144m) recoup against real inflows, and the
+    //    forecast strip in the Quote shows the whole projection.
     const projections = buildProjections(pivot, {
       defaults: savedParams.catalogDefaults || {},
       overrides: savedParams.trackOverrides || {},
+    }, {
+      customProjPeriods: Math.ceil(MAX_PROJ_YEARS * 12 / pivot.stepMonths),
     })
 
     // 5. Assemble advance inputs (apply defaults for missing fields)
@@ -220,6 +230,7 @@ router.post('/quote/export', (req, res) => {
       firstRoyaltyDate: advance.firstRoyaltyDate,
       reqAdvance:       Number.isFinite(advance.reqAdvance)  ? advance.reqAdvance  : DEFAULT_REQ_ADVANCE,
       scenarios:        advance.scenarios,
+      overrides:        advance.overrides || {},
     }
     if (!advanceInputs.investmentDate)   return res.status(400).json({ error: 'missing advance.investmentDate' })
     if (!advanceInputs.firstRoyaltyDate) return res.status(400).json({ error: 'missing advance.firstRoyaltyDate' })

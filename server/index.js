@@ -1885,6 +1885,18 @@ app.post('/api/data/projection-params', (req, res) => {
   }
 })
 
+// Quote-file existence — gates the Valuate "key metrics" purple title. Checks the canonical
+// quote/export output `<folder>/<basename> - Quote.xlsx`. Mirrors /api/data/diligence-workbook.
+app.get('/api/data/quote-exists', (req, res) => {
+  const folder = req.query.folder
+  if (!folder || typeof folder !== 'string' || !fs.existsSync(folder)) {
+    return res.status(400).json({ error: 'invalid folder' })
+  }
+  const basename = path.basename(folder)
+  const quotePath = path.join(folder, `${basename} - Quote.xlsx`)
+  res.json({ exists: fs.existsSync(quotePath) })
+})
+
 app.post('/api/data/open-folder', (req, res) => {
   try {
     const { key, path: pathParam } = req.body || {}
@@ -1916,15 +1928,13 @@ app.post('/api/data/open-folder', (req, res) => {
 // GET /api/data/folders — list immediate subfolders of 1. Data/1. Current/.
 // Newest first by mtime. For each:
 //   - hasDiligence=true if it contains a subfolder whose name ends with "_Due Diligence"
-//   - hasDeal=true if a deal exists in deals.json with the same name (case-insensitive, trimmed)
 // Returns empty array if directory isn't accessible.
-// Note: this is the only cross-module link between Data Manager and Deal Manager.
-// Frontend modules stay decoupled — the bridge lives only in this endpoint.
+// Self-contained: reads no Deal Manager state — Data Manager and Deal Manager stay
+// decoupled per the v2 modularity rule (v3 will add the linking layer).
 app.get('/api/data/folders', (req, res) => {
   try {
     const CURRENT_DIR = path.join(DATA_ROOT, '1. Current')
     if (!fs.existsSync(CURRENT_DIR)) return res.json([])
-    const dealNames = new Set(readDeals().map(d => (d.name || '').trim().toLowerCase()).filter(Boolean))
     const entries = fs.readdirSync(CURRENT_DIR, { withFileTypes: true })
 
     // Pre-list logs/ once for stale-run detection. A skill is "stale" if its most
@@ -1965,7 +1975,8 @@ app.get('/api/data/folders', (req, res) => {
           const subs = fs.readdirSync(fullPath, { withFileTypes: true })
           hasExtract = subs.some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_data engine'))
         } catch {}
-        const hasDeal = dealNames.has(e.name.trim().toLowerCase())
+        // Quote-export existence — drives the Data Manager "Valuation" green check.
+        const hasQuote = fs.existsSync(path.join(fullPath, `${e.name} - Quote.xlsx`))
         const staleSkills = staleSkillsFor(e.name)
         // Summary (sparkline line + Lifetime + TTM). Returns null when there's no
         // diligence folder, no workbook, or the workbook is unparseable.
@@ -1974,7 +1985,7 @@ app.get('/api/data/folders', (req, res) => {
         // workbook. An empty `_Due Diligence` folder doesn't count — if you can't
         // draw the line, diligence isn't done from the app's perspective.
         const hasDiligence = summary != null
-        return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasExtract, hasDeal, staleSkills, summary }
+        return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasExtract, hasQuote, staleSkills, summary }
       })
       .sort((a, b) => b.mtime.localeCompare(a.mtime))
     res.json(folders)
@@ -1990,6 +2001,10 @@ app.get('/api/data/folders', (req, res) => {
 // stdout/stderr stream to <App Files>/logs/<folder>_<skill>_<timestamp>.log for debugging.
 const ALLOWED_SKILLS = new Set(['diligence', 'catalog-extract'])
 const LOGS_DIR = path.join(__dirname, '..', 'logs')
+// Guards a folder against a second concurrent run of the same skill — two processes
+// writing the same `_Due Diligence` / `_Data Engine` output would corrupt it. Keyed
+// `${skill} ${folderPath}`; entries are cleared on subprocess exit/error.
+const RUNNING_SKILLS = new Set()
 
 // Resolve the Claude Code CLI binary. Checks PATH first, then falls back to common
 // install locations (Desktop-app bundle on Windows, npm-global on Mac). Cached in-memory
@@ -2004,11 +2019,18 @@ function persistClaudeBin(p) {
   } catch {}
 }
 function findClaudeBin() {
-  if (CLAUDE_BIN_CACHE) return CLAUDE_BIN_CACHE
-  // Disk cache — load if present
+  // In-memory cache — re-validate before trusting it. The Claude desktop app installs into
+  // a versioned folder (claude-code\<ver>\claude.exe) and DELETES the previous version on
+  // auto-update, so any cached path goes stale (ENOENT) after every update. Verify it still
+  // exists; if not, drop it and re-resolve.
+  if (CLAUDE_BIN_CACHE) {
+    if (fs.existsSync(CLAUDE_BIN_CACHE)) return CLAUDE_BIN_CACHE
+    CLAUDE_BIN_CACHE = null
+  }
+  // Disk cache — accept only if the cached path still exists on disk (same staleness risk).
   try {
     const cached = fs.readFileSync(CLAUDE_BIN_CACHE_FILE, 'utf8').trim()
-    if (cached) { CLAUDE_BIN_CACHE = cached; return cached }
+    if (cached && fs.existsSync(cached)) { CLAUDE_BIN_CACHE = cached; return cached }
   } catch {}
   // Try PATH first
   const probe = os.platform() === 'win32'
@@ -2019,14 +2041,35 @@ function findClaudeBin() {
     persistClaudeBin(CLAUDE_BIN_CACHE)
     return CLAUDE_BIN_CACHE
   }
-  // Windows fallback: Desktop-app bundled CLI at %APPDATA%\Claude\claude-code\<version>\claude.exe
+  // Windows: the Claude desktop app is an MSIX packaged app. The familiar
+  // %APPDATA%\Claude path is a SYMLINK into the package's LocalCache, and resolving
+  // claude.exe THROUGH that symlink is unreliable for a background process (intermittent
+  // "not found" even though the file exists). So scan the REAL LocalCache location first
+  // (a plain directory, no reparse), then fall back to the %APPDATA% redirect for any
+  // non-packaged install. Pick the newest version that actually has claude.exe.
   if (os.platform() === 'win32') {
-    const bundleRoot = path.join(os.homedir(), 'AppData', 'Roaming', 'Claude', 'claude-code')
-    if (fs.existsSync(bundleRoot)) {
-      const versions = fs.readdirSync(bundleRoot, { withFileTypes: true })
-        .filter(e => e.isDirectory())
-        .map(e => e.name)
-        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+    const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local')
+    const bundleRoots = []
+    try {
+      const pkgDir = path.join(localAppData, 'Packages')
+      if (fs.existsSync(pkgDir)) {
+        for (const pkg of fs.readdirSync(pkgDir, { withFileTypes: true })) {
+          if (pkg.isDirectory() && /^Claude_/i.test(pkg.name)) {
+            bundleRoots.push(path.join(pkgDir, pkg.name, 'LocalCache', 'Roaming', 'Claude', 'claude-code'))
+          }
+        }
+      }
+    } catch {}
+    bundleRoots.push(path.join(os.homedir(), 'AppData', 'Roaming', 'Claude', 'claude-code'))
+    for (const bundleRoot of bundleRoots) {
+      let versions
+      try {
+        if (!fs.existsSync(bundleRoot)) continue
+        versions = fs.readdirSync(bundleRoot, { withFileTypes: true })
+          .filter(e => e.isDirectory())
+          .map(e => e.name)
+          .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+      } catch { continue }
       for (const v of versions) {
         const candidate = path.join(bundleRoot, v, 'claude.exe')
         if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
@@ -2079,10 +2122,14 @@ function findClaudeBin() {
 
 app.post('/api/data/run-skill', (req, res) => {
   try {
-    const { skill, folderPath } = req.body || {}
+    const { skill, folderPath, force } = req.body || {}
     if (!ALLOWED_SKILLS.has(skill)) return res.status(400).json({ error: 'invalid skill' })
     if (!folderPath || typeof folderPath !== 'string' || !fs.existsSync(folderPath)) {
       return res.status(400).json({ error: 'invalid folderPath' })
+    }
+    const runKey = `${skill} ${folderPath}`
+    if (RUNNING_SKILLS.has(runKey)) {
+      return res.status(409).json({ error: `${skill} is already running for this folder — wait for it to finish.` })
     }
     const claudeBin = findClaudeBin()
     if (!claudeBin) return res.status(500).json({ error: 'Claude CLI not found. Run RTHM Setup.command again, or install manually: npm install -g @anthropic-ai/claude-code' })
@@ -2096,7 +2143,7 @@ app.post('/api/data/run-skill', (req, res) => {
     }
     const safeFolder = path.basename(folderPath).replace(/[^a-zA-Z0-9_-]+/g, '_')
     const logPath = path.join(LOGS_DIR, `${safeFolder}_${skill}_${Date.now()}.log`)
-    const prompt = `/${skill} ${JSON.stringify(folderPath)}`
+    const prompt = `/${skill} ${JSON.stringify(folderPath)}${force ? ' --force' : ''}`
     const args = ['-p', prompt, '--dangerously-skip-permissions']
 
     // Sidecar debug file written BEFORE spawn so we have evidence even if the
@@ -2116,23 +2163,39 @@ app.post('/api/data/run-skill', (req, res) => {
     // Windows detached + fd inheritance can silently drop subprocess output —
     // a piped stream that we drain to the log file is reliable. Drop detached
     // so the subprocess stays attached and any exit code is observable.
-    const proc = spawn(claudeBin, args, {
-      cwd: folderPath,
-      stdio: ['ignore', 'pipe', 'pipe'],
-      shell: false,
-      windowsHide: true,
-    })
+    RUNNING_SKILLS.add(runKey)
+    let proc
+    try {
+      proc = spawn(claudeBin, args, {
+        cwd: folderPath,
+        stdio: ['ignore', 'pipe', 'pipe'],
+        shell: false,
+        windowsHide: true,
+      })
+    } catch (spawnErr) {
+      RUNNING_SKILLS.delete(runKey)
+      throw spawnErr
+    }
     const logStream = fs.createWriteStream(logPath, { flags: 'a' })
     proc.stdout.pipe(logStream, { end: false })
     proc.stderr.pipe(logStream, { end: false })
     proc.on('exit', (code, signal) => {
+      RUNNING_SKILLS.delete(runKey)
       try {
         logStream.write(`\n[spawn] exit code=${code} signal=${signal} at ${new Date().toISOString()}\n`)
         logStream.end()
       } catch {}
     })
     proc.on('error', (err) => {
+      RUNNING_SKILLS.delete(runKey)
       try { logStream.write(`\n[spawn] error: ${err.message}\n`); logStream.end() } catch {}
+      // Self-heal: a stale binary path (desktop app auto-updated and removed the old version
+      // folder) surfaces here as ENOENT. Invalidate the cache (memory + disk) so the next run
+      // re-resolves to the current install instead of failing forever.
+      if (err && err.code === 'ENOENT') {
+        CLAUDE_BIN_CACHE = null
+        try { fs.unlinkSync(CLAUDE_BIN_CACHE_FILE) } catch {}
+      }
     })
     res.json({ ok: true, pid: proc.pid, logPath, claudeBin, debugPath })
   } catch (err) {

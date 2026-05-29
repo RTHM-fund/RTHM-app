@@ -593,7 +593,7 @@ export default function InvoiceForm({ template, onBack }) {
               <div className="invoice-error">{error}</div>
             )}
             <button
-              className={`export-btn ${(!allFilled || saving) ? 'disabled' : ''} ${saving ? 'saving' : ''}`}
+              className={`export-btn ${(!allFilled || saving) ? 'disabled' : ''} ${saving ? 'saving' : ''}${saving ? ' is-processing' : ''}`}
               onClick={handleSave}
               disabled={!allFilled || saving}
             >

@@ -620,7 +620,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                 <div className="rpa-error">{error}</div>
               )}
               <button
-                className={`export-btn ${(!allFilled || saving) ? 'disabled' : ''} ${saving ? 'saving' : ''}`}
+                className={`export-btn ${(!allFilled || saving) ? 'disabled' : ''} ${saving ? 'saving' : ''}${saving ? ' is-processing' : ''}`}
                 onClick={handleSave}
                 disabled={!allFilled || saving}
               >

@@ -17,22 +17,6 @@ const DEFAULT_TARGET_IRR = 0.30
 const DEFAULT_REFERRAL_PCT = 0.01
 const DEFAULT_REQ_ADVANCE = 15000
 
-// Build a TOTAL lookup keyed by "YYYY-MM" → value, for O(1) cashflow assembly.
-function buildTotalIndex(totalProjection) {
-  const idx = new Map()
-  for (const row of totalProjection) {
-    const dt = row.date instanceof Date ? row.date : new Date(row.date)
-    const ym = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}`
-    idx.set(ym, row.value)
-  }
-  return idx
-}
-
-function ymKey(d) {
-  const dt = d instanceof Date ? d : new Date(d)
-  return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}`
-}
-
 // Stages 16-17 — build the 8 scenarios from advance.scenarios + implicit Req.
 function buildScenarios(scenariosMonths) {
   const months = (scenariosMonths && scenariosMonths.length > 0) ? scenariosMonths : STANDARD_SCENARIOS_MONTHS
@@ -43,15 +27,18 @@ function buildScenarios(scenariosMonths) {
 
 // Stage 18 (helper) — build the date strip + inflow lookups for a given period count.
 // Returns { dates: ISODate[1..N], inflows: number[1..N] } (period 0 NOT included here).
-function buildInflows(nPeriods, firstRoyaltyDate, stepMonths, totalIdx) {
+// Inflows are SEQUENCE-aligned to the projection: the i-th royalty payment collects the
+// i-th projected period's earnings. Payment dates (1st-royalty + step·(i-1)) only drive
+// the IRR/XNPV discounting — they do NOT need to coincide with the projection's calendar
+// months (they generally don't for quarterly/semi-annual cadences). Past the projection
+// horizon → 0 (the only allowed silent zero).
+function buildInflows(nPeriods, firstRoyaltyDate, stepMonths, totalProjection) {
   const dates = []
   const inflows = []
   for (let i = 1; i <= nPeriods; i++) {
-    const d = edate(firstRoyaltyDate, stepMonths * (i - 1))
-    dates.push(d)
-    const v = totalIdx.get(ymKey(d))
-    // Per spec: outside-horizon contributes 0 (the only allowed silent zero).
-    inflows.push(v !== undefined ? v : 0)
+    dates.push(edate(firstRoyaltyDate, stepMonths * (i - 1)))
+    const row = totalProjection[i - 1]
+    inflows.push(row ? row.value : 0)
   }
   return { dates, inflows }
 }
@@ -89,10 +76,10 @@ function computeIRR({ rasCost, investmentDate, dates, inflows }) {
 // Given fixed advance, find min k ∈ [1, MAX] such that XIRR over cashflow[0..k] ≥ targetIRR.
 // Returns { reqPeriods, reqMonths, irr, flag } — flag is null on success, message on no-solution.
 function solveReqMonths({ reqAdvance, referralPct, otherFees, targetIRR, investmentDate,
-                          firstRoyaltyDate, stepMonths, totalIdx }) {
+                          firstRoyaltyDate, stepMonths, totalProjection }) {
   const rasCost = reqAdvance + reqAdvance * referralPct + otherFees
   const { dates: allDates, inflows: allInflows } =
-    buildInflows(REQ_MONTHS_MAX_PERIODS, firstRoyaltyDate, stepMonths, totalIdx)
+    buildInflows(REQ_MONTHS_MAX_PERIODS, firstRoyaltyDate, stepMonths, totalProjection)
   const fullCf = [-rasCost, ...allInflows]
   const fullDates = [investmentDate, ...allDates]
 
@@ -157,7 +144,7 @@ function solveReqMonths({ reqAdvance, referralPct, otherFees, targetIRR, investm
 // Stages 16-22 orchestrator — build the full advance block.
 function buildAdvance(projections, advanceInputs) {
   const { stepMonths } = projections.meta
-  const totalIdx = buildTotalIndex(projections.total.projection)
+  const totalProjection = projections.total.projection
 
   // Number.isFinite() guard — explicit defense per the "fail loud" rule.
   // ?? alone would let NaN / Infinity / numeric strings through; Number.isFinite
@@ -169,6 +156,9 @@ function buildAdvance(projections, advanceInputs) {
   const reqAdvance       = Number.isFinite(advanceInputs.reqAdvance)  ? advanceInputs.reqAdvance  : DEFAULT_REQ_ADVANCE
   const investmentDate   = advanceInputs.investmentDate
   const firstRoyaltyDate = advanceInputs.firstRoyaltyDate
+  // Manual per-scenario advance overrides (super-user inline edit), keyed by scenario
+  // name ('18m'…'144m'). A finite, non-negative value pins that scenario's advance.
+  const overrides        = advanceInputs.overrides || {}
   if (!investmentDate)   throw new Error('buildAdvance: investmentDate required')
   if (!firstRoyaltyDate) throw new Error('buildAdvance: firstRoyaltyDate required')
 
@@ -178,10 +168,23 @@ function buildAdvance(projections, advanceInputs) {
   for (const sc of scenarios) {
     if (sc.kind === 'maturity') {
       const nPeriods = Math.ceil(sc.months / stepMonths)
-      const { dates, inflows } = buildInflows(nPeriods, firstRoyaltyDate, stepMonths, totalIdx)
-      const { advance, referral, rasCost } = solveAdvance({
-        targetIRR, otherFees, referralPct, investmentDate, dates, inflows,
-      })
+      const { dates, inflows } = buildInflows(nPeriods, firstRoyaltyDate, stepMonths, totalProjection)
+
+      // A manually-overridden advance pins that scenario: skip the back-solve and
+      // recompute the dependent fields off it. Recoupment (term royalties) is
+      // independent of the advance, so it's unchanged either way.
+      const ov = overrides[sc.name]
+      const hasOverride = Number.isFinite(ov) && ov >= 0
+      let advance, referral, rasCost
+      if (hasOverride) {
+        advance = ov
+        referral = referralPct * advance
+        rasCost = advance + referral + otherFees
+      } else {
+        ({ advance, referral, rasCost } = solveAdvance({
+          targetIRR, otherFees, referralPct, investmentDate, dates, inflows,
+        }))
+      }
       const { recoupment, recoupMultiple } = computeRecoupment(inflows, advance)
       const irr = computeIRR({ rasCost, investmentDate, dates, inflows })
 
@@ -197,12 +200,13 @@ function buildAdvance(projections, advanceInputs) {
         advance, referral, otherFees, rasCost,
         recoupment, recoupMultiple, irr,
         cashflow,
+        overridden: hasOverride,
       })
     } else {
       // Req
       const req = solveReqMonths({
         reqAdvance, referralPct, otherFees, targetIRR,
-        investmentDate, firstRoyaltyDate, stepMonths, totalIdx,
+        investmentDate, firstRoyaltyDate, stepMonths, totalProjection,
       })
       out.push({
         name: sc.name,
@@ -243,5 +247,4 @@ module.exports = {
   computeIRR,
   solveReqMonths,
   buildAdvance,
-  buildTotalIndex,
 }

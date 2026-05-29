@@ -109,7 +109,7 @@
      at rest, no focus border flip. Text + placeholder are the only chrome.
      Leading magnifying-glass icon (inline SVG, ink-light) sits in the 36px
      left padding, sized to match the 13px text. */
-  background: transparent url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236B6580' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><circle cx='7' cy='7' r='5'/><path d='m10.5 10.5 3.5 3.5'/></svg>") no-repeat 12px calc(50% + 2px) / 12px 12px;
+  background: transparent url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236B6580' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='7' cy='7' r='5'/><path d='m10.5 10.5 3.5 3.5'/></svg>") no-repeat 12px calc(50% + 2px) / 12px 12px;
 }
 
 .modal-selected-count {

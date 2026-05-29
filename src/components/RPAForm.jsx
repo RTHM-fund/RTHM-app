@@ -558,7 +558,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
 
                 {isRAS && (
                   <button
-                    className={`export-btn ${(!allFilled || !prefillData?.rpaExportData || saving) ? 'disabled' : ''} ${saving ? 'saving' : ''}`}
+                    className={`export-btn ${(!allFilled || !prefillData?.rpaExportData || saving) ? 'disabled' : ''} ${saving ? 'saving' : ''}${saving ? ' is-processing' : ''}`}
                     onClick={handleSaveBoth}
                     disabled={!allFilled || !prefillData?.rpaExportData || saving}
                     style={{background: (allFilled && prefillData?.rpaExportData) ? 'var(--primary-dark)' : undefined}}
@@ -569,7 +569,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
 
                 {!isRAS && !isRTHM && (
                   <button
-                    className={`export-btn ${(!allFilled || saving) ? 'disabled' : ''} ${saving ? 'saving' : ''}`}
+                    className={`export-btn ${(!allFilled || saving) ? 'disabled' : ''} ${saving ? 'saving' : ''}${saving ? ' is-processing' : ''}`}
                     onClick={handleSave}
                     disabled={!allFilled || saving}
                   >

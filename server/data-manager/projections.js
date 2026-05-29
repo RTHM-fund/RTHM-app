@@ -11,6 +11,7 @@
 const { resolveParams, validateParams } = require('./params')
 
 const HORIZON_MONTHS = 90
+const MAX_PROJ_YEARS = 34          // hard ceiling on ANY projection horizon (export, preview, custom)
 const TOP_CUMULATIVE_SHARE = 0.80
 
 // EDATE — Excel-compatible: add `months` to `date`, clamp day to target month's last day.
@@ -169,15 +170,18 @@ function computeFloor(baseline, longAvg, floor_pct) {
   return Math.max(baseline * floor_pct, longAvg * floor_pct)
 }
 
-// Stage 10 — exponential decay projection. Default horizon = 90 months / stepMonths.
-// Optional `customProjPeriods` lets the preview UI render a longer horizon than the
-// canonical engine output — the engine's own callers do NOT pass this argument so the
-// production projection length is unchanged.
+// Stage 10 — exponential decay projection.
+// Horizon: `customProjPeriods` if provided (the Quote export/preview pass the full
+// MAX_PROJ_YEARS horizon; the chart preview passes its "years" control), else the
+// 90-month default. EVERY path is hard-capped at MAX_PROJ_YEARS — no projection may
+// exceed it.
 // Returns { projection: [{date, value, period}], projPeriods }
 function projectDecay({ baseline, floor, k0, k_inf, gamma, stepMonths, lastHistDate, customProjPeriods }) {
-  const projPeriods = Number.isFinite(customProjPeriods) && customProjPeriods > 0
+  let projPeriods = Number.isFinite(customProjPeriods) && customProjPeriods > 0
     ? Math.floor(customProjPeriods)
     : Math.ceil(HORIZON_MONTHS / stepMonths)
+  const capPeriods = Math.ceil(MAX_PROJ_YEARS * 12 / stepMonths)
+  if (projPeriods > capPeriods) projPeriods = capPeriods
   const out = []
   let cumDecay = 0
   for (let p = 1; p <= projPeriods; p++) {
@@ -186,18 +190,18 @@ function projectDecay({ baseline, floor, k0, k_inf, gamma, stepMonths, lastHistD
     cumDecay += k_period
     let value = floor + (baseline - floor) * Math.exp(-cumDecay)
     if (value < floor) value = floor  // safety clamp; math shouldn't trigger
+    const valueUnclamped = baseline * Math.exp(-cumDecay)  // pure exponential, no floor — the gold "decay curve" line
     const date = isoFirstOfMonth(edate(lastHistDate, stepMonths * p))
-    out.push({ date, value, period: p })
+    out.push({ date, value, valueUnclamped, period: p })
   }
   return { projection: out, projPeriods }
 }
 
 // Stages 7-11 orchestrator — build the full projections block.
-// Optional opts.customProjPeriods extends every per-track projection beyond the
-// default 90-month horizon (used by the projection-preview endpoint so the UI's
-// "years" control can show longer decay than 7.5 years). The engine's own
-// pipeline (Quote export, advance solver) does NOT pass this — production output
-// stays at the spec-locked 90 months.
+// Optional opts.customProjPeriods sets the projection horizon (in periods): the Quote
+// export/preview pass the full MAX_PROJ_YEARS horizon and the chart preview passes its
+// "years" control; callers that omit it get the 90-month default. projectDecay hard-caps
+// every path at MAX_PROJ_YEARS.
 function buildProjections(pivot, params, opts) {
   const { stepMonths } = pivot
   if (![1, 3, 6].includes(stepMonths)) {
@@ -244,12 +248,17 @@ function buildProjections(pivot, params, opts) {
   const projPeriods = tracksOut.length > 0 ? tracksOut[0].projection.length : otherOut.projection.length
   const totalProjection = []
   for (let p = 0; p < projPeriods; p++) {
-    let v = 0
-    for (const t of tracksOut) v += t.projection[p].value
+    let v = 0, vUnclamped = 0
+    for (const t of tracksOut) {
+      v += t.projection[p].value
+      vUnclamped += t.projection[p].valueUnclamped
+    }
     v += otherOut.projection[p].value
+    vUnclamped += otherOut.projection[p].valueUnclamped
     totalProjection.push({
       date: (tracksOut[0] || otherOut).projection[p].date,
       value: v,
+      valueUnclamped: vUnclamped,
       period: p + 1,
     })
   }
@@ -270,6 +279,7 @@ function buildProjections(pivot, params, opts) {
 
 module.exports = {
   HORIZON_MONTHS,
+  MAX_PROJ_YEARS,
   TOP_CUMULATIVE_SHARE,
   rankAndSplit,
   computeBaseline,

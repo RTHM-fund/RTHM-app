@@ -112,7 +112,7 @@ function fmtCurrency(v) {
   if (v == null || !Number.isFinite(v)) return '—'
   const abs = Math.abs(v)
   const formatted = abs.toLocaleString('en-US', { maximumFractionDigits: 0 })
-  return v < 0 ? `($${formatted})` : `$${formatted}`
+  return v < 0 ? `(${formatted})` : formatted
 }
 function fmtPercent(v) {
   if (v == null || !Number.isFinite(v)) return '—'
@@ -130,7 +130,10 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const [overrides, setOverrides] = useState({})  // { '18m': number } — pinned manual advances (super-user Alt+click)
+  const [editing, setEditing] = useState(null)     // scenario name whose Advance cell is being edited inline
   const debounceRef = useRef(null)
+  const skipBlurRef = useRef(false)                 // suppress the unmount-blur commit on Enter/Escape
 
   // Coerce the form into the engine's input shape (numbers + ISO strings).
   const advanceInputs = useMemo(() => {
@@ -146,8 +149,9 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
       referralPct:      n(form.referralPct),
       otherFees:        n(form.otherFees),
       reqAdvance:       n(form.reqAdvance),
+      overrides,
     }
-  }, [form])
+  }, [form, overrides])
 
   // Are all required inputs ready to send?
   const inputsReady =
@@ -182,7 +186,7 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
     return () => debounceRef.current && clearTimeout(debounceRef.current)
   }, [folderPath, advanceInputs.investmentDate, advanceInputs.firstRoyaltyDate,
       advanceInputs.targetIRR, advanceInputs.referralPct, advanceInputs.otherFees,
-      advanceInputs.reqAdvance, inputsReady])
+      advanceInputs.reqAdvance, overrides, inputsReady])
 
   function handleField(key, value, isNumeric) {
     if (!isNumeric) {
@@ -210,6 +214,21 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
     const next = direction === 'up' ? base + f.step : base - f.step
     const clamped = Math.max(0, f.max != null ? Math.min(next, f.max) : next)
     setForm(prev => ({ ...prev, [key]: formatStepped(clamped, f.step, key) }))
+  }
+
+  // Super-user: commit (or clear) a manual advance override for one maturity scenario.
+  // Empty / non-numeric → remove the override (revert to the back-solved advance). The
+  // server then recomputes referral / total investment / advance-recoup / IRR off it.
+  function commitOverride(name, raw) {
+    setEditing(null)
+    const cleaned = cleanNumeric(raw)
+    const val = parseFloat(cleaned)
+    setOverrides(prev => {
+      const next = { ...prev }
+      if (cleaned === '' || !Number.isFinite(val)) delete next[name]
+      else next[name] = val
+      return next
+    })
   }
 
   // Save = export the canonical Quote file into the deal folder.
@@ -277,9 +296,39 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
                 {rows.map(row => (
                   <tr key={row.label}>
                     <td className="quote-table-label">{row.label}</td>
-                    {row.values.map((v, i) => (
-                      <td key={i} className="quote-table-val">{v}</td>
-                    ))}
+                    {row.values.map((v, i) => {
+                      // Advance row: maturity cells are Alt+click-editable (super-user). No
+                      // visual indicator — the cell reads as plain text until edited.
+                      const sc = row.label === 'Advance' ? (scenarios || [])[i] : null
+                      const editable = !!sc && sc.kind === 'maturity'
+                      if (editable && editing === sc.name) {
+                        return (
+                          <td key={i} className="quote-table-val">
+                            <input
+                              className="quote-advance-edit"
+                              autoFocus
+                              inputMode="decimal"
+                              defaultValue={Number.isFinite(sc.advance) ? String(Math.round(sc.advance)) : ''}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') { skipBlurRef.current = true; commitOverride(sc.name, e.target.value) }
+                                else if (e.key === 'Escape') { skipBlurRef.current = true; setEditing(null) }
+                              }}
+                              onBlur={e => {
+                                if (skipBlurRef.current) { skipBlurRef.current = false; return }
+                                commitOverride(sc.name, e.target.value)
+                              }}
+                            />
+                          </td>
+                        )
+                      }
+                      return (
+                        <td
+                          key={i}
+                          className="quote-table-val"
+                          onClick={editable ? (e => { if (e.altKey) { e.preventDefault(); setEditing(sc.name) } }) : undefined}
+                        >{v}</td>
+                      )
+                    })}
                   </tr>
                 ))}
               </tbody>
@@ -323,7 +372,7 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
         <div className="projection-modal-footer">
           <button className="modal-cancel" onClick={onClose} disabled={saving}><span>close</span></button>
           <button
-            className="modal-import-btn"
+            className={`modal-import-btn${saving ? ' is-processing' : ''}`}
             onClick={handleSave}
             disabled={!inputsReady || saving}
           ><span>{saving ? 'saving...' : 'save'}</span></button>

@@ -47,7 +47,7 @@
 .valuate-body {
   flex: 1;
   overflow-y: auto;
-  padding: 40px 40px 81px;
+  padding: 20px 40px 81px;
   position: relative; /* positioning context for absolute-centered .empty-state */
 }
 
@@ -140,6 +140,11 @@
   color: var(--ink);
   margin: 0;
   text-align: center;
+}
+
+/* Saved-projection accent — a catalog projection is saved for this chart. */
+.valuate-chart-title.projected {
+  color: var(--primary);
 }
 
 /* Kill focus outlines on chart elements — clicking the chart shouldn't draw a frame around it. */
@@ -308,6 +313,12 @@
 
 .valuate-tracks-other .valuate-tracks-label {
   color: var(--ink-light);
+}
+
+/* Saved-projection accent — a projection is saved for this track. */
+.valuate-tracks-label.projected,
+.valuate-tracks-other .valuate-tracks-label.projected {
+  color: var(--primary);
 }
 
 /* Key metrics grid — value above, label below in each tile. 2 rows, columns

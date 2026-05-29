@@ -186,7 +186,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
         {deal.b2bPartner && (
           <span
             className="agreements-partner"
-            onContextMenu={e => { e.preventDefault(); setShowPartnerModal(true) }}
+            onClick={e => { if (e.altKey) setShowPartnerModal(true) }}
           >
             {deal.b2bPartner}
           </span>
@@ -215,7 +215,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
                       <td>{rowLabel}</td>
                       <td className="agreements-td-name">{ag.fileName.replace(/\.[^.]+$/, '')}</td>
                       <td><button className="agreements-edit-btn" onClick={() => handleOpen(ag)}><span>edit DOC</span></button></td>
-                      <td><button className="agreements-export-btn" onClick={() => handleExportPDF(ag, rowLabel)} disabled={exporting === agreements.indexOf(ag)}><span>{exporting === agreements.indexOf(ag) ? 'exporting…' : 'export PDF'}</span></button></td>
+                      <td><button className={`agreements-export-btn${exporting === agreements.indexOf(ag) ? ' is-processing' : ''}`} onClick={() => handleExportPDF(ag, rowLabel)} disabled={exporting === agreements.indexOf(ag)}><span>{exporting === agreements.indexOf(ag) ? 'exporting…' : 'export PDF'}</span></button></td>
                       <td><button className="agreements-delete-btn" onClick={() => handleDelete(ag)}><span>delete</span></button></td>
                     </tr>
                   )
@@ -250,7 +250,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
                 return (
                   <button
                     key={type}
-                    className="agreements-type-btn"
+                    className={`agreements-type-btn${creating === type ? ' is-processing' : ''}`}
                     onClick={() => {
                       if (type === 'B2B Deal Sheet') {
                         setShowTypePicker(false)
@@ -314,7 +314,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
             <div className="modal-footer">
               <button className="modal-cancel" onClick={() => setShowB2BModal(false)}><span>Cancel</span></button>
               <button
-                className={`modal-import-btn${(!b2bTemplate || b2bCreating) ? ' disabled' : ''}`}
+                className={`modal-import-btn${(!b2bTemplate || b2bCreating) ? ' disabled' : ''}${b2bCreating ? ' is-processing' : ''}`}
                 onClick={handleB2BCreate}
                 disabled={!b2bTemplate || b2bCreating}
               >
@@ -349,7 +349,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
             <div className="modal-footer">
               <button className="modal-cancel" onClick={() => setShowPartnerModal(false)}><span>cancel</span></button>
               <button
-                className={`modal-import-btn${partnerSaving ? ' disabled' : ''}`}
+                className={`modal-import-btn${partnerSaving ? ' disabled' : ''}${partnerSaving ? ' is-processing' : ''}`}
                 onClick={handleSavePartner}
                 disabled={partnerSaving}
               >

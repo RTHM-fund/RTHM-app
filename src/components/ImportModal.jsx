@@ -298,7 +298,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
             <div className="modal-footer">
               <button className="modal-cancel" onClick={() => { setStep(1); setError(null) }}><span><span className="arr">◀</span> back</span></button>
               <button
-                className={`modal-import-btn ${!canImport || importing ? 'disabled' : ''}`}
+                className={`modal-import-btn ${!canImport || importing ? 'disabled' : ''}${importing ? ' is-processing' : ''}`}
                 onClick={handleImport}
                 disabled={!canImport || importing}
               >

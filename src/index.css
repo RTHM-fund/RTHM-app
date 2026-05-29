@@ -296,6 +296,28 @@ button:disabled:hover > span,
   text-shadow: none;
 }
 
+/* "Processing / working" state — a pill button mid-async (saving / exporting /
+   importing / creating…). Holds the ACTIVE look (white bg + primary text + glow,
+   same palette as hover and .linked) instead of going dim, so it reads as "working,"
+   not "unavailable." Deliberate exception to the disabled-suppression above; keep the
+   button HTML-disabled too so it can't be re-clicked — this only changes the look.
+   !important so it wins over each button's own :disabled / .disabled / .saving rules. */
+.is-processing,
+.is-processing:hover {
+  background: var(--white) !important;
+  cursor: progress !important;
+}
+.is-processing > span,
+.is-processing:hover > span {
+  color: var(--primary) !important;
+  text-shadow: 0 0 12px rgba(82, 0, 190, 0.4) !important;
+}
+.is-processing::before,
+.is-processing:hover::before {
+  width: 0 !important;
+  height: 0 !important;
+}
+
 /* Filled primary buttons: white circle (default), text flips white → primary
    + super-subtle purple glow on the text to lift it off the white bubble. */
 .deals-new-btn:hover > span,
@@ -417,9 +439,9 @@ button.combobox-trigger {
 .valuate-project-btn:not(:disabled):hover,
 .valuate-quote-btn:not(:disabled):hover,
 .data-manager-import-btn:hover,
-.data-manager-summarize-btn:hover,
-.data-manager-valuate-btn:hover,
-.data-manager-extract-btn:hover,
+.data-manager-summarize-btn:not(:disabled):hover,
+.data-manager-valuate-btn:not(:disabled):hover,
+.data-manager-extract-btn:not(:disabled):hover,
 .valuation-new-btn:not(:disabled):hover,
 .agreements-new-btn:hover,
 .agreements-type-btn:not(:disabled):hover,
