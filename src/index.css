@@ -310,7 +310,7 @@ button:disabled:hover > span,
 .is-processing > span,
 .is-processing:hover > span {
   color: var(--primary) !important;
-  text-shadow: 0 0 12px rgba(82, 0, 190, 0.4) !important;
+  text-shadow: 0 0 12px rgba(82, 0, 190, 0.3) !important;
 }
 .is-processing::before,
 .is-processing:hover::before {
@@ -336,7 +336,7 @@ button:disabled:hover > span,
 .combobox.open .combobox-trigger > span,
 .export-btn:not(.disabled):hover > span {
   color: var(--primary);
-  text-shadow: 0 0 12px rgba(82, 0, 190, 0.4);
+  text-shadow: 0 0 12px rgba(82, 0, 190, 0.3);
 }
 
 /* Outline-primary buttons: circle is primary, text flips primary → white */
@@ -379,7 +379,7 @@ button:disabled:hover > span,
 /* Recoup toggle: active = filled (bubble + text flip wired here).
    Inactive variant is non-clickable — handled by the suppression block above. */
 .recoup-btn-active::before { background: white; }
-.recoup-btn-active:hover > span { color: var(--primary); text-shadow: 0 0 12px rgba(82, 0, 190, 0.4); }
+.recoup-btn-active:hover > span { color: var(--primary); text-shadow: 0 0 12px rgba(82, 0, 190, 0.3); }
 
 /* Linked state on Deal Manager outline buttons (filled look) */
 .deals-valuation-btn.linked::before,
@@ -391,7 +391,7 @@ button:disabled:hover > span,
 .deals-forms-btn.linked:hover > span,
 .deals-materials-btn.linked:hover > span {
   color: var(--primary);
-  text-shadow: 0 0 12px rgba(82, 0, 190, 0.4);
+  text-shadow: 0 0 12px rgba(82, 0, 190, 0.3);
 }
 
 /* =====================================================================

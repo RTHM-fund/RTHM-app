@@ -11,10 +11,6 @@ function toDay(d) {
   return dt.getTime() / MS_PER_DAY
 }
 
-function yearFrac(d0, di) {
-  return (toDay(di) - toDay(d0)) / 365
-}
-
 // XNPV(rate, cashflows, dates) = Σ cf[i] / (1+r)^((d[i]-d[0])/365)
 function xnpv(rate, cashflows, dates) {
   if (cashflows.length !== dates.length) {
@@ -99,4 +95,4 @@ function xirr(cashflows, dates) {
   return (lo + hi) / 2
 }
 
-module.exports = { xnpv, xirr, yearFrac, toDay }
+module.exports = { xnpv, xirr, toDay }

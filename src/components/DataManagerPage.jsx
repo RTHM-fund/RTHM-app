@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Sparkline from './Sparkline.jsx'
 import './DataManagerPage.css'
 
@@ -127,7 +127,7 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
   // Diligence ↔ hasDiligence,  Valuate ↔ hasQuote (Valuation column),  Extract ↔ hasExtract.
   const selectedFolder = folders.find(f => f.path === selectedFolderPath) || null
   const diligenceDisabled = !selectedFolder || selectedFolder.hasDiligence || !!runningSkills.get(selectedFolderPath)?.has('diligence')
-  const valuateDisabled = !selectedFolder || selectedFolder.hasQuote
+  const valuateDisabled = !selectedFolder || !selectedFolder.hasDiligence || selectedFolder.hasQuote
   const extractDisabled = !selectedFolder || selectedFolder.hasExtract || !!runningSkills.get(selectedFolderPath)?.has('catalog-extract')
 
   const q = search.trim().toLowerCase()

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import './ProjectionModal.css'
@@ -464,7 +464,6 @@ export default function ProjectionModal({ folderPath, graphId, graphName, chartD
       <div className="modal projection-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">{title}</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
         <div className="projection-modal-body">

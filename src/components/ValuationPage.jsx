@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Combobox from './Combobox.jsx'
 import './ValuationPage.css'
 
@@ -412,7 +412,6 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
           <div className="modal deal-sheet-modal">
             <div className="modal-header">
               <h2 className="modal-title">CREATE DEAL SHEETS</h2>
-              <button className="modal-close" onClick={() => setShowB2BModal(false)}>✕</button>
             </div>
             <div className="modal-form">
               {sheetError && <div className="modal-error">{sheetError}</div>}

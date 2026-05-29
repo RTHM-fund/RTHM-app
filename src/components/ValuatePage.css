@@ -102,7 +102,7 @@
 .valuate-project-btn.is-open > span,
 .valuate-quote-btn.is-open > span {
   color: var(--primary);
-  text-shadow: 0 0 12px rgba(82, 0, 190, 0.4);
+  text-shadow: 0 0 12px rgba(82, 0, 190, 0.3);
 }
 
 .valuate-charts {

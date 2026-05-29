@@ -1,5 +1,3 @@
-import React from 'react'
-
 // Minimal sparkline — line shape only, no axes/labels/dots.
 // Shared between Data Manager rows and Valuate page tracks table.
 // Renders an em-dash placeholder when there are fewer than 2 points (a single

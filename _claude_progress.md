@@ -1,25 +1,25 @@
-# Claude Progress — Session Save (2026-05-29, PM)
+# Claude Progress — Session Save (2026-05-29, cleanup + polish)
 
-Quote-export "Cashflow waterfall (12 year)" sheet, super-user advance overrides, Quote-sheet styling polish, Data Manager ↔ Deal Manager full decoupling, plus small UI fixes. App confirmed "perfect working order" by user; committed + pushed.
+Full dead-code cleanup pass + a batch of small UI/UX changes and a Quote-export sheet-2 formatting update. User confirmed the app is "perfect" and asked to commit + push.
 
 ## Accomplished this session
-1. **Cashflow waterfall (12 year) = sheet 2 of the Quote export.** Copied the user's reference sheet style-for-style into `RAS Quote_Template.xlsx` (sheet 2); `quote.py` `fill_cashflow()` computes a monthly loan-amortization model STATIC (0 formulas): catalog valuation = the **144m scenario advance**, interest **13%/yr** + RAS origination **3%** fixed, income = TOTAL projection (sequence-aligned). Outputs cash-to-rights-holder, front-facing + investor XIRR (faithful port of `xfin.js`), payback. **Verified live on AJ McQueen.** Two audit fixes: `xlround()` (Excel half-away rounding, not Python banker's) and payback = periods×stepMonths (was wrong for non-monthly; AJ is quarterly → 48 rows). Cadence tracks data (monthly→144 rows, quarterly→48) by design.
-2. **Super-user advance override (Quote modal).** Alt+click an Advance cell (18m–144m) → chrome-less inline edit → server recomputes referral / total investment / advance-recoup / IRR off the pinned advance (recoupment unchanged). Server-authoritative via `advance.js` (override branch) + `routes.js` (overrides threaded through `/quote/preview` + `/quote/export`). Overrides pin across input changes; clear by emptying; flow into Save. Overriding 144m drives the waterfall valuation.
-3. **Quote sheet styling.** Dropped `$` from the modal table (matches ValuationPage + export accounting fmt). Font normalized **8→11pt** to match sheet 2; column widths rescaled ×1.375 to fit. Header `Forecasted cash flows >>` → `Forecasted cash`. Column K right-aligned + width 14.58 (≈160px on user's display).
-4. **Data Manager valuate button fixed + full module decoupling.** Button now gates on `hasQuote` (its own artifact, matches the Valuation column) instead of `hasDeal`. Removed `hasDeal`/`dealNames` from `GET /api/data/folders` (`index.js`) — the endpoint no longer reads `deals.json`. **Data Manager ↔ Deal Manager are now fully decoupled** (the documented "only cross-module link" is gone).
-5. **Small UI.** Sidebar header white divider removed (`Sidebar.css` `.sidebar-header` border-bottom). Projection preview default **30→15 years** (`ProjectionModal.jsx`).
+1. **Codebase dead-code cleanup (full audit, verified safe).**
+   - Removed: `.rate-locked` dead CSS (ValuationPage.css); unused `toggleAll()` (ImportModal); dead `valuationStates` prop chain (App→MainArea→DealsPage; App state kept); unused loop var `key` (index.js); unused `yearFrac()` (xfin.js); unused `applyPreset()`+`PRESETS` (params.js).
+   - Stripped unused `import React` from 16 components (automatic JSX runtime; no `React.` usage anywhere).
+   - Deleted stale `dist/` build folder (not served — dev runs via Vite; regen with `npm run build`) + 5 `RAS Quote_Template.backup-*.xlsx` scratch copies.
+   - Verified: financial engine `_tests.js` 30/30 pass; `vite build` clean; server `node --check` OK.
+2. **Glow opacity** — white-pill purple text-glow `0.4 → 0.3` (5 instances: index.css `.is-processing`, filled-primary hover, `.recoup-btn-active`, `.linked`; ValuatePage.css `.is-open`).
+3. **Valuate page super-user gesture** — Alt+click the folder-name title opens the folder in Explorer/Finder (reuses `/api/data/open-folder`); mirrors Data Manager. (ValuatePage.jsx `Header` + 3 render sites.)
+4. **Data Manager** — Valuate button now also gated on `hasDiligence` (disabled unless diligence is ✓), on top of the existing `hasQuote` gate. (DataManagerPage.jsx)
+5. **Quote modal** — removed the "recalculating…" status entirely (badge + `loading` state + 3 setters + `.quote-table-loading` CSS); the debounced recompute fetch is untouched.
+6. **Quote export — sheet 2 "Cashflow waterfall (12 year)"** (template `server/templates/RAS Quote_Template.xlsx`): col widths B=5.73 (70px), K=13.91 (160px), L=8.45 (100px); headers lowercased — L12 "free cash flow", M12 "gross IRR flows". Edited via openpyxl (file has no images/charts → lossless round-trip); verified widths + headers changed and all other styling preserved. `quote.py` untouched (it sets no sheet-2 widths/headers, only fills data).
+7. **All modals app-wide** — removed the `✕` close button (8 buttons: ImportModal, AgreementsPage ×3, OfferLetterForm, ValuationPage, ProjectionModal, QuoteModal) + dead `.modal-close` CSS + the X-only `position: relative`/comments. Outside-click is the close on every modal (Projection/Quote also keep inside-click `stopPropagation`).
 
-## ⚠️ SERVER RESTART REQUIRED to fully activate
-`server/` loads at start — restart `RTHM Launch.bat` / `npm run dev`:
-- `advance.js` + `routes.js` — the advance-override recompute (until restart, edits snap back to the solved value)
-- `index.js` — `/api/data/folders` decoupling (hasDeal removal; invisible, nothing consumed it)
-- (carried from prior session) `projections.js`/`routes.js` 34-yr projection cap — also drives the waterfall's full income horizon
-**Live now (no restart):** `quote.py` + the template (read per-invocation), all frontend (Vite HMR: QuoteModal, DataManagerPage, Sidebar, ProjectionModal).
+## Current state
+- App confirmed "perfect working order" by the user. This session is being committed + pushed.
+- Server-side edits (index.js `key`, xfin.js, params.js) are behavior-neutral but need a **server restart** to load. Frontend changes are live via Vite HMR.
 
-## Where we left off / open
-- **Restart, then verify:** AJ valuate button disabled (✓); editing a Quote-modal advance recomputes IRR live; quarterly AJ waterfall shows 48 rows with full income.
-- **quote.py is NOT in git** — it lives in `…/1. Data/.claude/skills/quote/quote.py` (Dropbox-backed only). The cashflow-waterfall logic is therefore NOT in this repo. Consider version-controlling the skills folder.
-- **Template backups** `RAS Quote_Template.backup-2026-05-29{,b,c,d,e}.xlsx` left untracked in `server/templates/` (scratch safety copies; not committed). Prune candidate.
-
-## Files touched this session
-server/data-manager/{advance,routes}.js · server/index.js · server/templates/RAS Quote_Template.xlsx · `<Data>`/.claude/skills/quote/quote.py (NOT in git) · src/components/{QuoteModal.jsx,QuoteModal.css,DataManagerPage.jsx,Sidebar.css,ProjectionModal.jsx} · memory: v2_quote_engine.md, architecture_modularity.md
+## Open / notes
+- `docs/design_system.md` is slightly stale — sync when convenient: glow is now 0.3 (doc says 0.4); add super-user gesture "Valuate folder name → open folder in Explorer"; modals no longer have an X (outside-click only).
+- `decay` line in the ProjectionModal tooltip is the **dollar decay-curve** (`baseline × e^(−cumDecay)`, floor removed) — NOT a percentage. Confirmed correct; left as-is per user.
+- `quote.py` lives outside this repo (`…/1. RTHM Fund/1. Data/.claude/skills/quote/quote.py`) — not part of this commit.

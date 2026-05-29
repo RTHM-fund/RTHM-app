@@ -17,13 +17,6 @@
 
 .quote-modal .modal-header {
   justify-content: center;
-  position: relative;
-}
-
-.quote-modal .modal-close {
-  position: absolute;
-  top: 20px;
-  right: 24px;
 }
 
 .quote-modal-body {
@@ -126,25 +119,6 @@
 /* Bottom row corners */
 .quote-table tbody tr:last-child td:first-child { border-bottom-left-radius: var(--radius); }
 .quote-table tbody tr:last-child td:last-child  { border-bottom-right-radius: var(--radius); }
-
-/* "recalculating…" badge — standard glass surface, primary-mid ink for
-   secondary signaling. Pill-shaped (999px) like other transient indicators. */
-.quote-table-loading {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--primary-mid);
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  isolation: isolate;
-  padding: 4px 10px;
-  border-radius: 999px;
-}
 
 /* ---- Form (same grid as projection-modal-form) ---- */
 

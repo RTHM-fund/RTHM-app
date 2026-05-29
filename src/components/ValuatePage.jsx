@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import Sparkline from './Sparkline.jsx'
@@ -240,7 +240,7 @@ function ChartTooltip({ active, payload, label, coordinate, chartHostRef }) {
   )
 }
 
-function Header({ folderName, platforms, view, setView, onBack }) {
+function Header({ folderName, folderPath, platforms, view, setView, onBack }) {
   const allPlatforms = platforms || []
   const platformNames = allPlatforms.map(p => p.name)
   // Stats reflect the active view — combined = all platforms, otherwise the single selected platform.
@@ -258,7 +258,13 @@ function Header({ folderName, platforms, view, setView, onBack }) {
     <div className="valuate-header">
       <button className="back-btn" onClick={onBack}><span className="arr">◀</span> back</button>
       <div className="valuate-title-block">
-        <h2 className="valuate-title">{folderName}</h2>
+        <h2 className="valuate-title" onClick={e => {
+          if (!e.altKey) return
+          fetch('/api/data/open-folder', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: folderPath }),
+          }).catch(() => {})
+        }}>{folderName}</h2>
         {platformNames.length > 0 && <span className="valuate-sub">{platformNames.join(' · ')}</span>}
       </div>
       {activePlatforms.length > 0 && (
@@ -414,7 +420,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
   if (error) {
     return (
       <div className="valuate-page">
-        <Header folderName={folderName} platforms={[]} view={view} setView={setView} onBack={onBack} />
+        <Header folderName={folderName} folderPath={folderPath} platforms={[]} view={view} setView={setView} onBack={onBack} />
         <div className="valuate-body">
           <div className="empty-state"><p className="empty-hint">{error}</p></div>
         </div>
@@ -429,7 +435,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
   if (!data) {
     return (
       <div className="valuate-page">
-        <Header folderName={folderName} platforms={[]} view={view} setView={setView} onBack={onBack} />
+        <Header folderName={folderName} folderPath={folderPath} platforms={[]} view={view} setView={setView} onBack={onBack} />
         <div className="valuate-body">
           <div className="empty-state"><p className="empty-hint">loading workbook...</p></div>
         </div>
@@ -494,6 +500,7 @@ export default function ValuatePage({ folderPath, folderName, onBack }) {
     <div className="valuate-page">
       <Header
         folderName={data.folderName || folderName}
+        folderPath={folderPath}
         platforms={data.platforms}
         view={view}
         setView={setView}

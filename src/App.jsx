@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar.jsx'
 import MainArea from './components/MainArea.jsx'
 import './App.css'
@@ -447,7 +447,6 @@ export default function App() {
         onOpenValuation={handleOpenValuation}
         onOpenAgreements={handleOpenAgreements}
         selectedDealIndex={selectedDealIndex}
-        valuationStates={valuationStates}
         valuationState={valuationStates[selectedDealIndex] || null}
         onUpdateValuationState={(state) => handleUpdateValuationState(selectedDealIndex, state)}
         onBackToDeals={() => setActivePage('deals')}

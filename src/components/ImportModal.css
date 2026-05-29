@@ -46,18 +46,6 @@
   color: var(--ink);
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 14px;
-  color: var(--ink);
-  padding: 4px;
-  line-height: 1;
-  transition: color 0.15s;
-}
-
-.modal-close:hover { color: var(--ink); }
-
 .modal-connect {
   padding: 40px 24px;
   display: flex;

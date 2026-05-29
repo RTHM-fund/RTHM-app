@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ROW_DEFS, matchAgreement } from '../agreementDefs.js'
 import Combobox from './Combobox.jsx'
@@ -240,7 +240,6 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
           <div className="modal agreements-type-modal">
             <div className="modal-header">
               <h2 className="modal-title">SELECT AGREEMENT TYPE</h2>
-              <button className="modal-close" onClick={() => setShowTypePicker(false)}>✕</button>
             </div>
             <div className="agreements-type-list">
               {error && <div className="modal-error">{error}</div>}
@@ -284,7 +283,6 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
           <div className="modal deal-sheet-modal">
             <div className="modal-header">
               <h2 className="modal-title">CREATE DEAL SHEETS</h2>
-              <button className="modal-close" onClick={() => setShowB2BModal(false)}>✕</button>
             </div>
             <div className="modal-form">
               {b2bError && <div className="modal-error">{b2bError}</div>}
@@ -331,7 +329,6 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
           <div className="modal partner-modal">
             <div className="modal-header">
               <h2 className="modal-title">{deal.b2bPartner.toUpperCase()} PARTNER INFO</h2>
-              <button className="modal-close" onClick={() => setShowPartnerModal(false)}>✕</button>
             </div>
             <div className="modal-form">
               {['B2B Entity', 'B2B Address', 'B2B Partner', 'B2B Website', 'B2B Signer', 'B2B Title'].map(key => (

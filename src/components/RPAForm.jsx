@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Combobox from './Combobox.jsx'
 import { MONTHS, getTypeLabel, isAmountField } from '../utils.js'
 import './RPAForm.css'

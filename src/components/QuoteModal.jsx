@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import './QuoteModal.css'
 
 // 7 maturity scenarios + Req — fixed across the app.
@@ -127,7 +127,6 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
   const [form, setForm] = useState(defaultForm)
   const [scenarios, setScenarios] = useState(null)  // array of 8 scenario objects (no cashflow)
   const [stepMonths, setStepMonths] = useState(1)   // server returns detected step; needed for Periods display
-  const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [overrides, setOverrides] = useState({})  // { '18m': number } — pinned manual advances (super-user Alt+click)
@@ -167,7 +166,6 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
     if (!folderPath || !inputsReady) return
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
-      setLoading(true)
       setError(null)
       fetch('/api/data-manager/quote/preview', {
         method: 'POST',
@@ -176,12 +174,11 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
       })
         .then(r => r.json().then(body => ({ ok: r.ok, body })))
         .then(({ ok, body }) => {
-          setLoading(false)
           if (!ok) { setError(body.error || 'preview failed'); setScenarios(null); return }
           setScenarios(body.scenarios || null)
           if (Number.isFinite(body.stepMonths)) setStepMonths(body.stepMonths)
         })
-        .catch(err => { setLoading(false); setError(err.message); setScenarios(null) })
+        .catch(err => { setError(err.message); setScenarios(null) })
     }, 300)
     return () => debounceRef.current && clearTimeout(debounceRef.current)
   }, [folderPath, advanceInputs.investmentDate, advanceInputs.firstRoyaltyDate,
@@ -280,7 +277,6 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
       <div className="modal quote-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">{title}</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
         <div className="quote-modal-body">
@@ -333,7 +329,6 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
                 ))}
               </tbody>
             </table>
-            {loading && <div className="quote-table-loading">recalculating…</div>}
           </div>
 
           <div className="quote-modal-form">

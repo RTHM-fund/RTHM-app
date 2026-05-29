@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import ImportModal from './ImportModal.jsx'
 import { ROW_DEFS, matchAgreement } from '../agreementDefs.js'
 import './DealsPage.css'
 
-export default function DealsPage({ onOpenValuation, onOpenAgreements, valuationStates = {} }) {
+export default function DealsPage({ onOpenValuation, onOpenAgreements }) {
   const [deals, setDeals] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editIndex, setEditIndex] = useState(null)

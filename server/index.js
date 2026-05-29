@@ -739,7 +739,7 @@ app.get('/api/deals/:index/deal-sheet-tables', (req, res) => {
     const effectiveRates = vs.rates || DEFAULT_RATES[dealType] || DEFAULT_RATES.Individual
 
     const structuredRows = []
-    for (const [term, key] of [['84 months','84'], ['60 months','60'], ['36 months','36'], ['12 months','12']]) {
+    for (const term of ['84 months', '60 months', '36 months', '12 months']) {
       const termIdx = TERMS_ALL.indexOf(term)
       const [advCol, recoupCol] = pairs[termIdx]
       const rasAdvance = parseFloat(source[advCol]) || 0
@@ -1937,10 +1937,11 @@ app.get('/api/data/folders', (req, res) => {
     if (!fs.existsSync(CURRENT_DIR)) return res.json([])
     const entries = fs.readdirSync(CURRENT_DIR, { withFileTypes: true })
 
-    // Pre-list logs/ once for stale-run detection. A skill is "stale" if its most
-    // recent log shows no progress: empty + over 10 min old, OR over 1 hour old
-    // regardless of size. Stale entries are returned per-folder so the frontend
-    // can auto-clear spinners that would otherwise persist in localStorage.
+    // Pre-list logs/ once for stale-run detection. A skill is "stale" (spinner should
+    // clear) when its most recent log shows the process has ENDED — either it wrote the
+    // "[spawn] exit code=" marker (finished, whether success or a hard blocker), or it's
+    // gone quiet: empty + over 10 min old, OR over 1 hour old regardless of size. Stale
+    // entries are returned per-folder so the frontend can auto-clear spinners that persist.
     const STALE_EMPTY_MS = 10 * 60 * 1000
     const STALE_OLD_MS = 60 * 60 * 1000
     let logFiles = []
@@ -1956,10 +1957,24 @@ app.get('/api/data/folders', (req, res) => {
         if (matching.length === 0) continue
         const latest = matching[matching.length - 1]
         try {
-          const lstat = fs.statSync(path.join(LOGS_DIR, latest))
+          const logPath = path.join(LOGS_DIR, latest)
+          const lstat = fs.statSync(logPath)
           const age = now - lstat.mtime.getTime()
           const empty = lstat.size === 0
-          if ((empty && age > STALE_EMPTY_MS) || age > STALE_OLD_MS) stale.push(skill)
+          // A finished run appends "[spawn] exit code=" as its last line. Once present,
+          // the process has ended — clear the spinner now instead of waiting out the
+          // time-based fallbacks. Read only the tail (≤4 KB) to keep this cheap.
+          let exited = false
+          if (!empty) {
+            try {
+              const start = Math.max(0, lstat.size - 4096)
+              const buf = Buffer.alloc(lstat.size - start)
+              const fd = fs.openSync(logPath, 'r')
+              try { fs.readSync(fd, buf, 0, buf.length, start) } finally { fs.closeSync(fd) }
+              exited = buf.includes('[spawn] exit code=')
+            } catch {}
+          }
+          if (exited || (empty && age > STALE_EMPTY_MS) || age > STALE_OLD_MS) stale.push(skill)
         } catch {}
       }
       return stale

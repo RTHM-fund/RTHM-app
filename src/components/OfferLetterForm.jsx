@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Combobox from './Combobox.jsx'
 import { MONTHS, getTypeLabel, isAmountField } from '../utils.js'
@@ -636,7 +636,6 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
         <div className="modal deal-sheet-table-modal">
           <div className="modal-header">
             <h2 className="modal-title">SELECT A ROW</h2>
-            <button className="modal-close" onClick={() => setShowTableModal(false)}>✕</button>
           </div>
 
           <div className="modal-table-wrap">

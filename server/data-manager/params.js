@@ -10,11 +10,6 @@ const PORTFOLIO_DEFAULTS = Object.freeze({
   baseline_override: null,
 })
 
-const PRESETS = Object.freeze({
-  EVERGREEN: { k0: 0.06, k_inf: 0.015, gamma: 0.10, floor_pct: 0.25, haircut: 0.10 },
-  HIP_HOP:   { k0: 0.18, k_inf: 0.03,  gamma: 0.25, floor_pct: 0.10, haircut: 0.15 },
-})
-
 const PARAM_KEYS = ['k0', 'k_inf', 'gamma', 'floor_pct', 'haircut', 'baseline_override']
 
 // Validation ranges from PS spec.
@@ -45,13 +40,6 @@ function resolveParams(trackKey, defaults, overrides) {
   return out
 }
 
-// Return a copy of the named preset (does not mutate anything).
-function applyPreset(presetName) {
-  const p = PRESETS[presetName]
-  if (!p) throw new Error(`Unknown preset: ${presetName}. Available: ${Object.keys(PRESETS).join(', ')}`)
-  return { ...p }
-}
-
 // Throw on out-of-range or wrong-type values. Pass-through if ok.
 function validateParams(p) {
   if (!p || typeof p !== 'object') throw new Error('validateParams: params must be an object')
@@ -74,9 +62,7 @@ function validateParams(p) {
 
 module.exports = {
   PORTFOLIO_DEFAULTS,
-  PRESETS,
   PARAM_KEYS,
   resolveParams,
-  applyPreset,
   validateParams,
 }

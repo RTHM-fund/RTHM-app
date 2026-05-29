@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Combobox from './Combobox.jsx'
 import './ImportModal.css'
@@ -110,11 +110,6 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
     })
   }
 
-  function toggleAll() {
-    if (selected.size === filteredIndices.length) setSelected(new Set())
-    else setSelected(new Set(filteredIndices))
-  }
-
   const filteredIndices = rows.reduce((acc, row, i) => {
     const matches = !search ||
       (row['A'] || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -179,7 +174,6 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
       <div className="modal">
         <div className="modal-header">
           <h2 className="modal-title">{step === 1 ? 'SELECT ROWS' : 'DEAL DETAILS'}</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
         {/* ── Step 1: Row selection ── */}
