@@ -69,9 +69,16 @@ function ProjectionTooltip({ active, payload, label, coordinate, chartHostRef })
       <div style={{ color: 'var(--ink)', marginBottom: 4, fontWeight: 600 }}>{label}</div>
       {visible.map(item => {
         const color = item.dataKey === 'projected' ? 'var(--ink)' : item.color
-        const formatted = Number.isFinite(item.value)
-          ? item.value.toLocaleString('en-US', { maximumFractionDigits: 0 })
-          : item.value
+        let formatted
+        if (item.dataKey === 'decay') {
+          // Decay row shows the per-period decay rate (%), not the curve's dollar value.
+          const rate = item.payload && item.payload.decayRate
+          formatted = Number.isFinite(rate) ? (rate * 100).toFixed(1) + '%' : '—'
+        } else {
+          formatted = Number.isFinite(item.value)
+            ? item.value.toLocaleString('en-US', { maximumFractionDigits: 0 })
+            : item.value
+        }
         return (
           <div key={item.dataKey} style={{ color }}>
             {item.name || item.dataKey}: {formatted}
@@ -413,24 +420,34 @@ export default function ProjectionModal({ folderPath, graphId, graphName, chartD
       projected: null,
       baseline,
       decay: null,
+      decayRate: null,
     }))
     // Anchor the projected line to the last historical point so the two
     // lines visually connect (no gap at the join).
     if (historicalRows.length > 0 && projection.projected.length > 0) {
       const last = historicalRows[historicalRows.length - 1]
-      historicalRows[historicalRows.length - 1] = { ...last, projected: last.historical, decay: baseline }
+      historicalRows[historicalRows.length - 1] = { ...last, projected: last.historical, decay: baseline, decayRate: null }
     }
     const projectedRows = []
     let nextKey = lastHistoricalKey
+    // Per-period decay rate = 1 − decay/previous-decay (how much the decay curve
+    // drops each period). First projected period is measured against the baseline.
+    let prevDecay = baseline
     for (let i = 0; i < projection.projected.length; i++) {
       nextKey = nextKey ? advanceKey(nextKey, stepMonths) : null
+      const d = projection.decayUnclamped[i]
+      const decayRate = (Number.isFinite(d) && Number.isFinite(prevDecay) && prevDecay !== 0)
+        ? 1 - d / prevDecay
+        : null
       projectedRows.push({
         month: nextKey ? keyToLabel(nextKey) : `+${i + 1}`,
         historical: null,
         projected: projection.projected[i],
         baseline,
-        decay: projection.decayUnclamped[i],
+        decay: d,
+        decayRate,
       })
+      prevDecay = d
     }
     return [...historicalRows, ...projectedRows]
   }, [chartData, projection, stepMonths, lastHistoricalKey])
