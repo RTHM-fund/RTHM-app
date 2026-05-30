@@ -1,25 +1,21 @@
-# Claude Progress — Session Save (2026-05-29, cleanup + polish)
+# Claude Progress — Session Save (2026-05-29, cleanup + UI polish + Quote-template fixes)
 
-Full dead-code cleanup pass + a batch of small UI/UX changes and a Quote-export sheet-2 formatting update. User confirmed the app is "perfect" and asked to commit + push.
+Dead-code cleanup pass, a batch of UI/UX tweaks, Quote-export sheet-2 formatting, and a Valuate-page alignment fix. App confirmed "perfect" by the user; committing + pushing.
 
 ## Accomplished this session
-1. **Codebase dead-code cleanup (full audit, verified safe).**
-   - Removed: `.rate-locked` dead CSS (ValuationPage.css); unused `toggleAll()` (ImportModal); dead `valuationStates` prop chain (App→MainArea→DealsPage; App state kept); unused loop var `key` (index.js); unused `yearFrac()` (xfin.js); unused `applyPreset()`+`PRESETS` (params.js).
-   - Stripped unused `import React` from 16 components (automatic JSX runtime; no `React.` usage anywhere).
-   - Deleted stale `dist/` build folder (not served — dev runs via Vite; regen with `npm run build`) + 5 `RAS Quote_Template.backup-*.xlsx` scratch copies.
-   - Verified: financial engine `_tests.js` 30/30 pass; `vite build` clean; server `node --check` OK.
-2. **Glow opacity** — white-pill purple text-glow `0.4 → 0.3` (5 instances: index.css `.is-processing`, filled-primary hover, `.recoup-btn-active`, `.linked`; ValuatePage.css `.is-open`).
-3. **Valuate page super-user gesture** — Alt+click the folder-name title opens the folder in Explorer/Finder (reuses `/api/data/open-folder`); mirrors Data Manager. (ValuatePage.jsx `Header` + 3 render sites.)
-4. **Data Manager** — Valuate button now also gated on `hasDiligence` (disabled unless diligence is ✓), on top of the existing `hasQuote` gate. (DataManagerPage.jsx)
-5. **Quote modal** — removed the "recalculating…" status entirely (badge + `loading` state + 3 setters + `.quote-table-loading` CSS); the debounced recompute fetch is untouched.
-6. **Quote export — sheet 2 "Cashflow waterfall (12 year)"** (template `server/templates/RAS Quote_Template.xlsx`): col widths B=5.73 (70px), K=13.91 (160px), L=8.45 (100px); headers lowercased — L12 "free cash flow", M12 "gross IRR flows". Edited via openpyxl (file has no images/charts → lossless round-trip); verified widths + headers changed and all other styling preserved. `quote.py` untouched (it sets no sheet-2 widths/headers, only fills data).
-7. **All modals app-wide** — removed the `✕` close button (8 buttons: ImportModal, AgreementsPage ×3, OfferLetterForm, ValuationPage, ProjectionModal, QuoteModal) + dead `.modal-close` CSS + the X-only `position: relative`/comments. Outside-click is the close on every modal (Projection/Quote also keep inside-click `stopPropagation`).
+1. **Dead-code cleanup (full audit, verified).** Removed unused `.rate-locked` CSS, `toggleAll()` (ImportModal), dead `valuationStates` prop chain (App→MainArea→DealsPage; App state kept), unused `key` loop var (index.js), `yearFrac()` (xfin.js), `applyPreset()`+`PRESETS` (params.js); stripped unused `import React` from 16 components; deleted stale `dist/` + 5 template backups. Verified via `_tests.js` (30/30) + `vite build`. [committed 2397b34]
+2. **Glow** white-pill purple text-glow `0.4 → 0.3` (index.css + ValuatePage.css). [2397b34]
+3. **Valuate** Alt+click the folder-name title → open the folder in Explorer/Finder (reuses `/api/data/open-folder`). [2397b34]
+4. **Data Manager** Valuate button now also gated on `hasDiligence`. [2397b34]
+5. **Quote modal** removed the "recalculating…" status entirely (badge + `loading` state + `.quote-table-loading` CSS). [2397b34]
+6. **Projection tooltip** decay row now shows the per-period decay rate (`1 − value/prev`, %); the projected value text is RTHM purple (`var(--primary)`) — the decay-curve *line* stays a faint 35% purple. [decay-rate in 8bbbd51; purple in this commit]
+7. **Quote export sheet 2 ("Cashflow waterfall (12 year)")** in `server/templates/RAS Quote_Template.xlsx`: lowercased headers (L12 "free cash flow", M12 "gross IRR flows"); column widths display at **B=70px, K=160px, L=100px, M=100px**. Same widths also patched into the live `…/Delux Music Group/Delux Music Group - Quote.xlsx`.
+8. **Valuate footer alignment** `.main-area` now has `scrollbar-gutter: stable both-edges`, so scrolling content stays centered on the true midpoint — the fixed +project/+quote footer lines up with the chart center. (Global side effect: subtle 8px symmetric gutter on every page; user accepted.)
 
-## Current state
-- App confirmed "perfect working order" by the user. This session is being committed + pushed.
-- Server-side edits (index.js `key`, xfin.js, params.js) are behavior-neutral but need a **server restart** to load. Frontend changes are live via Vite HMR.
+## ⚠️ openpyxl column-width gotcha (IMPORTANT for future template edits)
+`openpyxl column_dimensions[col].width` is the **stored OOXML width** measured in the **Normal-style font's** max-digit-width (this workbook's Normal font is **Calibri 11 → MDW = 7px**), NOT the number Excel shows in its tooltip. Setting `.width = D` (the displayed value) renders ~7px **too narrow**. To hit a target **displayed** width D: `stored = floor((D*7 + 5)/7 * 256) / 256` ≈ D + 0.714. (e.g. displayed 8.45 → stored 9.1640625.) The cells render in Aptos Narrow but the width unit follows the Normal font. Sidebar = 256px (footer `left: 256px` matches).
 
-## Open / notes
-- `docs/design_system.md` is slightly stale — sync when convenient: glow is now 0.3 (doc says 0.4); add super-user gesture "Valuate folder name → open folder in Explorer"; modals no longer have an X (outside-click only).
-- `decay` line in the ProjectionModal tooltip is the **dollar decay-curve** (`baseline × e^(−cumDecay)`, floor removed) — NOT a percentage. Confirmed correct; left as-is per user.
-- `quote.py` lives outside this repo (`…/1. RTHM Fund/1. Data/.claude/skills/quote/quote.py`) — not part of this commit.
+## Current state / open
+- The earlier server edits (index.js, xfin.js, params.js) are behavior-neutral but need a **server restart** to load.
+- `docs/design_system.md` slightly stale (glow now 0.3; add the Valuate folder-name super-user gesture; modals have no X close button; projected tooltip text is purple) — sync when convenient.
+- `quote.py` lives outside the repo: `…/1. RTHM Fund/1. Data/.claude/skills/quote/quote.py`.

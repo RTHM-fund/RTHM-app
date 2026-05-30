@@ -32,8 +32,9 @@ const COLOR_BASELINE   = '#14B8A6'    // teal
 const COLOR_DECAY      = '#FB7185'    // coral
 
 // Custom tooltip content — recharts' default colors each row by the line's
-// stroke. We want the projected row to read as ink (the projected stroke is
-// faint light-purple and reads as low-contrast text in the tooltip).
+// stroke. The projected row uses full-strength primary purple instead of its
+// stroke color (the projected line itself stays a faint 35% purple — too
+// low-contrast as tooltip text).
 // Portal-rendered chart tooltip. Renders into document.body so it escapes ALL
 // parent overflow / stacking contexts (the modal body's overflow-y: auto would
 // otherwise clip and trigger a horizontal scrollbar). Position computed from
@@ -68,7 +69,7 @@ function ProjectionTooltip({ active, payload, label, coordinate, chartHostRef })
     }}>
       <div style={{ color: 'var(--ink)', marginBottom: 4, fontWeight: 600 }}>{label}</div>
       {visible.map(item => {
-        const color = item.dataKey === 'projected' ? 'var(--ink)' : item.color
+        const color = item.dataKey === 'projected' ? 'var(--primary)' : item.color
         let formatted
         if (item.dataKey === 'decay') {
           // Decay row shows the per-period decay rate (%), not the curve's dollar value.
