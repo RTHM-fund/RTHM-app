@@ -18,12 +18,12 @@ Tuned the aurora orb background (`src/App.jsx`) to its final locked feel:
 - **Reconstruction conflict:** `design_system.md` had been synced mid-tuning and was stale on 4 values (speed 2.0, wander 5.0, velocity 0.05, fade ×0.5). Resolved to the **final** values (speed 3.0, wander 7.0, velocity 0.1, fade ×0.7) and re-synced the doc.
 
 ## Current state
-- `src/App.jsx` — restored + final orb tuning, no temp code (grep-verified values).
+- `src/App.jsx` — restored + final orb tuning, no temp code (grep-verified values). **User confirmed the 4 reconstructed values (speed `3.0`, wander `7.0`, velocity `0.1`, fade `×0.7`) correct — app in perfect working condition.**
 - `docs/design_system.md` — Aurora section synced to final orb values.
-- Committed + pushed to `origin/master`.
+- Committed + pushed to `origin/master`. Aurora recovery fully closed out.
 
 ## Next / open tasks
-- **Feel-check the 4 reconstructed values live** (speed / wander / velocity / converge-fade) — rebuilt from notes after the truncation. Fine-tune if the feel is off.
+- (Aurora recovery complete — values user-verified, nothing open here.)
 - Watch C: free space.
 
 ## Carryover from prior session (still open)
