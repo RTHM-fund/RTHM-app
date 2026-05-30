@@ -1,21 +1,33 @@
-# Claude Progress — Session Save (2026-05-29, cleanup + UI polish + Quote-template fixes)
+# Claude Progress — Session Save (2026-05-29, aurora orb final tuning + disk-full recovery)
 
-Dead-code cleanup pass, a batch of UI/UX tweaks, Quote-export sheet-2 formatting, and a Valuate-page alignment fix. App confirmed "perfect" by the user; committing + pushing.
+## Accomplished this session — Aurora orb final tuning
+Tuned the aurora orb background (`src/App.jsx`) to its final locked feel:
+- **LOCKED physics:** breath `0.3`, speed `3.0`, wanderSpeed `7.0`, wander `7.0`, converge `150`, repel `5.0`, velocity `0.1`, spacing `0.20`.
+- **Rest opacity** `0.30 → 0.40` (all 3 orbs).
+- **Repel always-on** — removed the `* (1 - activeFactor)` gate; orbs hold spacing even while converging on the cursor.
+- **Breath phase even-distributed** per orb (`i * (2π / N)`, i.e. 0°/120°/240°) instead of random — staggered round-robin pulse, never peak together.
+- **Converge opacity-fade softened** `×0.5 → ×0.7` — at full convergence each orb sits at 70% of rest opacity (`0.40 → 0.28`).
+- Wander + cursor-convergence + velocity transfer remain gated by `activeFactor` (active only when cursor is over `.main-area`).
+- Synced `docs/design_system.md` → "Aurora Background" section to the final values.
 
-## Accomplished this session
-1. **Dead-code cleanup (full audit, verified).** Removed unused `.rate-locked` CSS, `toggleAll()` (ImportModal), dead `valuationStates` prop chain (App→MainArea→DealsPage; App state kept), unused `key` loop var (index.js), `yearFrac()` (xfin.js), `applyPreset()`+`PRESETS` (params.js); stripped unused `import React` from 16 components; deleted stale `dist/` + 5 template backups. Verified via `_tests.js` (30/30) + `vite build`. [committed 2397b34]
-2. **Glow** white-pill purple text-glow `0.4 → 0.3` (index.css + ValuatePage.css). [2397b34]
-3. **Valuate** Alt+click the folder-name title → open the folder in Explorer/Finder (reuses `/api/data/open-folder`). [2397b34]
-4. **Data Manager** Valuate button now also gated on `hasDiligence`. [2397b34]
-5. **Quote modal** removed the "recalculating…" status entirely (badge + `loading` state + `.quote-table-loading` CSS). [2397b34]
-6. **Projection tooltip** decay row now shows the per-period decay rate (`1 − value/prev`, %); the projected value text is RTHM purple (`var(--primary)`) — the decay-curve *line* stays a faint 35% purple. [decay-rate in 8bbbd51; purple in this commit]
-7. **Quote export sheet 2 ("Cashflow waterfall (12 year)")** in `server/templates/RAS Quote_Template.xlsx`: lowercased headers (L12 "free cash flow", M12 "gross IRR flows"); column widths display at **B=70px, K=160px, L=100px, M=100px**. Same widths also patched into the live `…/Delux Music Group/Delux Music Group - Quote.xlsx`.
-8. **Valuate footer alignment** `.main-area` now has `scrollbar-gutter: stable both-edges`, so scrolling content stays centered on the true midpoint — the fixed +project/+quote footer lines up with the chart center. (Global side effect: subtle 8px symmetric gutter on every page; user accepted.)
+## ⚠️ Disk-full incident + recovery (resolved)
+- Mid-session, C: hit **0 bytes free**; an in-progress `App.jsx` write (orb anchor tweak) failed with ENOSPC and **truncated `src/App.jsx` to 0 bytes**.
+- User freed ~37 GB by uninstalling League of Legends → C: now ~38 GB free.
+- Recovered: `git checkout -- src/App.jsx` (restored HEAD `10c65df`, 19,058 bytes) + re-applied the orb tuning from notes.
+- **Temp code gone by construction** — the committed base never had it and it was not re-added: orb path-trail visualizers, converge=0 experiment, wander un-gating, anchor "thirds" reposition.
+- **Reconstruction conflict:** `design_system.md` had been synced mid-tuning and was stale on 4 values (speed 2.0, wander 5.0, velocity 0.05, fade ×0.5). Resolved to the **final** values (speed 3.0, wander 7.0, velocity 0.1, fade ×0.7) and re-synced the doc.
 
-## ⚠️ openpyxl column-width gotcha (IMPORTANT for future template edits)
-`openpyxl column_dimensions[col].width` is the **stored OOXML width** measured in the **Normal-style font's** max-digit-width (this workbook's Normal font is **Calibri 11 → MDW = 7px**), NOT the number Excel shows in its tooltip. Setting `.width = D` (the displayed value) renders ~7px **too narrow**. To hit a target **displayed** width D: `stored = floor((D*7 + 5)/7 * 256) / 256` ≈ D + 0.714. (e.g. displayed 8.45 → stored 9.1640625.) The cells render in Aptos Narrow but the width unit follows the Normal font. Sidebar = 256px (footer `left: 256px` matches).
+## Current state
+- `src/App.jsx` — restored + final orb tuning, no temp code (grep-verified values).
+- `docs/design_system.md` — Aurora section synced to final orb values.
+- Committed + pushed to `origin/master`.
 
-## Current state / open
-- The earlier server edits (index.js, xfin.js, params.js) are behavior-neutral but need a **server restart** to load.
-- `docs/design_system.md` slightly stale (glow now 0.3; add the Valuate folder-name super-user gesture; modals have no X close button; projected tooltip text is purple) — sync when convenient.
+## Next / open tasks
+- **Feel-check the 4 reconstructed values live** (speed / wander / velocity / converge-fade) — rebuilt from notes after the truncation. Fine-tune if the feel is off.
+- Watch C: free space.
+
+## Carryover from prior session (still open)
+- `docs/design_system.md` still slightly stale on **non-orb** items: glow now 0.3; add Valuate folder-name super-user gesture (Alt+click title → open folder); modals have no X close button; projected tooltip text is purple. (Orb section is now synced.)
+- Prior server edits (`index.js`, `xfin.js`, `params.js`) are behavior-neutral but need a **server restart** to load (if not already restarted).
 - `quote.py` lives outside the repo: `…/1. RTHM Fund/1. Data/.claude/skills/quote/quote.py`.
+- openpyxl column-width gotcha → captured in `MEMORY.md` ("Quote template column widths").

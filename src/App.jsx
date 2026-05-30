@@ -94,13 +94,13 @@ export default function App() {
     if (!orbLayer) return
 
     const LOCKED = {
-      breath: 0.10,
-      speed: 1.0,
-      wanderSpeed: 3.0,
-      wander: 3.0,
+      breath: 0.3,
+      speed: 3.0,
+      wanderSpeed: 7.0,
+      wander: 7.0,
       converge: 150,
-      repel: 3.0,
-      velocity: 0.05,
+      repel: 5.0,
+      velocity: 0.1,
       spacing: 0.20,
     }
     // All 3 orbs use the RTHM royal purple (--primary, #5200BE) — overlapping
@@ -110,9 +110,9 @@ export default function App() {
     // Tuned via the in-app drag playground — locked-in positions form an askew
     // shape across the viewport with the deep purple anchoring the bottom.
     const ORB_DEFS = [
-      { color: '#5200BE', sizeFactor: 0.80, opacity: 0.30, centerX: 0.343, centerY: 0.253, depth: 1.0 },
-      { color: '#5200BE', sizeFactor: 0.90, opacity: 0.30, centerX: 0.906, centerY: 0.460, depth: 0.8 },
-      { color: '#5200BE', sizeFactor: 0.60, opacity: 0.30, centerX: 0.511, centerY: 0.842, depth: 1.1 },
+      { color: '#5200BE', sizeFactor: 0.80, opacity: 0.40, centerX: 0.343, centerY: 0.253, depth: 1.0 },
+      { color: '#5200BE', sizeFactor: 0.90, opacity: 0.40, centerX: 0.906, centerY: 0.460, depth: 0.8 },
+      { color: '#5200BE', sizeFactor: 0.60, opacity: 0.40, centerX: 0.511, centerY: 0.842, depth: 1.1 },
     ]
 
     const makeWanderFreqs = () => [
@@ -122,13 +122,13 @@ export default function App() {
       { fx: 0.03 + Math.random() * 0.02, ax:  7 + Math.random() * 4, fy: 0.04 + Math.random() * 0.02, ay:  6 + Math.random() * 4, px: Math.random() * Math.PI * 2, py: Math.random() * Math.PI * 2 },
     ]
 
-    const orbs = ORB_DEFS.map(def => {
+    const orbs = ORB_DEFS.map((def, i) => {
       const el = document.createElement('div')
       el.className = 'orb'
       el.style.background = `radial-gradient(circle at center, ${def.color} 0%, ${def.color}00 70%)`
       el.style.opacity = def.opacity
       orbLayer.appendChild(el)
-      return { def, el, size: 0, baseCenterX: 0, baseCenterY: 0, velX: 0, velY: 0, repelX: 0, repelY: 0, _tempTx: 0, _tempTy: 0, wanderFreqs: makeWanderFreqs(), breathPhase: Math.random() * Math.PI * 2 }
+      return { def, el, size: 0, baseCenterX: 0, baseCenterY: 0, velX: 0, velY: 0, repelX: 0, repelY: 0, _tempTx: 0, _tempTy: 0, wanderFreqs: makeWanderFreqs(), breathPhase: i * (Math.PI * 2 / ORB_DEFS.length) }
     })
 
     function positionOrbs() {
@@ -243,10 +243,10 @@ export default function App() {
           const dist = Math.sqrt(dx * dx + dy * dy) + 1
           const minDist = (a.size + b.size) * LOCKED.spacing
           if (dist < minDist) {
-            // Repel scales inversely with activeFactor — when cursor is in
-            // main-area (orbs are actively converging on it), orbs are free
-            // to overlap. Repel only kicks in once activeFactor fades.
-            const force = (minDist - dist) * 0.05 * LOCKED.repel * (1 - activeFactor)
+            // Repel runs at full strength always — not gated by activeFactor.
+            // Orbs keep their spacing even while converging on the cursor,
+            // settling into a spaced cluster rather than an overlapping blob.
+            const force = (minDist - dist) * 0.05 * LOCKED.repel
             fx += dx / dist * force
             fy += dy / dist * force
           }
@@ -261,8 +261,8 @@ export default function App() {
         const ty = orb._tempTy + orb.repelY
         orb.el.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + scale.toFixed(3) + ')'
         // Fade orb opacity as it converges. At full convergence each orb sits
-        // at 50% of rest opacity so the stacked-3-overlap doesn't look too dark.
-        orb.el.style.opacity = orb.def.opacity * (1 - 0.5 * activeFactor)
+        // at 70% of rest opacity so the stacked-3-overlap doesn't look too dark.
+        orb.el.style.opacity = orb.def.opacity * (1 - 0.3 * activeFactor)
       })
 
       rafId = requestAnimationFrame(tick)

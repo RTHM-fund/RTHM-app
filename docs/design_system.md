@@ -390,17 +390,18 @@ Forms an askew composition: upper-left soft, right-side dominant, bottom-center 
 
 **Physics constants** (`LOCKED` object):
 ```
-breath: 0.10        speed: 1.0        wanderSpeed: 3.0
-wander: 3.0         converge: 150     repel: 3.0
-velocity: 0.05      spacing: 0.20
+breath: 0.3         speed: 3.0        wanderSpeed: 7.0
+wander: 7.0         converge: 150     repel: 5.0
+velocity: 0.1      spacing: 0.20
 ```
 
 **Cursor-area gating (`activeFactor` ∈ [0,1]):**
 - `isActive = true` only when cursor is over `.main-area`. Cursor in sidebar / outside window → `isActive = false`.
 - `activeFactor` smooth-lerps toward `isActive ? 1 : 0` at 0.08/frame (~12 frames to fully transition).
 - **Wander, cursor convergence, and velocity transfer** all scale by `activeFactor` — orbs glide back to anchors and stop wandering when cursor leaves the main area.
-- **Repel** scales by `(1 - activeFactor)` — orbs can overlap freely while converging on the cursor; repel only kicks back in once they're returning to anchors.
-- **Per-orb opacity** scales by `(1 - 0.5 × activeFactor)` — at full convergence each orb fades to 50% of its rest opacity (`0.30 → 0.15`) so three overlapping orbs don't stack into a too-dark blob.
+- **Repel** runs at full strength always — **not** gated by `activeFactor`. Orbs keep their spacing even while converging on the cursor (they settle into a spaced cluster near the cursor rather than stacking into an overlapping blob).
+- **Per-orb opacity** scales by `(1 - 0.3 × activeFactor)` — at full convergence each orb fades to 70% of its rest opacity (`0.40 → 0.28`) so three overlapping orbs don't stack into a too-dark blob.
+- **Breath** — all orbs share one rate (`time * 0.6`, i.e. `0.6 × speed`) but are phase-offset evenly by `i × (2π / N)` (0° / 120° / 240° for 3 orbs), so they pulse in a staggered round-robin and never peak together.
 - Breath scale and pairwise repulsion damping are not gated — orbs keep breathing at rest, residual velocity dies out cleanly.
 
 To tweak orb count, palette, or physics: edit `ORB_DEFS` and `LOCKED` in `App.jsx`. The in-app drag playground (with magenta dots + readout panel) was removed after the anchor tune-in pass — re-add only if rebalancing positions.
