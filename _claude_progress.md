@@ -1,4 +1,16 @@
-# Claude Progress — Session Save (2026-05-31, Quote header title-casing + aurora orb recovery)
+# Claude Progress — Session Save (2026-05-31, Quote export formatting + header title-casing + aurora orb recovery)
+
+## Accomplished — Quote export formatting (template `RAS Quote_Template.xlsx`)
+All edits via openpyxl (`data_only=False`); each audited original-vs-git as isolated change-sets (no collateral to values/formulas/fonts/fills/borders/freeze/merges/structure):
+- **G7** (Cashflow sheet): `RAS Origination fees` → `RAS origination fees` (lowercased "Origination"; RAS kept as acronym — matches the other Deal-terms labels).
+- **Quote sheet right-alignment:** everything right of the `L11` freeze line — cols **L→HC, rows 11–14** (period header / date / payment / cumulative) → `horizontal='right'` (800 cells). K (frozen labels) left as-is.
+- **Cashflow sheet widths:** cols **L, M** → stored `10.07421875` (displayed 9.36 = **110 px**) via the MDW+0.714 method.
+- **Quote `L13`/`L14` number format** → `#,##0;(#,##0);"-"` (dropped the accounting `_)` right-padding so forecast values sit flush-right like the dates).
+
+### How the Quote export works (traced this session)
+- `routes.js` (`/export`) spawns **`quote.py`** (generator, outside repo at `RTHM/1. RTHM Fund/1. Data/.claude/skills/quote/quote.py`) with the template + engine/inputs; it loads `RAS Quote_Template.xlsx` and fills static values.
+- **Forecasted Cash strip:** `quote.py` copies **column L's** full style (font/fill/alignment/border/**number_format**) + width as the prototype and propagates it to **every** projection column. ⇒ Fix **template column L** (L11–L14) to change the whole strip — code-free. (Confirmed on existing AJ McQueen quote: M/N carry L's format.)
+- **Catalog projection graph = per-track decay → then summed** (server `/projection-preview` → `buildProjections`). A **saved** per-track override (`<deal>_Projection.json` → `trackOverrides`) flows into the catalog total's **projection line AND decay curve** (both are sums of per-track curves). Track graphs = client single-track decay; catalog = server per-track-then-sum (deliberate audit fix).
 
 ## Accomplished — Quote export header title-casing (template)
 - Title-cased 7 header cells in `server/templates/RAS Quote_Template.xlsx` (**IRR** kept uppercase):
@@ -32,7 +44,7 @@ Tuned the aurora orb background (`src/App.jsx`) to its final locked feel:
 
 ## Next / open tasks
 - (Aurora recovery complete — values user-verified, nothing open here.)
-- Quote headers: template fixed; **regenerate** any existing `… - Quote.xlsx` exports you want updated (template-only scope).
+- Quote export: template fixed (headers + right-alignment + L/M widths + flush number format); **regenerate** existing `… - Quote.xlsx` exports (AJ McQueen, Shay Nicole, Shaun Milli, Delux Music Group, Lambo4oe) to pick up the changes (template-only scope).
 - Watch C: free space.
 
 ## Carryover from prior session (still open)
