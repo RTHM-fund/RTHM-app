@@ -1,6 +1,14 @@
-# Claude Progress — Session Save (2026-05-29, aurora orb final tuning + disk-full recovery)
+# Claude Progress — Session Save (2026-05-31, Quote header title-casing + aurora orb recovery)
 
-## Accomplished this session — Aurora orb final tuning
+## Accomplished — Quote export header title-casing (template)
+- Title-cased 7 header cells in `server/templates/RAS Quote_Template.xlsx` (**IRR** kept uppercase):
+  - `Quote!A11` → Scenario Summary · `Quote!K11` → Forecasted Cash
+  - `Cashflow waterfall (12 year)`: G12 Loan Principal Brought Forward · J12 Principal Repaid · K12 Loan Principal Carried Forward · L12 Free Cash Flow · M12 Gross IRR Flows
+- **Casing only** — Aptos Narrow typeface unchanged. Reverses the prior deliberate lowercasing of L12/M12.
+- **Scope: template only** — already-exported `… - Quote.xlsx` files keep old headers until regenerated.
+- Edited via openpyxl (`data_only=False` to preserve formulas). Audited original-vs-git: **exactly 7 cells changed**; all 659 formulas, cell styles, column widths, merged ranges, and sheet structure byte-faithful to the original.
+
+## Accomplished — Aurora orb final tuning
 Tuned the aurora orb background (`src/App.jsx`) to its final locked feel:
 - **LOCKED physics:** breath `0.3`, speed `3.0`, wanderSpeed `7.0`, wander `7.0`, converge `150`, repel `5.0`, velocity `0.1`, spacing `0.20`.
 - **Rest opacity** `0.30 → 0.40` (all 3 orbs).
@@ -24,6 +32,7 @@ Tuned the aurora orb background (`src/App.jsx`) to its final locked feel:
 
 ## Next / open tasks
 - (Aurora recovery complete — values user-verified, nothing open here.)
+- Quote headers: template fixed; **regenerate** any existing `… - Quote.xlsx` exports you want updated (template-only scope).
 - Watch C: free space.
 
 ## Carryover from prior session (still open)
