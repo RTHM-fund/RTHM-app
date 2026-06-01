@@ -49,8 +49,8 @@ const HOSTNAME = os.hostname().replace(/[^a-zA-Z0-9-]/g, '-')
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const TERMS_ALL = ['12 months', '36 months', '60 months', '84 months']
-const IQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ']]
-const VQ_PAIRS = [['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
+const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW']]
+const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ']]
 const DEFAULT_RATES = {
   Individual: { '12 months': 70, '36 months': 60, '60 months': 50, '84 months': 45 },
   B2B:        { '12 months': 74, '36 months': 64, '60 months': 54, '84 months': 50 }
@@ -161,10 +161,10 @@ function resolveAgreementPath(ag) {
   return null
 }
 
-const WANTED_COLS = ['A','C','AC','AD','AE','AF','AG','AH','AI','AJ','AN','AR','AS','AT','AU','AV','AW','AX','AY']
+const WANTED_COLS = ['A','C','AP','AQ','AR','AS','AT','AU','AV','AW','BA','BC','BD','BE','BF','BG','BH','BI','BJ']
 
-const IQ_COLS = ['AC','AD','AE','AF','AG','AH','AI','AJ']
-const VQ_COLS = ['AR','AS','AT','AU','AV','AW','AX','AY']
+const IQ_COLS = ['AP','AQ','AR','AS','AT','AU','AV','AW']
+const VQ_COLS = ['BC','BD','BE','BF','BG','BH','BI','BJ']
 
 function buildDealData(rows) {
   const groups = {}
@@ -183,7 +183,7 @@ function buildDealData(rows) {
     }
     const initialQuote = {}
     IQ_COLS.forEach(col => { initialQuote[col] = sumCol(col) })
-    const percentRaw = groupRows.find(r => r['AN'])?.['AN'] || ''
+    const percentRaw = groupRows.find(r => r['BA'])?.['BA'] || ''
     const percent = parseFloat(percentRaw.replace(/[^0-9.-]/g, '')) || null
     const variableQuote = {}
     VQ_COLS.forEach(col => { variableQuote[col] = sumCol(col) })
@@ -514,7 +514,7 @@ app.get('/api/deals/sheet-rows', async (req, res) => {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${sheet.properties.title}!A7:AY`
+      range: `${sheet.properties.title}!A7:BL`
     })
 
     const rows = response.data.values || []

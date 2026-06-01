@@ -3,8 +3,8 @@ import Combobox from './Combobox.jsx'
 import './ValuationPage.css'
 
 const TERMS = ['12 months', '36 months', '60 months', '84 months']
-const IQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ']]
-const VQ_PAIRS = [['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
+const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW']]
+const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ']]
 
 const DEFAULT_RATES = {
   Individual: { '12 months': 70, '36 months': 60, '60 months': 50, '84 months': 45 },

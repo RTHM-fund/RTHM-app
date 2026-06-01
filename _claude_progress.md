@@ -1,4 +1,14 @@
-# Claude Progress — Session Save (2026-05-31, Mac parity setup fix + Quote export formatting + aurora orb recovery)
+# Claude Progress — Session Save (2026-05-31, Deal Manager sheet remap + Mac parity setup + Quote export work + orb recovery)
+
+## Accomplished — Deal Manager Google Sheet remap (columns shifted)
+The "Deals" sheet (`SPREADSHEET_ID 1tCKpr…IIsk`, gid 944936958, tab "Deals") was restructured; repointed the app to the correct columns. Header row is still 7 (data row 8+).
+- **Initial Quote** ← group header **"Initial quotes, net of 3% fee"** = cols **AP–AW** (4 terms 12/36/60/84) — was gross `AC–AJ`. **NET** (~3% lower), user-confirmed.
+- **Variable Quote** ← **"Variable quotes"** = cols **BC–BJ** — was `AR–AY`.
+- **Percent %** ← **BA** — was `AN` (AN is now "Acquisition").
+- Fetch **range `A7:BL`** (was `A7:AY`; the Variable block sits past the old AY cutoff).
+- **144-month bucket dropped** — app keeps its 4 terms, as before (only a few deals have 144).
+- Edits: `server/index.js` (`IQ_COLS`/`VQ_COLS`/`IQ_PAIRS`/`VQ_PAIRS`/`WANTED_COLS`, percent `AN→BA`, range) + `src/components/ValuationPage.jsx` (`IQ_PAIRS`/`VQ_PAIRS`). Keys aligned server ↔ frontend ↔ docx-gen.
+- **Verified vs live sheet:** Lomeli → IQ-net `59,946…`, VQ `53,951…`, percent `90%`, VQ÷IQ-net = `0.900` (= the 90%); LeTreez → IQ-net only, no VQ. Diff scope: index.js 7 lines / ValuationPage 2 lines; `node --check` clean.
 
 ## Accomplished — Cross-platform (Mac) parity audit + setup fix
 Read-only audit of Windows-vs-Mac parity, then a **setup-script-only** fix (no app / `quote.py` change).
@@ -56,6 +66,7 @@ Tuned the aurora orb background (`src/App.jsx`) to its final locked feel:
 - (Aurora recovery complete — values user-verified, nothing open here.)
 - Quote export: template fixed (headers + right-alignment + L/M widths + flush number format); **regenerate** existing `… - Quote.xlsx` exports (AJ McQueen, Shay Nicole, Shaun Milli, Delux Music Group, Lambo4oe) to pick up the changes (template-only scope).
 - **Mac parity:** once Dropbox syncs the updated `RTHM Setup.command`, the Mac user reruns it (installs python3 + openpyxl) then `claude login` — Quote export then matches Windows. Fresh PCs covered by the mirrored `RTHM Setup.bat` step.
+- **Deal Manager remap — apply it:** restart the server (`index.js` changed) + **re-import each deal** (existing `deals.json` holds old column keys + stale values; re-import re-pulls the correct net data).
 - Watch C: free space.
 
 ## Carryover from prior session (still open)
