@@ -1,4 +1,14 @@
-# Claude Progress — Session Save (2026-05-31, Quote export formatting + header title-casing + aurora orb recovery)
+# Claude Progress — Session Save (2026-05-31, Mac parity setup fix + Quote export formatting + aurora orb recovery)
+
+## Accomplished — Cross-platform (Mac) parity audit + setup fix
+Read-only audit of Windows-vs-Mac parity, then a **setup-script-only** fix (no app / `quote.py` change).
+- **Verdict:** ~95% Mac-ready by design — `findDropboxRTHM()` discovers the Dropbox root dynamically (no hardcoded drive); `openFile` (explorer/open) + folder picker (powershell/osascript) are platform-branched; `getLibreOfficeBin()` + `findClaudeBin()` include Mac/Unix paths; folder selections stored relative; Mac launchers exist and are LF-safe.
+- **The one gap:** the Quote export spawns `python3 quote.py` (imports openpyxl) **directly** (not via Claude). **Neither** `RTHM Setup.command` nor `RTHM Setup.bat` installed Python/openpyxl — it worked on the dev PC only because they're ambiently present; a fresh Mac would 500 on Quote export. (`quote.py` is the only hard Python dep — diligence/extract/aggregate run through the Claude CLI.)
+- **Fix (setup scripts only):**
+  - `RTHM Setup.command` (Mac): new step **[3/5]** — brew-installs python3 if missing, then ensures openpyxl with a PEP-668-aware fallback (`--user` → `--break-system-packages`), and verifies `import openpyxl`. LF + shebang preserved.
+  - `RTHM Setup.bat` (Windows): mirror step **[3/4]** — winget python if missing + pip openpyxl; **leads with the import check** so an already-equipped PC installs nothing. LF + ASCII preserved (this `.bat` is LF on disk and works that way).
+- **Distribution:** both launchers sit ABOVE `App Files` and are **NOT git-tracked** — they reach machines via **Dropbox sync** (bytes preserved, stays LF). So commits carry only the session log; the script fixes propagate via Dropbox.
+- **Untouched (exact):** all app code, `quote.py`, `RTHM Launch.command`/`.bat`. Windows + app functionality/design unchanged.
 
 ## Accomplished — Quote export formatting (template `RAS Quote_Template.xlsx`)
 All edits via openpyxl (`data_only=False`); each audited original-vs-git as isolated change-sets (no collateral to values/formulas/fonts/fills/borders/freeze/merges/structure):
@@ -45,6 +55,7 @@ Tuned the aurora orb background (`src/App.jsx`) to its final locked feel:
 ## Next / open tasks
 - (Aurora recovery complete — values user-verified, nothing open here.)
 - Quote export: template fixed (headers + right-alignment + L/M widths + flush number format); **regenerate** existing `… - Quote.xlsx` exports (AJ McQueen, Shay Nicole, Shaun Milli, Delux Music Group, Lambo4oe) to pick up the changes (template-only scope).
+- **Mac parity:** once Dropbox syncs the updated `RTHM Setup.command`, the Mac user reruns it (installs python3 + openpyxl) then `claude login` — Quote export then matches Windows. Fresh PCs covered by the mirrored `RTHM Setup.bat` step.
 - Watch C: free space.
 
 ## Carryover from prior session (still open)
