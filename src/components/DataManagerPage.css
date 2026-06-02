@@ -129,7 +129,7 @@
   text-align: left;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--ink);
   background: rgba(255, 255, 255, 0.45);
@@ -202,7 +202,7 @@
    explicit minimum widths; folder name uses min-width only and grows to fill. */
 .data-manager-table thead th:first-child,
 .data-manager-table tbody td:first-child { min-width: 280px; width: auto; }
-.data-manager-table .data-manager-td-spark { width: 80px; }
+.data-manager-table .data-manager-td-spark { width: 104px; } /* = 64px sparkline + 2×20px cell padding */
 .data-manager-table .data-manager-th-num,
 .data-manager-table .data-manager-td-num { width: 100px; text-align: left; white-space: nowrap; }
 .data-manager-table thead th:nth-child(8),
@@ -271,11 +271,6 @@
 }
 
 /* Per-row sparkline + lifetime/TTM columns. */
-.data-manager-td-spark {
-  width: 80px;
-  padding-left: 8px;
-  padding-right: 8px;
-}
 .sparkline-svg {
   display: block;
 }

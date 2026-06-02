@@ -56,30 +56,17 @@ body {
 }
 
 /* ============================================================
-   SCROLLBARS — glass-language, app-wide
-   Transparent track + soft primary-tinted thumb. The sidebar nav keeps its
-   own dark-theme scrollbar rules (higher selector specificity wins).
+   SCROLLBARS — no scrollbar UI, app-wide
+   Native scrollbars are HIDDEN everywhere (zero reserved width) and there is NO
+   custom thumb either — scrolling works (wheel/trackpad/keyboard/touch) with no
+   visible scrollbar UI at all. Hiding (not styling) also keeps content full-bleed
+   and spacing symmetric on every platform.
    ============================================================ */
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-*::-webkit-scrollbar-thumb {
-  background: rgba(82, 0, 190, 0.18);
-  border-radius: 999px;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: rgba(82, 0, 190, 0.32);
-}
-*::-webkit-scrollbar-corner {
-  background: transparent;
+  display: none; /* hides the WebKit/Chromium scrollbar (reserves no width) */
 }
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(82, 0, 190, 0.18) transparent;
+  scrollbar-width: none; /* Firefox / standard */
 }
 
 /* ============================================================
@@ -126,6 +113,11 @@ input, select, textarea { font-family: 'Montserrat', sans-serif; }
 .auto-label { font-weight: 700; text-transform: none; color: var(--primary-mid); margin-left: 6px; font-size: 11px; }
 .field-locked { background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); color: var(--ink-light); cursor: default; }
 input::placeholder, textarea::placeholder { color: var(--ink-light); }
+/* Native date inputs render "mm/dd/yyyy" via -webkit-datetime-edit pseudos (which ignore
+   ::placeholder, and Chromium rejects :not([aria-valuenow]) on them). So empty date inputs
+   get a `.date-empty` class (value-driven, set in JSX) and we grey the whole edit region;
+   filled dates omit the class and stay --ink. App-wide for date-input consistency. */
+input[type="date"].date-empty::-webkit-datetime-edit { color: var(--ink-light); }
 
 .back-btn { background: none; border: none; border-radius: 0 !important; color: var(--ink); font-size: 13px; font-weight: 600 !important; padding: 4px 0; transition: color 0.15s ease; white-space: nowrap; letter-spacing: 0.01em; }
 .back-btn:hover { color: var(--primary); }

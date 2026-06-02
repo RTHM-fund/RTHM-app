@@ -141,7 +141,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
     } else if (isAmount) {
       const digits = value.replace(/[^0-9]/g, '')
       setRawAmounts(prev => ({ ...prev, [field]: digits }))
-      setValues(prev => ({ ...prev, [field]: digits === '' ? '' : '$' + parseInt(digits).toLocaleString('en-US') }))
+      setValues(prev => ({ ...prev, [field]: digits === '' ? '' : parseInt(digits).toLocaleString('en-US') }))
     } else if (PERCENT_FIELDS.has(field)) {
       const digits = value.replace(/[^0-9]/g, '')
       setRawAmounts(prev => ({ ...prev, [field]: digits }))
@@ -237,7 +237,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
     + (showDistro ? parseAmt(rawAmounts['Distro Advance']) : 0)
     + (showMarketing ? parseAmt(rawAmounts['Marketing Budget']) : 0)
     + (showFutures ? parseAmt(rawAmounts['Futures Advance']) : 0)
-  const totalDealFormatted = totalDeal > 0 ? '$' + Math.round(totalDeal).toLocaleString('en-US') : ''
+  const totalDealFormatted = totalDeal > 0 ? Math.round(totalDeal).toLocaleString('en-US') : ''
   const totalDealParts = [values['Advance Amount']].concat(
     showDistro && rawAmounts['Distro Advance'] ? [values['Distro Advance']] : [],
     showMarketing && rawAmounts['Marketing Budget'] ? [values['Marketing Budget']] : [],
@@ -375,17 +375,17 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
     }))
     setValues(prev => ({
       ...prev,
-      'Advance Amount': '$' + Math.round(advanceAmount).toLocaleString('en-US'),
+      'Advance Amount': Math.round(advanceAmount).toLocaleString('en-US'),
       'Recoup Rate': `${row.recoupRate}%`,
       'Term': `${parseInt(row.term)} ${parseInt(row.term) === 1 ? 'month' : 'months'}`,
-      'Recoup Amount': '$' + Math.round(row.recoupAmount).toLocaleString('en-US'),
+      'Recoup Amount': Math.round(row.recoupAmount).toLocaleString('en-US'),
     }))
 
     if (isPR) {
       setShowMarketing(true)
       const mktDigits = String(row.marketingBudget)
       setRawAmounts(prev => ({ ...prev, 'Marketing Budget': mktDigits }))
-      setValues(prev => ({ ...prev, 'Marketing Budget': '$' + Math.round(row.marketingBudget).toLocaleString('en-US') }))
+      setValues(prev => ({ ...prev, 'Marketing Budget': Math.round(row.marketingBudget).toLocaleString('en-US') }))
     } else {
       setShowMarketing(false)
       setRawAmounts(prev => {
@@ -421,7 +421,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
           {locked && <span className="auto-label">auto-filled</span>}
         </label>
         <input
-          className={`field-input${inputLocked ? ' field-locked' : ''}`}
+          className={`field-input${inputLocked ? ' field-locked' : ''}${isDate && !displayValue ? ' date-empty' : ''}`}
           type={isDate ? 'date' : 'text'}
           value={displayValue}
           onChange={e => handleChange(field, e.target.value, isDate, isAmount)}
@@ -476,8 +476,8 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                   />
                 ) : (
                   <Combobox
-                    className="combobox--form"
-                    value={selectedDealIdx ?? ''}
+                    className="combobox--form combobox--preserve-case"
+                    value={selectedDealIdx != null ? String(selectedDealIdx) : ''}
                     onChange={handleDealSelect}
                     placeholder="select a deal"
                     options={deals
@@ -659,7 +659,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                   </thead>
                   <tbody>
                     {prRows.map((row, rIdx) => {
-                      const fmtV = n => '$' + Math.round(n).toLocaleString('en-US')
+                      const fmtV = n => Math.round(n).toLocaleString('en-US')
                       const totalTip = `${fmtV(row.prAdvance)} + ${fmtV(row.marketingBudget)}`
                       const prAdvTip = `${fmtV(row.advanceAmount)} × 80%`
                       const mktRaw = row.rasAdvance * 0.2 * 0.67 * 2.5
@@ -675,7 +675,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                         <td><span className="calc-tip" data-tip={prAdvTip}>{fmtV(row.prAdvance)}</span></td>
                         <td>{row.marketingBudget > 0 ? <span className="calc-tip" data-tip={mktTip}>{fmtV(row.marketingBudget)}</span> : '—'}</td>
                         <td>{row.recoupRate + '%'}</td>
-                        <td>{'$' + Math.round(row.recoupAmount).toLocaleString('en-US')}</td>
+                        <td>{Math.round(row.recoupAmount).toLocaleString('en-US')}</td>
                       </tr>
                       )
                     })}
@@ -695,7 +695,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                 </thead>
                 <tbody>
                   {structuredRows.map((row, rIdx) => {
-                    const fmtV = n => '$' + Math.round(n).toLocaleString('en-US')
+                    const fmtV = n => Math.round(n).toLocaleString('en-US')
                     const advTip = `${fmtV(row.recoupAmount)} × ${row.recoupRate}%`
                     return (
                     <tr

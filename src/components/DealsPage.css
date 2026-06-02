@@ -94,7 +94,7 @@
   text-align: left;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--ink);
   background: rgba(255, 255, 255, 0.45);
@@ -119,6 +119,16 @@
   text-align: center;
 }
 
+/* Deal Name column absorbs all slack so every other column shrinks to its
+   content and the action columns sit tight at the right (mirrors Data Manager's
+   folder-name pattern). With the Delete column tight, its centered button lands
+   at the right edge — 20px inset, matching the Deal Name text's 20px left inset —
+   and the centered DELETE header sits directly above the button. */
+.deals-table thead th:first-child,
+.deals-table tbody td:first-child {
+  width: 100%;
+}
+
 .deals-table tbody tr {
   cursor: pointer;
   transition: background 0.1s;
@@ -139,10 +149,12 @@
   font-weight: 600;
 }
 
-/* Single-line cells: truncate long text with a soft right-edge fade so the
-   row height stays constant and the action buttons never get squeezed. */
+/* The two variable-length text columns — Deal Name and Platform — truncate with
+   a soft right-edge fade at 190px: row height stays constant, the columns read
+   as matched widths, and the action buttons are never squeezed. Full text shows
+   on hover via each cell's title tooltip. */
 .deals-cell-truncate {
-  max-width: 240px;
+  max-width: 190px;
   white-space: nowrap;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);

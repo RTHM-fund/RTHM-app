@@ -1,7 +1,9 @@
 .main-area {
   flex: 1;
   overflow-y: auto;
-  scrollbar-gutter: stable both-edges; /* reserve the scrollbar on both sides so content stays centered (fixed footer centers on the true midpoint) */
+  /* Native scrollbar is hidden app-wide (index.css) — no visible scrollbar UI — so it
+     reserves no width: content is naturally full-bleed and headers stay edge-to-edge
+     symmetric. Scrolling (wheel/trackpad/keyboard) still works. */
   /* Background is the body's aurora + orb layer (see src/index.css + App.jsx).
      Main area is transparent so the orbs/grain show through. */
   background: transparent;

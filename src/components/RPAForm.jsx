@@ -449,8 +449,8 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
                 />
               ) : (
                 <Combobox
-                  className="combobox--form"
-                  value={selectedDealIdx ?? ''}
+                  className="combobox--form combobox--preserve-case"
+                  value={selectedDealIdx != null ? String(selectedDealIdx) : ''}
                   onChange={handleDealSelect}
                   placeholder="select a deal"
                   options={deals.map((d, i) => ({ value: String(i), label: d.name }))}
@@ -502,7 +502,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
                     </div>
                   ) : (
                     <input
-                      className={`field-input${isLocked ? ' field-locked' : ''}`}
+                      className={`field-input${isLocked ? ' field-locked' : ''}${isDate && !((isAutoCalc || isAutoFill) ? (values[field] || '') : displayValue) ? ' date-empty' : ''}`}
                       type={isDate ? 'date' : 'text'}
                       value={(isAutoCalc || isAutoFill) ? (values[field] || '') : displayValue}
                       onChange={e => handleChange(field, e.target.value, isDate, isAmount)}

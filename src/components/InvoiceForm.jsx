@@ -21,8 +21,9 @@ const RTHM_ENTITIES = {
 
 const ENTITY_NAMES = Object.keys(RTHM_ENTITIES)
 
+// Formats a number with thousands separators, no currency symbol (app-wide: no $).
 function formatDollar(n) {
-  return isNaN(n) || n === 0 ? '' : '$' + Math.round(n).toLocaleString('en-US')
+  return isNaN(n) || n === 0 ? '' : Math.round(n).toLocaleString('en-US')
 }
 
 function ComboInput({ value, onChange, onSelect, placeholder, showDropdown, setShowDropdown }) {
@@ -453,7 +454,7 @@ export default function InvoiceForm({ template, onBack }) {
           <div className="field-group">
             <label className="field-label">Due Date</label>
             <input
-              className="field-input"
+              className={`field-input${dueDate ? '' : ' date-empty'}`}
               type="date"
               value={dueDate}
               onChange={e => setDueDate(e.target.value)}
@@ -521,11 +522,6 @@ export default function InvoiceForm({ template, onBack }) {
                   </div>
                 </div>
               ))}
-
-              <div className="invoice-total-row">
-                <span className="invoice-total-label">Total</span>
-                <span className={`invoice-total-value${items.length > 1 && totalAmount ? ' calc-tip' : ''}`} data-tip={items.length > 1 && totalAmount ? items.filter(i => i.amount).map(i => Math.round(i.amount).toLocaleString('en-US')).join(' + ') : undefined}>{formatDollar(totalAmount)}</span>
-              </div>
             </div>
           )}
 

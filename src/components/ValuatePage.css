@@ -232,10 +232,10 @@
 .valuate-tracks-table th {
   text-align: left;
   padding: 9px 12px;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--ink);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   border-bottom: 1px solid rgba(82, 0, 190, 0.08);
   white-space: nowrap;
@@ -302,13 +302,9 @@
    gap between the line shape and the next numeric column. */
 .valuate-tracks-spark {
   width: 110px;
-  padding-left: 8px;
-  padding-right: 32px;
-}
-
-.valuate-tracks-table thead th.valuate-tracks-num {
-  color: var(--ink);
-  font-weight: 600;
+  /* padding inherits the .valuate-tracks-table td 12px (the prior 8/32 here was dead —
+     overridden by the higher-specificity td rule). With the sparkline's padX=0, the 12px
+     gives the 24px inter-column gap, matching the rest of the table. */
 }
 
 .valuate-tracks-other .valuate-tracks-label {

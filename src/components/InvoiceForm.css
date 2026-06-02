@@ -238,30 +238,13 @@
   font-size: 13px;
 }
 
-/* ── Total ── */
-.invoice-total-row {
-  display: grid;
-  grid-template-columns: 1fr 80px 100px 100px;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1.5px solid var(--paper-darker);
-  align-items: center;
-}
-
-.invoice-total-label {
-  grid-column: 3;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink);
-  text-align: right;
-}
-
-.invoice-total-value {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink);
-  text-align: right;
-}
+/* The Amount cell wraps its input in a div (which only gets the .calc-tip class when it has
+   a value), so the input isn't a direct grid item and won't auto-stretch to its 100px
+   column. Force the wrapped input to fill its column regardless of the calc-tip class —
+   otherwise it renders at its intrinsic width and overflows the row's right edge past the
+   form fields above. */
+.line-item-row > div { display: block; }
+.line-item-row > div .field-input { width: 100%; }
 
 /* ── Notes ── */
 .invoice-notes {

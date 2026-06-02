@@ -52,6 +52,11 @@
 }
 .combobox.combobox--form .combobox-trigger.is-placeholder { color: white; }
 
+/* Data-driven labels (deal names, proper nouns) keep their source case, overriding
+   the global lowercase button rule. The lowercase placeholder is unaffected (its
+   source text is already lowercase). */
+.combobox--preserve-case .combobox-trigger { text-transform: none; }
+
 /* Center any modal-field that contains a Combobox (the B2B template picker). */
 .modal-field:has(.combobox) { align-items: center; }
 .modal-field:has(.combobox) .modal-label { text-align: center; }
@@ -83,9 +88,4 @@
 
 .combobox-item:hover {
   background: rgba(82, 0, 190, 0.08);
-}
-
-.combobox-item.selected {
-  background: rgba(82, 0, 190, 0.05);
-  box-shadow: inset 3px 0 0 0 var(--primary);
 }

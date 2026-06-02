@@ -37,7 +37,9 @@ background: rgba(255, 255, 255, 0.85);
 backdrop-filter: blur(24px) saturate(180%);
 ```
 
-**Modal sticky table header** (`.modal-table thead`): no background fill — lets the modal's own glass show through. Sticky positioning stays, but scrolling content reads through the header. Trade-off the user accepted; do not re-add a solid header bg.
+**Modal table header — pinned, transparent, no bleed-through.** A `position: sticky` header inside a scroll container can't be both transparent *and* free of bleed-through (rows pass behind it; any opaque fill reads as a lighter/white bar because it stacks on the modal's own glass). So the Import "select rows" table (`.modal-rows-table`) splits the header into its **own table above the scroll area** (`.modal-rows-head`, `flex-shrink: 0`) while only the body table scrolls. Both tables use `table-layout: fixed` with identical column widths so they line up (the native scrollbar is hidden → zero width offset). The header keeps **no background** — it reads exactly like the modal glass and never overlaps a row. The generic `.modal-table thead` (used by the Offer-Letter row picker) stays `position: sticky` transparent. Never add a solid/white fill to pin a header — split it out instead.
+
+**Modal white-glass table headers must NOT use `backdrop-filter` — use flat semi-opaque white.** The white column-header bars inside modals (`.quote-table thead th`, `.deal-sheet-table-modal .deal-sheet-table thead th`) use a **flat `background: rgba(255,255,255,0.55)` with no `backdrop-filter`/`saturate`/`isolation`**. Reason: a translucent (`0.45`) glass header sitting *inside* the modal's own glass creates a nested `backdrop-filter` region, and `saturate(180%)` over the purple aurora leaves a ~1px saturated **purple edge fringe** at the cell boundary (most visible as a hairline along the top edge). A flat semi-opaque white over the modal's existing glass reads identically as a "white header bar" but has no second filter region, so no fringe. Do not reintroduce `backdrop-filter` on these in-modal header cells.
 
 ---
 
@@ -65,6 +67,7 @@ outline: none;
 - **Padding/sizing per context.** Table cell inputs (`.rate-input`) are 4px 6px / 13px font. Form fields (`.field-input`, `.modal-input`) are 10px 14px / 14px font. Combobox glass-input (`.combobox--glass`) matches form fields.
 - **Locked / read-only state** uses the same 0.18 glass — the field still reads as a value-bearing surface, just non-interactive. Don't switch to plain text unless the surrounding table is explicitly mirroring a read-only sibling (RTHM Valuation locked Advance / Rate cells mirror the Initial Quote table).
 - **Native `<select>` is forbidden in forms.** Its opened dropdown menu is OS-rendered solid white and can't be glass-styled. Use the `<Combobox className="combobox--glass">` component instead — same controlled-value API as `<select>`, but a portaled glass menu.
+- **Date inputs (`type="date"`) — grey placeholder via a `.date-empty` class.** Their "mm/dd/yyyy" placeholder renders through `::-webkit-datetime-edit` pseudos, which ignore `::placeholder`; and Chromium 146 **rejects** `::-webkit-datetime-edit-*-field:not([aria-valuenow])` as an invalid selector (it silently drops the whole rule), so the old aria-valuenow trick is dead. `:placeholder-shown` never matches date inputs either. So empty/filled can't be told apart in pure CSS. Instead, add a **value-driven `date-empty` class** in JSX when the field is empty (e.g. `` className={`field-input${value ? '' : ' date-empty'}`} ``); the global rule `input[type="date"].date-empty::-webkit-datetime-edit { color: var(--ink-light) }` (in `index.css`) greys the empty placeholder while filled dates stay `--ink`. Every new date input must set `date-empty` when empty. Current: InvoiceForm, QuoteModal, OfferLetterForm, RPAForm.
 
 **Classes implementing this rule:**
 - `.rate-input` (ValuationPage table cells, OfferLetterForm income-cell %)
@@ -344,6 +347,14 @@ Layout:
 - **Right:** action pills / toggles (where applicable)
 - **Far left (when contextual):** `.back-btn`
 
+### Edge symmetry (LOCKED rule)
+
+Every header row must be **symmetric edge-to-asset**: the gap from the page's left edge to the **first asset** must equal the gap from the **last asset** to the right edge. The standard is **40px on both ends**, produced two ways:
+- **Full-bleed glass headers** (Agreements, Valuation, Valuate, RPA, Offer, Invoice): the header spans the full `.main-area` width and the 40px comes from its own `padding: 24px 40px 20px`. A `flex: 1` title-block spacer (or `justify-content: space-between`) pushes the last action pill to the 40px-from-right position.
+- **Padded-page headers** (Deal Manager, Data Manager): the header has no padding of its own; the 40px comes from the page's `padding: 40px`, with `justify-content: space-between` pinning the action to the right.
+
+**The scrollbar must never break this symmetry.** This is why there is no scrollbar UI at all and native scrollbars are hidden app-wide (see Scrollbars section): a native scrollbar that reserved layout width would inset full-bleed headers on the right — and `scrollbar-gutter: stable both-edges` once inset them on *both* sides, the original app-wide header-gap regression. Never reintroduce a width-reserving scrollbar (or `scrollbar-gutter`).
+
 When adding a new page or component with a header, **immediately add its header class** to the arcade toggle selector in `MainArea.jsx` `handleContextMenu`. Functional-consistency rule (see CLAUDE.md).
 
 ### Header Stats Block (centered)
@@ -363,6 +374,29 @@ Pattern for surfacing a small number of headline KPIs directly in a page header 
 **Tile spacing:** `gap: 24px` between tiles inside the block; `gap: 2px` between value and label inside each tile.
 
 **Edge case to flag:** very wide title-block content (long folder name + long subtitle) can grow past the absolute-centered stats block's left edge and overlap. Hasn't surfaced yet but worth knowing if it ever does.
+
+---
+
+## Scrollbars — No Scrollbar UI (LOCKED)
+
+**Rule: there is NO visible scrollbar anywhere in the app — no native bar, no custom thumb.** Containers scroll via wheel / trackpad / keyboard / touch (all native), but nothing scrollbar-related is ever drawn. Native scrollbars are hidden everywhere so they reserve **zero** layout width — content is naturally full-bleed to the true edge and spacing stays symmetric (no scrollbar can inset a header or shift a column). This is the "SELECT ROWS modal" behavior, app-wide.
+
+### Implementation (app-wide, `index.css`)
+```css
+*::-webkit-scrollbar { width: 0; height: 0; display: none; }
+* { scrollbar-width: none; }
+```
+That's the whole mechanism. Hidden (not styled), so no width is reserved and scrolling still works. Nothing else is needed — no per-container wiring, no JS.
+
+### History (do not reintroduce)
+Two earlier approaches were tried and removed:
+1. A **styled thin native bar** + `scrollbar-gutter: stable` + a `margin-right` reclaim — obsolete; a native gutter always paints the scroll container's background (the purple aurora), never the content, so a full-bleed white header read as having a purple strip on the right.
+2. A **custom overlay thumb** (`useOverlayScrollbar.js` hook + `.overlay-scrollbar-thumb`) wired into every scroller — removed by explicit user decision: no scrollbar UI at all is wanted.
+
+Never reintroduce a width-reserving scrollbar, `scrollbar-gutter`, `scrollbar-color`, a styled `::-webkit-scrollbar`, or a custom thumb. Adding a new scroll container requires nothing — the global hide already covers it.
+
+### Trade-off (accepted)
+No scrollbar means no visual affordance that content is scrollable and no scroll-position indicator. This is the intended app-wide look (matches the modals).
 
 ---
 
@@ -390,17 +424,18 @@ Forms an askew composition: upper-left soft, right-side dominant, bottom-center 
 
 **Physics constants** (`LOCKED` object):
 ```
-breath: 0.3         speed: 3.0        wanderSpeed: 7.0
+breath: 0.1         speed: 3.0        wanderSpeed: 7.0
 wander: 7.0         converge: 150     repel: 5.0
 velocity: 0.1      spacing: 0.20
 ```
+**Breath baseline (toned-down orbs):** the breath scale is `0.8 + sin(...) * breath`, i.e. it oscillates **0.7 → 0.9** (was `1.0 ± 0.3` = 0.7 → 1.3). The trough (0.7) preserves the faint resting look; the lower baseline + small amplitude keep the orbs small and gently pulsing instead of swelling into a too-purple, cluttered peak. Per-orb `opacity` (0.40 rest) is unchanged.
 
 **Cursor-area gating (`activeFactor` ∈ [0,1]):**
 - `isActive = true` only when cursor is over `.main-area`. Cursor in sidebar / outside window → `isActive = false`.
 - `activeFactor` smooth-lerps toward `isActive ? 1 : 0` at 0.08/frame (~12 frames to fully transition).
 - **Wander, cursor convergence, and velocity transfer** all scale by `activeFactor` — orbs glide back to anchors and stop wandering when cursor leaves the main area.
 - **Repel** runs at full strength always — **not** gated by `activeFactor`. Orbs keep their spacing even while converging on the cursor (they settle into a spaced cluster near the cursor rather than stacking into an overlapping blob).
-- **Per-orb opacity** scales by `(1 - 0.3 × activeFactor)` — at full convergence each orb fades to 70% of its rest opacity (`0.40 → 0.28`) so three overlapping orbs don't stack into a too-dark blob.
+- **Per-orb opacity** rest value is **0.24** (toned-down, clearly-there ambient haze — not dark/cluttering) and scales by `(1 - 0.55 × activeFactor)` — at full convergence each orb drops to 45% (`0.24 → ≈0.11`) so the clustered 3-orb overlap stays a faint glow over the cursor, not a dark blob. The convergence *motion* (orbs gliding to the cursor), not added darkness, is what signals responsiveness.
 - **Breath** — all orbs share one rate (`time * 0.6`, i.e. `0.6 × speed`) but are phase-offset evenly by `i × (2π / N)` (0° / 120° / 240° for 3 orbs), so they pulse in a staggered round-robin and never peak together.
 - Breath scale and pairwise repulsion damping are not gated — orbs keep breathing at rest, residual velocity dies out cleanly.
 
@@ -416,6 +451,80 @@ Restrained pattern, user-confirmed:
 - **NOT** heavy fills, thick rings, or full-row purple bg
 
 Outside-click handler exempts the table wrap AND its sibling header-actions container (so action buttons don't accidentally deselect — `mousedown` fires before `click`).
+
+---
+
+## Table Header Schemas — Main vs Sub-Table
+
+Two distinct `thead th` typographic schemas. Pick by the table's role; never mix them.
+
+### Sub-Table Header (LOCKED)
+
+For **secondary / nested tables** — those that live inside a modal or a page panel, not a page's primary list. Header cells use:
+```css
+font-size: 11px;
+font-weight: 700;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+/* color — depends on the header background, see the caveat below */
+```
+
+**Color caveat — depends on whether the header has a WHITE background:**
+- **White header bar** (the `thead` cells carry a white/glass fill, e.g. `rgba(255,255,255,0.45–0.55)`): use `color: var(--ink-light)` (#6B6580, muted grey). Grey reads cleanly on white.
+- **No white header bar** (the header is transparent — it sits directly on the lavender aurora / page panel): use `color: var(--ink)` (near-black). Grey washes out / looks low-contrast on lavender, so it stays ink.
+
+The `11px / 700 / 0.05em / uppercase` part is constant either way — only the **color flips** with the background. This schema governs the **header row only** (body/cell text is set per table — the modal sub-tables use 13px cells).
+
+**Current sites:**
+
+*White header bar → grey (`--ink-light`):*
+- Quote modal scenario table — `.quote-table thead th` (`QuoteModal.css`)
+- Offer-Letter "SELECT A ROW" deal-sheet tables — `.deal-sheet-table-modal .deal-sheet-table thead th` re-applies the grey over the ink base, because this modal adds a white header bar (`OfferLetterForm.css`)
+- Agreements table — `.agreements-table th` (`AgreementsPage.css`)
+- Valuation page tables (Initial Quote / RTHM Valuation / PR Uplift, all share the class) — `.valuation-table th` (`ValuationPage.css`)
+
+*Transparent header → ink (`--ink`):*
+- Generic modal-table base — `.modal-table th` (`ImportModal.css`); covers the Import "select rows" picker, whose header is transparent on the modal glass. (The deal-sheet modal overrides back to grey above.)
+- Valuate Tracks table — `.valuate-tracks-table th` (`ValuatePage.css`)
+
+**NOT this schema — form input-grids.** A row of column labels sitting above *form inputs* (not data cells) is not a sub-table. These use a separate, smaller field-label style — **`10px / 700 / 0.04em / var(--ink)`** — and must not be pulled into the sub-table schema: Offer-Letter income-split (`.income-table th`, `OfferLetterForm.css`) and Invoice line-items (`.line-item-header`, `InvoiceForm.css`). They match each other.
+
+When applying to a new sub-table, copy the `11px/700/0.05em/uppercase` properties, **pick the color by the white-header caveat**, and **scope** the rule so it can't leak into a **main table** (Deal Manager `.deals-table`, Data Manager `.data-manager-table`), which keep the separate near-black schema below.
+
+### Main-Table Header (separate — the sub-table schema does NOT apply)
+
+The page-level **primary list tables** — Deal Manager (`.deals-table th`) and Data Manager (`.data-manager-table th`) — keep their **own** header schema:
+```css
+font-size: 11px;
+font-weight: 700;
+letter-spacing: 0.07em;            /* wider than the sub-table's 0.05em */
+text-transform: uppercase;
+color: var(--ink);                  /* near-black, NOT the sub-table grey */
+background: rgba(255, 255, 255, 0.45);   /* glass header bar */
+```
+These are **MAIN tables**. Never apply the sub-table grey/`0.05em` schema to them.
+
+---
+
+## Table Column Sizing & Truncation
+
+Applies to the list tables on Deal Manager (`.deals-table`) and Data Manager (`.data-manager-table`). Both are `width: 100%; border-collapse: collapse` with cells at `padding: 14px 20px`.
+
+### Spacing (from cell padding alone — no `border-spacing`)
+- **Edge → first content** and **last content → edge:** `20px` (one cell's outer padding).
+- **Between columns:** `40px` (right-padding of the left cell + left-padding of the right cell = 20 + 20).
+- So inner gaps are exactly double the edge gaps. This is the current, accepted rhythm — do not "even it out" to 20px everywhere unless explicitly asked (would require asymmetric per-cell padding).
+
+### Slack-absorber column
+One variable-width column is set to `width: 100%` so it soaks up all leftover table width; every other column then shrinks to its content. This keeps the fixed/action columns tight and makes the **last action column's centered button land flush at the right edge** (20px inset, mirroring the first column's 20px left inset) — no per-cell `text-align` hacks needed.
+- **Deal Manager:** Deal Name absorbs slack → Delete button sits at the right edge.
+- **Data Manager:** Folder Name absorbs slack (`th:first-child/td:first-child { min-width: 280px; width: auto }`, with explicit widths on the other columns) → the rightmost action lands at the right edge.
+
+### Variable text columns truncate with a fade
+Free-text columns (unpredictable length) get a single-line truncate: `white-space: nowrap; overflow: hidden;` plus a right-edge `mask-image` fade (`linear-gradient(to right, black calc(100% - 24px), transparent)`). Row height stays constant, action buttons are never squeezed, and the full value shows on hover via the cell's `title` tooltip. Classes: `.deals-cell-truncate`, `.data-manager-cell-truncate`.
+- **Deal Manager:** Deal Name + Platform both cap at **190px** (the two variable columns read as matched widths — one shared rule, no per-column override).
+- **Data Manager:** Folder Name caps at **240px**.
+- Note: the two pages' truncate caps currently differ (190 vs 240) — they are not yet unified.
 
 ---
 

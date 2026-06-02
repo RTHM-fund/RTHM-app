@@ -202,15 +202,18 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
                 {error && <div className="modal-error">{error}</div>}
 
                 {!loading && !error && (
+                  <>
+                  <table className="modal-table modal-rows-table modal-rows-head">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>{headerMap['A'] || 'Deal'}</th>
+                        <th>{headerMap['C'] || 'Distributor/PRO'}</th>
+                      </tr>
+                    </thead>
+                  </table>
                   <div className="modal-table-wrap">
-                    <table className="modal-table">
-                      <thead>
-                        <tr>
-                          <th></th>
-                          <th>{headerMap['A'] || 'Deal'}</th>
-                          <th>{headerMap['C'] || 'Distributor/PRO'}</th>
-                        </tr>
-                      </thead>
+                    <table className="modal-table modal-rows-table">
                       <tbody>
                         {filtered.length === 0 && (
                           <tr><td colSpan={3} className="modal-empty">No deals found</td></tr>
@@ -228,6 +231,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
                       </tbody>
                     </table>
                   </div>
+                  </>
                 )}
 
                 <div className="modal-footer">
@@ -261,7 +265,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
               <div className="modal-field">
                 <label className="modal-label">ROYALTY TYPE</label>
                 <Combobox
-                  className="combobox--form"
+                  className="combobox--form royalty-type-combo"
                   value={royaltyType}
                   onChange={e => setRoyaltyType(e.target.value)}
                   options={[

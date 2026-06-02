@@ -7,12 +7,16 @@ export default function Sparkline({ values, width = 64, height = 24, emptyClassN
   const min = Math.min(...values)
   const max = Math.max(...values)
   const range = max - min || 1
-  const pad = 2
-  const w = width - pad * 2
-  const h = height - pad * 2
+  // padX = 0 so the line spans the full width and its visible edges sit flush with the
+  // SVG box (= the cell's content edge) — that makes the gap to the neighbouring column
+  // exactly the table's inter-column spacing. padY = 2 keeps peaks/troughs from clipping.
+  const padX = 0
+  const padY = 2
+  const w = width - padX * 2
+  const h = height - padY * 2
   const points = values.map((v, i) => {
-    const x = pad + (i / (values.length - 1)) * w
-    const y = pad + h - ((v - min) / range) * h
+    const x = padX + (i / (values.length - 1)) * w
+    const y = padY + h - ((v - min) / range) * h
     return `${x.toFixed(1)},${y.toFixed(1)}`
   })
   return (

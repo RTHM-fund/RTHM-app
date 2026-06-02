@@ -240,7 +240,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                 <th>RTHM Advance</th>
                 <th>Recoup Rate</th>
                 <th>RAS Recoup</th>
-                <th>RTHM Margin</th>
+                <th>Margin</th>
               </tr>
             </thead>
             <tbody>

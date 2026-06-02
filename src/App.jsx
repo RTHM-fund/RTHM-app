@@ -94,7 +94,7 @@ export default function App() {
     if (!orbLayer) return
 
     const LOCKED = {
-      breath: 0.3,
+      breath: 0.1,
       speed: 3.0,
       wanderSpeed: 7.0,
       wander: 7.0,
@@ -110,9 +110,9 @@ export default function App() {
     // Tuned via the in-app drag playground — locked-in positions form an askew
     // shape across the viewport with the deep purple anchoring the bottom.
     const ORB_DEFS = [
-      { color: '#5200BE', sizeFactor: 0.80, opacity: 0.40, centerX: 0.343, centerY: 0.253, depth: 1.0 },
-      { color: '#5200BE', sizeFactor: 0.90, opacity: 0.40, centerX: 0.906, centerY: 0.460, depth: 0.8 },
-      { color: '#5200BE', sizeFactor: 0.60, opacity: 0.40, centerX: 0.511, centerY: 0.842, depth: 1.1 },
+      { color: '#5200BE', sizeFactor: 0.80, opacity: 0.24, centerX: 0.343, centerY: 0.253, depth: 1.0 },
+      { color: '#5200BE', sizeFactor: 0.90, opacity: 0.24, centerX: 0.906, centerY: 0.460, depth: 0.8 },
+      { color: '#5200BE', sizeFactor: 0.60, opacity: 0.24, centerX: 0.511, centerY: 0.842, depth: 1.1 },
     ]
 
     const makeWanderFreqs = () => [
@@ -256,13 +256,18 @@ export default function App() {
       }
 
       orbs.forEach(orb => {
-        const scale = 1 + Math.sin(time * 0.6 + orb.breathPhase) * LOCKED.breath
+        // Breathe around a 0.8 baseline (was 1.0) with a small ±0.1 amplitude: scale
+        // oscillates 0.7→0.9 — the trough keeps the prior faint "min" look while the peak
+        // is toned down from the old 1.3 (orbs no longer swell into a too-purple max).
+        const scale = 0.8 + Math.sin(time * 0.6 + orb.breathPhase) * LOCKED.breath
         const tx = orb._tempTx + orb.repelX
         const ty = orb._tempTy + orb.repelY
         orb.el.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + scale.toFixed(3) + ')'
-        // Fade orb opacity as it converges. At full convergence each orb sits
-        // at 70% of rest opacity so the stacked-3-overlap doesn't look too dark.
-        orb.el.style.opacity = orb.def.opacity * (1 - 0.3 * activeFactor)
+        // Fade orb opacity as it converges. At full convergence each orb drops to 45%
+        // of rest opacity (≈0.11) so the clustered 3-orb overlap stays a faint glow over
+        // the cursor rather than a dark blob — the motion, not the darkness, signals
+        // responsiveness. Rest opacity is 0.24 (toned-down, clearly-there ambient haze).
+        orb.el.style.opacity = orb.def.opacity * (1 - 0.55 * activeFactor)
       })
 
       rafId = requestAnimationFrame(tick)

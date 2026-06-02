@@ -140,12 +140,16 @@
   z-index: 1;
 }
 
+/* Sub-table header schema (see design_system.md): 11px/700/0.05em uppercase. Color is
+   ink here because this transparent header has NO white background (Import "select rows"
+   reads on the modal glass). The deal-sheet modal, which DOES add a white header bar,
+   re-applies the grey --ink-light in OfferLetterForm.css. */
 .modal-table th {
   padding: 10px 16px;
   text-align: left;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ink);
   border-bottom: none;
@@ -156,6 +160,18 @@
   width: 40px;
   padding-left: 24px;
 }
+
+/* Import "select rows": the column header is its OWN table ABOVE the scroll area
+   (.modal-rows-head), so the DEAL / DISTRIBUTOR-PRO labels stay put with no
+   background — rows never bleed through them. Both tables use table-layout: fixed
+   with identical column widths so the header and the scrolling rows stay aligned
+   (the native scrollbar is hidden, so there is no width offset between them). */
+.modal-rows-table { table-layout: fixed; }
+.modal-rows-head { flex-shrink: 0; }
+.modal-rows-table th:first-child,
+.modal-rows-table td:first-child { width: 56px; }
+.modal-rows-table th:nth-child(2),
+.modal-rows-table td:nth-child(2) { width: 50%; }
 
 .modal-table td {
   padding: 10px 16px;
@@ -249,6 +265,14 @@
   color: var(--ink);
   text-align: center;
 }
+
+/* ROYALTY TYPE dropdown — lock the trigger (and therefore its menu, which copies
+   the trigger width) to the width of the widest option, "distribution" (~150px), so
+   the button doesn't resize when a shorter option is selected. */
+.royalty-type-combo { width: 150px; }
+/* Center the label + chevron as a group (the wider fixed button would otherwise
+   leave them split left/right via combobox--form's space-between). */
+.combobox.combobox--form.royalty-type-combo .combobox-trigger > span { justify-content: center; }
 
 .modal-radio-group {
   display: flex;

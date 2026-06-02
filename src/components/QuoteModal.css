@@ -47,14 +47,13 @@
   text-align: center;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--ink);
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: var(--ink-light);
+  /* Flat semi-opaque white (no backdrop-filter): sits on the modal's own glass,
+     so there's no second filter region and thus no saturated-edge purple fringe. */
+  background: rgba(255, 255, 255, 0.55);
   position: relative;
-  isolation: isolate;
   white-space: nowrap;
 }
 
@@ -86,28 +85,33 @@
   color: var(--ink);
 }
 
-/* Numeric value cells — primary purple + 700 weight, mirroring
-   .data-manager-td-num so the table reads as part of the same family. */
-.quote-table-val {
-  color: var(--primary);
-  font-weight: 700;
-}
-
 /* Super-user inline advance editor — zero chrome: no border, no background, no ring.
-   Inherits the cell's exact look so it reads as the plain value, just editable. */
+   Inherits the cell's EXACT typography (font/size/weight/color) so it's visually
+   identical to the static value — only difference is it's editable. (Inputs don't
+   inherit font/color by default, so each is set to inherit explicitly.) */
 .quote-advance-edit {
   width: 100%;
+  /* with size={1} in the JSX, this stops the input's default intrinsic width from
+     widening its table column — the column stays sized by the static value cells, so
+     entering edit mode changes the layout by exactly nothing. */
+  min-width: 0;
   border: none;
   outline: none;
   background: transparent;
   padding: 0;
   margin: 0;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--primary);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  letter-spacing: inherit;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  /* If a value is longer than the (now locked) cell, fade it at the right edge
+     instead of forcing the column wider — mirrors the app's truncation fade. */
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
 }
 
 /* Standard row hover wash per design system (Selection State / Tables) */

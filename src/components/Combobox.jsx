@@ -69,7 +69,7 @@ export default function Combobox({ value, onChange, options, placeholder, classN
               key={o.value}
               role="option"
               aria-selected={o.value === value}
-              className={`combobox-item ${o.value === value ? 'selected' : ''}`}
+              className="combobox-item"
               onClick={() => pick(o.value)}
             >
               {o.label}

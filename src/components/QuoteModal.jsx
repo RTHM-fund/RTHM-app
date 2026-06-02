@@ -131,6 +131,7 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
   const [error, setError] = useState(null)
   const [overrides, setOverrides] = useState({})  // { '18m': number } — pinned manual advances (super-user Alt+click)
   const [editing, setEditing] = useState(null)     // scenario name whose Advance cell is being edited inline
+  const [editValue, setEditValue] = useState('')   // live comma-formatted text in the inline Advance editor
   const debounceRef = useRef(null)
   const skipBlurRef = useRef(false)                 // suppress the unmount-blur commit on Enter/Escape
 
@@ -304,14 +305,16 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
                               className="quote-advance-edit"
                               autoFocus
                               inputMode="decimal"
-                              defaultValue={Number.isFinite(sc.advance) ? String(Math.round(sc.advance)) : ''}
+                              size={1}
+                              value={editValue}
+                              onChange={e => setEditValue(withCommas(cleanNumeric(e.target.value)))}
                               onKeyDown={e => {
-                                if (e.key === 'Enter') { skipBlurRef.current = true; commitOverride(sc.name, e.target.value) }
+                                if (e.key === 'Enter') { skipBlurRef.current = true; commitOverride(sc.name, editValue) }
                                 else if (e.key === 'Escape') { skipBlurRef.current = true; setEditing(null) }
                               }}
-                              onBlur={e => {
+                              onBlur={() => {
                                 if (skipBlurRef.current) { skipBlurRef.current = false; return }
-                                commitOverride(sc.name, e.target.value)
+                                commitOverride(sc.name, editValue)
                               }}
                             />
                           </td>
@@ -321,7 +324,7 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
                         <td
                           key={i}
                           className="quote-table-val"
-                          onClick={editable ? (e => { if (e.altKey) { e.preventDefault(); setEditing(sc.name) } }) : undefined}
+                          onClick={editable ? (e => { if (e.altKey) { e.preventDefault(); setEditing(sc.name); setEditValue(Number.isFinite(sc.advance) ? withCommas(String(Math.round(sc.advance))) : '') } }) : undefined}
                         >{v}</td>
                       )
                     })}
@@ -336,7 +339,7 @@ export default function QuoteModal({ folderPath, graphName, onClose }) {
               <div className="projection-field" key={f.key}>
                 <label>{f.label}</label>
                 <input
-                  className="field-input"
+                  className={`field-input${f.type === 'date' && !form[f.key] ? ' date-empty' : ''}`}
                   type={f.type}
                   value={form[f.key]}
                   onChange={e => handleField(f.key, e.target.value, false)}

@@ -9,8 +9,12 @@
   flex: 1;
 }
 
-.deal-sheet-table-modal {
-  width: auto;
+/* Higher specificity than `.modal { width: 640px }` so this actually wins (a plain
+   `.deal-sheet-table-modal` ties and loses to `.modal`). fit-content shrink-wraps the
+   modal to its widest table: a lone narrow RTHM VALUATION table no longer sits in a
+   fixed 640px box with a right gap, while a wider PR UPLIFT table is still hugged cleanly. */
+.modal.deal-sheet-table-modal {
+  width: fit-content;
   max-width: 95vw;
 }
 
@@ -30,7 +34,7 @@
 
 .deal-sheet-table {
   margin-bottom: 8px;
-  font-size: 12px;
+  font-size: 13px; /* match the Quote modal's body cell size */
 }
 
 .deal-sheet-table.rthm-table {
@@ -45,8 +49,47 @@
 
 .deal-sheet-table td {
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 13px;
 }
+
+/* ---- Adopt the Quote modal's table chrome on the "select a row" modal: white glass
+   column header (rounded top corners), breathing room between the tables and the modal
+   edges, and a centered title. Cell TEXT ALIGNMENT is intentionally left as-is (deal-sheet
+   tables stay left-aligned). All scoped to .deal-sheet-table-modal so the Import modal and
+   Quote modal are untouched; selectors are >= specificity of the shared .modal-table rules
+   they override. ---- */
+.deal-sheet-table-modal .modal-header {
+  justify-content: center;
+}
+.deal-sheet-table-modal .modal-table-wrap {
+  padding: 0 24px;
+}
+/* Center the section titles (PR UPLIFT / RTHM VALUATION) and the tables themselves
+   (a narrow RTHM table is centered under the wider PR table instead of left-aligned). */
+.deal-sheet-table-modal .modal-table-label {
+  text-align: center;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.deal-sheet-table-modal .deal-sheet-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+.deal-sheet-table-modal .deal-sheet-table thead {
+  position: static; /* not sticky — matches the Quote table; no white-header bleed-through */
+}
+.deal-sheet-table-modal .deal-sheet-table thead th {
+  /* Flat semi-opaque white (no backdrop-filter): sits on the modal's own glass,
+     so there's no second filter region and thus no saturated-edge purple fringe.
+     This modal DOES have a white header bar, so the sub-table grey applies (the base
+     .modal-table th is ink for the no-white-bg case). Size/weight/tracking from base. */
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ink-light);
+}
+.deal-sheet-table-modal .deal-sheet-table thead tr:first-child th:first-child { border-top-left-radius: var(--radius); }
+.deal-sheet-table-modal .deal-sheet-table thead tr:first-child th:last-child  { border-top-right-radius: var(--radius); }
 
 .field-group--toggle {
   flex-direction: row;
@@ -94,6 +137,8 @@
 }
 
 .income-table th {
+  /* Form input-grid field-label header — matches Invoice's .line-item-header
+     (10px/700/0.04em), NOT the sub-table header schema. */
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;

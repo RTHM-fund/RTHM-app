@@ -339,17 +339,13 @@ app.get('/api/templates', (req, res) => {
       id: cat.id,
       label: cat.label,
       templates: files.map(f => ({ name: f.replace('.docx', ''), filename: f })).sort((a, b) => {
-        if (cat.id !== 'Royalty Purchase Agreements') return 0
-        const orders = {
-          'Royalty Purchase Agreements': ['RTHM RPA', 'RTHM x RAS RPA'],
-          'Deal Sheets': ['RTHM Deal Sheet'],
+        // Pin the RTHM-branded template to the top of Deal Sheets and Offer Letters;
+        // every other case (incl. RPAs, Invoices) is alphabetical.
+        if (cat.id === 'Deal Sheets' || cat.id === 'Offer Letters') {
+          const aRthm = a.name.startsWith('RTHM ')
+          const bRthm = b.name.startsWith('RTHM ')
+          if (aRthm !== bRthm) return aRthm ? -1 : 1
         }
-        const order = orders[cat.id] || []
-        const ai = order.indexOf(a.name)
-        const bi = order.indexOf(b.name)
-        if (ai !== -1 && bi !== -1) return ai - bi
-        if (ai !== -1) return -1
-        if (bi !== -1) return 1
         return a.name.localeCompare(b.name)
       })
     }
@@ -1601,6 +1597,20 @@ function computeWorkbookSummary(folder) {
     return summary
   } catch (e) { console.warn('[computeWorkbookSummary]', folder, e.message); return null }
 }
+// Does a diligence workbook physically exist for this folder? This is the source of truth
+// for the Data Manager "Diligence" ✓ — independent of whether computeWorkbookSummary can
+// PARSE it. Some workbooks produced by the diligence skill use sheet-naming variants the
+// summary parser doesn't recognize yet (e.g. "BMI-Trk Rep", "Kurate – Trk Rep"), but
+// diligence WAS done — so they must still show ✓. A fresh fs check runs every request, so
+// the status is always current on page load. (Summary still drives the data columns.)
+function diligenceWorkbookExists(folder) {
+  try {
+    const basename = path.basename(folder)
+    const ddFolder = path.join(folder, `${basename}_Due Diligence`)
+    if (!fs.existsSync(ddFolder)) return false
+    return resolveDiligenceWorkbookPath(ddFolder, basename) != null
+  } catch { return false }
+}
 function computeWorkbookSummaryInner(wbPath, dealName) {
   try {
     const wb = XLSX.readFile(wbPath, { cellDates: true })
@@ -1996,10 +2006,13 @@ app.get('/api/data/folders', (req, res) => {
         // Summary (sparkline line + Lifetime + TTM). Returns null when there's no
         // diligence folder, no workbook, or the workbook is unparseable.
         const summary = computeWorkbookSummary(fullPath)
-        // Rule: diligence is "done" only when we can actually read a parseable
-        // workbook. An empty `_Due Diligence` folder doesn't count — if you can't
-        // draw the line, diligence isn't done from the app's perspective.
-        const hasDiligence = summary != null
+        // Diligence is "done" when a workbook EXISTS on disk — NOT gated on the summary
+        // parsing (some skill-produced workbooks use sheet-naming variants the summary
+        // parser doesn't recognize yet, but diligence was genuinely done). An empty
+        // `_Due Diligence` folder with no workbook still correctly shows "?". The summary
+        // independently drives the data columns (sparkline / Lifetime / TTM), which stay
+        // blank if the workbook can't be parsed.
+        const hasDiligence = diligenceWorkbookExists(fullPath)
         return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasExtract, hasQuote, staleSkills, summary }
       })
       .sort((a, b) => b.mtime.localeCompare(a.mtime))
