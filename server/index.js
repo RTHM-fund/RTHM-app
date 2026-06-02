@@ -852,8 +852,8 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
     const pairs = hasVQ ? VQ_PAIRS : IQ_PAIRS
     const source = hasVQ ? vq : iq
 
-    function fmtMoney(n) { return '$' + Math.round(n).toLocaleString('en-US') }
-    function fmtPct(n) { return n + '%' }
+    function fmtMoney(n) { return Math.round(n).toLocaleString('en-US') }  // no currency symbol (app-wide, incl. exports)
+    function fmtPct(n) { return Number(n).toFixed(2) + '%' }  // percentages to 2 decimals (e.g. 40 → 40.00%)
 
     const fields = { 'Deal Name': deal.name, 'Date': dateStr, showPR }
     const b2bFields = {}
@@ -879,7 +879,7 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
       fields[`Marketing ${key}`] = fmtMoney(marketingBudget)
 
       const b2bAdvance = Math.round(rthmAdvance * (1 - effectiveMargin / 100))
-      const b2bRecoup = rasRecoup > 0 ? Math.round((b2bAdvance / rasRecoup) * 100) : 0
+      const b2bRecoup = rasRecoup > 0 ? (b2bAdvance / rasRecoup) * 100 : 0  // unrounded → fmtPct shows true 2dp
       const b2bPRAdvance = Math.round(advanceAmount * (1 - effectiveMargin / 100))
       b2bFields[`B2B Advance ${key}`] = fmtMoney(b2bAdvance)
       b2bFields[`B2B Recoup ${key}`] = fmtPct(b2bRecoup)

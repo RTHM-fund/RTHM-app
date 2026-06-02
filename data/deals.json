@@ -3234,5 +3234,105 @@
         "createdAt": "2026-06-02T01:19:24.621Z"
       }
     ]
+  },
+  {
+    "name": "Lambo4oe",
+    "platform": "APG",
+    "initialQuote": {
+      "AP": 32980,
+      "AQ": 38400,
+      "AR": 67027,
+      "AS": 92800,
+      "AT": 81286,
+      "AU": 128500,
+      "AV": 88173,
+      "AW": 155600
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12171766715",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-06-02T16:43:50.075Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "79.87",
+        "36 months": "67.17",
+        "60 months": "58.83",
+        "84 months": "52.7"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Lambo4oe.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lambo4oe.docx",
+        "createdAt": "2026-06-02T17:02:23.948Z"
+      }
+    ]
+  },
+  {
+    "name": "Thraxx",
+    "platform": "BMI",
+    "initialQuote": {
+      "AP": 4171,
+      "AQ": 5100,
+      "AR": 8827,
+      "AS": 12900,
+      "AT": 11349,
+      "AU": 19500,
+      "AV": 12707,
+      "AW": 25100
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12172389726",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-06-02T17:28:50.751Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "76.06",
+        "36 months": "63.64",
+        "60 months": "54.12",
+        "84 months": "47.08"
+      },
+      "commission": 5,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Thraxx.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Thraxx.docx",
+        "createdAt": "2026-06-02T17:36:44.565Z"
+      }
+    ]
   }
 ]

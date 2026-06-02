@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Combobox from './Combobox.jsx'
+import { formatPct } from '../utils.js'
 import './ValuationPage.css'
 
 const TERMS = ['12 months', '36 months', '60 months', '84 months']
@@ -39,20 +40,27 @@ function withCommas(raw) {
 }
 
 function RateInput({ label, value, onChange, disabled }) {
+  // `draft` holds the raw editable string while focused; null = show the 2dp-formatted value.
+  const [draft, setDraft] = useState(null)
   return (
     <div className="commission-inline">
       <span className="commission-label">{label}</span>
       <input
         className={`rate-input${disabled ? ' rate-input-locked' : ''}`}
         type="text"
-        inputMode="numeric"
-        value={withCommas(String(Number(value)))}
-        onFocus={e => e.target.select()}
+        inputMode="decimal"
+        value={draft != null ? draft : formatPct(value)}
+        onFocus={e => { if (!disabled) setDraft(String(Number(value))); e.target.select() }}
         onChange={e => {
           if (disabled) return
-          const v = e.target.value.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '')
-          onChange(v === '' ? 0 : parseInt(v))
+          let v = e.target.value.replace(/[^0-9.]/g, '')
+          const dot = v.indexOf('.')
+          if (dot !== -1) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, '').slice(0, 2)
+          v = v.replace(/^0+(?=\d)/, '')
+          setDraft(v)
+          onChange(v === '' || v === '.' ? 0 : parseFloat(v))
         }}
+        onBlur={() => setDraft(null)}
         readOnly={disabled}
         tabIndex={disabled ? -1 : undefined}
       />
@@ -66,7 +74,7 @@ function QuoteTable({ title, percent, pairs, data }) {
     <div className="valuation-section">
       <div className="valuation-section-header">
         <h3 className="valuation-section-title">{title}</h3>
-        {percent != null && <span className="valuation-percent">{percent}%</span>}
+        {percent != null && <span className="valuation-percent">{formatPct(percent)}%</span>}
       </div>
       <table className="valuation-table">
         <thead>
@@ -77,13 +85,13 @@ function QuoteTable({ title, percent, pairs, data }) {
             const [a, b] = pairs[TERMS.indexOf(term)]
             const q = parseFloat(data[a]) || 0
             const r = parseFloat(data[b]) || 0
-            const rasRate = (q && r) ? Math.round((q / r) * 100) : null
+            const rasRate = (q && r) ? (q / r) * 100 : null
             return (
               <tr key={term}>
                 <td className="term-cell">{term}</td>
                 <td>{fmt(data[a])}</td>
                 <td>{fmt(data[b])}</td>
-                <td>{rasRate !== null ? `${rasRate}%` : '—'}</td>
+                <td>{rasRate !== null ? `${formatPct(rasRate)}%` : '—'}</td>
               </tr>
             )
           })}
@@ -247,8 +255,8 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
               {valuationRows.map(({ term, rasAdvance, rasRecoup, rate, rthmAdvance, margin }) => {
                 const marginTip = dealType === 'B2B'
                   ? `${fmt(rasAdvance)} − ${fmt(rthmAdvance)}`
-                  : `${fmt(rasAdvance)} − ${fmt(rthmAdvance)} − (${fmt(rthmAdvance)} × ${marginRate}%)`
-                const advTip = `${fmt(rasRecoup)} × ${rate}%`
+                  : `${fmt(rasAdvance)} − ${fmt(rthmAdvance)} − (${fmt(rthmAdvance)} × ${formatPct(marginRate)}%)`
+                const advTip = `${fmt(rasRecoup)} × ${formatPct(rate)}%`
                 return (
                   <tr key={term}>
                     <td className="term-cell">{term}</td>
@@ -301,6 +309,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                               v = v.replace(/^0+(?=\d)/, '')
                               setRate(term, v)
                             }}
+                            onBlur={() => { const f = formatPct(rates[term]); if (f !== '') setRate(term, f) }}
                           />
                           <span className="rate-symbol">%</span>
                         </>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Combobox from './Combobox.jsx'
-import { MONTHS, getTypeLabel, isAmountField } from '../utils.js'
+import { MONTHS, getTypeLabel, isAmountField, formatPct } from '../utils.js'
 import './OfferLetterForm.css'
 
 const FUTURES_FIELDS = ['Futures Advance', 'Holdback', 'Track Number', 'Futures Term']
@@ -54,6 +54,7 @@ const LOCKED_FIELDS = new Set(['Advance Amount', 'Recoup Rate', 'Term', 'Recoup 
 export default function OfferLetterForm({ template, prefillData, onBack, onSaveComplete }) {
   const [fields, setFields] = useState([])
   const [values, setValues] = useState({})
+  const [focusedIncome, setFocusedIncome] = useState(null) // income-split cell key being edited (raw while focused, 2dp otherwise)
   const [rawDates, setRawDates] = useState({})
   const [rawAmounts, setRawAmounts] = useState({})
   const [fileName, setFileName] = useState('')
@@ -143,9 +144,14 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
       setRawAmounts(prev => ({ ...prev, [field]: digits }))
       setValues(prev => ({ ...prev, [field]: digits === '' ? '' : parseInt(digits).toLocaleString('en-US') }))
     } else if (PERCENT_FIELDS.has(field)) {
-      const digits = value.replace(/[^0-9]/g, '')
-      setRawAmounts(prev => ({ ...prev, [field]: digits }))
-      setValues(prev => ({ ...prev, [field]: digits === '' ? '' : `${parseInt(digits)}%` }))
+      // Allow up to 2 decimals; show the raw value live (e.g. "40%", "40.5%"), format to
+      // 2dp on blur (renderField onBlur) and at save.
+      let cleaned = value.replace(/[^0-9.]/g, '')
+      const dot = cleaned.indexOf('.')
+      if (dot !== -1) cleaned = cleaned.slice(0, dot + 1) + cleaned.slice(dot + 1).replace(/\./g, '').slice(0, 2)
+      cleaned = cleaned.replace(/^0+(?=\d)/, '')
+      setRawAmounts(prev => ({ ...prev, [field]: cleaned }))
+      setValues(prev => ({ ...prev, [field]: cleaned === '' ? '' : `${cleaned}%` }))
     } else if (MONTHS_FIELDS.has(field)) {
       const digits = value.replace(/[^0-9]/g, '')
       setRawAmounts(prev => ({ ...prev, [field]: digits }))
@@ -267,6 +273,8 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
 
     try {
       const filteredValues = { ...values, 'Total Deal': totalDealFormatted, 'Deal Name': fileName.trim() }
+      // Every percentage prints with exactly 2 decimals in the exported document (40% → 40.00%).
+      PERCENT_FIELDS.forEach(f => { if (filteredValues[f]) { const p = formatPct(filteredValues[f]); if (p !== '') filteredValues[f] = `${p}%` } })
       if (!showDistro) DISTRO_FIELDS.forEach(f => delete filteredValues[f])
       if (!showMarketing) MARKETING_FIELDS.forEach(f => delete filteredValues[f])
       if (!showFutures) FUTURES_FIELDS.forEach(f => delete filteredValues[f])
@@ -376,7 +384,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
     setValues(prev => ({
       ...prev,
       'Advance Amount': Math.round(advanceAmount).toLocaleString('en-US'),
-      'Recoup Rate': `${row.recoupRate}%`,
+      'Recoup Rate': `${formatPct(row.recoupRate)}%`,
       'Term': `${parseInt(row.term)} ${parseInt(row.term) === 1 ? 'month' : 'months'}`,
       'Recoup Amount': Math.round(row.recoupAmount).toLocaleString('en-US'),
     }))
@@ -411,6 +419,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
     const isDate = field.toLowerCase().includes('date')
     const isAmount = isAmountField(field)
     const isSuffix = PERCENT_FIELDS.has(field) || MONTHS_FIELDS.has(field) || YEARS_FIELDS.has(field) || PLAIN_NUMBER_FIELDS.has(field)
+    const isPercent = PERCENT_FIELDS.has(field)
     const displayValue = isDate ? (rawDates[field] || '') : (values[field] || '')
     const locked = isFieldLocked(field)
     const inputLocked = locked && field !== 'Advance Amount'
@@ -430,6 +439,10 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
               e.preventDefault()
               handleChange(field, (rawAmounts[field] || '').slice(0, -1), false, false)
             }
+          } : undefined}
+          onBlur={isPercent && !inputLocked ? () => {
+            const p = formatPct(rawAmounts[field])
+            setValues(prev => ({ ...prev, [field]: p === '' ? '' : `${p}%` }))
           } : undefined}
           readOnly={inputLocked}
           tabIndex={inputLocked ? -1 : undefined}
@@ -588,7 +601,9 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                             <input
                               className="rate-input"
                               type="text"
-                              value={(rawAmounts[f] || '')}
+                              value={focusedIncome === f ? (rawAmounts[f] || '') : formatPct(rawAmounts[f])}
+                              onFocus={() => setFocusedIncome(f)}
+                              onBlur={() => setFocusedIncome(null)}
                               onChange={e => {
                                 const digits = e.target.value.replace(/[^0-9]/g, '')
                                 const complement = INCOME_PAIRS[f]
@@ -674,7 +689,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                         <td><span className="calc-tip" data-tip={totalTip}>{fmtV(row.prTotal)}</span></td>
                         <td><span className="calc-tip" data-tip={prAdvTip}>{fmtV(row.prAdvance)}</span></td>
                         <td>{row.marketingBudget > 0 ? <span className="calc-tip" data-tip={mktTip}>{fmtV(row.marketingBudget)}</span> : '—'}</td>
-                        <td>{row.recoupRate + '%'}</td>
+                        <td>{formatPct(row.recoupRate) + '%'}</td>
                         <td>{Math.round(row.recoupAmount).toLocaleString('en-US')}</td>
                       </tr>
                       )
@@ -696,7 +711,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                 <tbody>
                   {structuredRows.map((row, rIdx) => {
                     const fmtV = n => Math.round(n).toLocaleString('en-US')
-                    const advTip = `${fmtV(row.recoupAmount)} × ${row.recoupRate}%`
+                    const advTip = `${fmtV(row.recoupAmount)} × ${formatPct(row.recoupRate)}%`
                     return (
                     <tr
                       key={'rthm-' + rIdx}
@@ -705,7 +720,7 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                     >
                       <td>{row.term}</td>
                       <td><span className="calc-tip" data-tip={advTip}>{fmtV(row.advanceAmount)}</span></td>
-                      <td>{row.recoupRate + '%'}</td>
+                      <td>{formatPct(row.recoupRate) + '%'}</td>
                       <td>{fmtV(row.recoupAmount)}</td>
                     </tr>
                     )
