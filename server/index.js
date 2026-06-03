@@ -444,7 +444,7 @@ app.post('/api/save/rpa', (req, res) => {
   }
 })
 
-// POST /api/save/invoice — fill invoice template and export as PDF to Downloads
+// POST /api/save/invoice — fill invoice template and save as a Word .docx to Downloads
 app.post('/api/save/invoice', (req, res) => {
   try {
     const { category, filename, fileName, fields } = req.body
@@ -460,26 +460,11 @@ app.post('/api/save/invoice', (req, res) => {
 
     const filledBuf = fillDocx(templatePath, { ...fields })
 
-    const tmpDir = path.join(os.tmpdir(), 'rthm-invoices')
-    fs.mkdirSync(tmpDir, { recursive: true })
-    const tmpDocx = path.join(tmpDir, docName)
-    fs.writeFileSync(tmpDocx, filledBuf)
-
     const outDir = path.join(os.homedir(), 'Downloads')
     fs.mkdirSync(outDir, { recursive: true })
+    fs.writeFileSync(path.join(outDir, docName), filledBuf)
 
-    const result = spawnSync(LIBRE_BIN, [
-      '--headless', '--convert-to', 'pdf', '--outdir', outDir, tmpDocx
-    ], { timeout: 30000 })
-
-    fs.unlinkSync(tmpDocx)
-
-    if (result.status !== 0) {
-      return res.status(500).json({ error: 'PDF conversion failed: ' + (result.stderr?.toString() || 'unknown error') })
-    }
-
-    const pdfName = docName.replace(/\.docx$/i, '.pdf')
-    res.json({ ok: true, pdfName })
+    res.json({ ok: true, docName })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
