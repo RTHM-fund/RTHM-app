@@ -2034,6 +2034,46 @@ const LOGS_DIR = path.join(__dirname, '..', 'logs')
 // `${skill} ${folderPath}`; entries are cleared on subprocess exit/error.
 const RUNNING_SKILLS = new Set()
 
+// Durable in-flight guard. RUNNING_SKILLS (in-memory) is lost when the server restarts, but a
+// detached skill subprocess can outlive the server. Before starting a run, also check whether a
+// prior run for this folder+skill is STILL ALIVE: find its most recent log, and if that log has
+// no finished/errored marker, read back the PID recorded at the top and probe it. A live PID
+// means a real run is in progress → refuse the second run so two processes can't write (and
+// corrupt) the same workbook. A crashed run leaves a dead PID → not in flight → re-run allowed.
+// Worst case (a recycled PID) is a harmless spurious "already running" — never a double-run.
+function skillRunInFlight(folderPath, skill) {
+  try {
+    const safeFolder = path.basename(folderPath).replace(/[^a-zA-Z0-9_-]+/g, '_')
+    const escaped = safeFolder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const pattern = new RegExp(`^${escaped}_${skill}_\\d+\\.log$`)
+    let matching = []
+    try { matching = fs.readdirSync(LOGS_DIR).filter(f => pattern.test(f)).sort() } catch { return false }
+    if (matching.length === 0) return false
+    const logPath = path.join(LOGS_DIR, matching[matching.length - 1])
+    const st = fs.statSync(logPath)
+    const fd = fs.openSync(logPath, 'r')
+    try {
+      // Tail (≤4 KB): a finished or errored run wrote its marker here → definitively done.
+      const tailStart = Math.max(0, st.size - 4096)
+      const tail = Buffer.alloc(st.size - tailStart)
+      fs.readSync(fd, tail, 0, tail.length, tailStart)
+      const tailStr = tail.toString('utf8')
+      if (tailStr.includes('[spawn] exit code=') || tailStr.includes('[spawn] error:')) return false
+      // Head (≤2 KB): recover the PID recorded just after spawn.
+      const head = Buffer.alloc(Math.min(2048, st.size))
+      fs.readSync(fd, head, 0, head.length, 0)
+      const m = head.toString('utf8').match(/\[spawn\] pid=(\d+)/)
+      if (!m) return false
+      const pid = Number(m[1])
+      try { process.kill(pid, 0); return true } catch (e) { return e.code === 'EPERM' }
+    } finally {
+      fs.closeSync(fd)
+    }
+  } catch {
+    return false
+  }
+}
+
 // Resolve the Claude Code CLI binary. Checks PATH first, then falls back to common
 // install locations (Desktop-app bundle on Windows, npm-global on Mac). Cached in-memory
 // AND on disk (logs/.claude-bin) — disk cache survives restarts and transient fs.existsSync
@@ -2046,28 +2086,47 @@ function persistClaudeBin(p) {
     fs.writeFileSync(CLAUDE_BIN_CACHE_FILE, p, 'utf8')
   } catch {}
 }
+// Verify a resolved claude binary actually EXECUTES — not just that the file exists. A
+// desktop-app auto-update can leave a corrupt/incompatible claude.exe (valid PE header but the
+// OS refuses to launch it → spawn EFTYPE = "not a valid application for this OS platform").
+// `--version` is a fast, side-effect-free probe; status 0 means it runs. Guards against trusting
+// a present-but-unrunnable binary and lets the resolver fall back to an older version that works.
+// Also skips a PATH shim that can't be spawned shell-less (the real run uses shell:false too).
+function claudeBinRuns(p) {
+  try {
+    const r = spawnSync(p, ['--version'], { timeout: 10000, windowsHide: true, stdio: 'ignore' })
+    return !r.error && r.status === 0
+  } catch {
+    return false
+  }
+}
 function findClaudeBin() {
-  // In-memory cache — re-validate before trusting it. The Claude desktop app installs into
-  // a versioned folder (claude-code\<ver>\claude.exe) and DELETES the previous version on
-  // auto-update, so any cached path goes stale (ENOENT) after every update. Verify it still
-  // exists; if not, drop it and re-resolve.
+  // In-memory cache — re-validate before trusting it. The Claude desktop app installs into a
+  // versioned folder (claude-code\<ver>\claude.exe) and DELETES the previous version on auto-
+  // update (cached path → ENOENT); a fresh update can also ship a corrupt/unrunnable binary
+  // (→ EFTYPE). Verify the cached path still exists AND runs; if not, drop it and re-resolve.
   if (CLAUDE_BIN_CACHE) {
-    if (fs.existsSync(CLAUDE_BIN_CACHE)) return CLAUDE_BIN_CACHE
+    if (fs.existsSync(CLAUDE_BIN_CACHE) && claudeBinRuns(CLAUDE_BIN_CACHE)) return CLAUDE_BIN_CACHE
     CLAUDE_BIN_CACHE = null
   }
-  // Disk cache — accept only if the cached path still exists on disk (same staleness risk).
+  // Disk cache — accept only if the cached path still exists AND actually runs. A corrupt
+  // auto-update can replace the cached binary in place (file present, but unrunnable), so
+  // existence alone isn't enough — re-verify runnability before trusting it.
   try {
     const cached = fs.readFileSync(CLAUDE_BIN_CACHE_FILE, 'utf8').trim()
-    if (cached && fs.existsSync(cached)) { CLAUDE_BIN_CACHE = cached; return cached }
+    if (cached && fs.existsSync(cached) && claudeBinRuns(cached)) { CLAUDE_BIN_CACHE = cached; return cached }
   } catch {}
   // Try PATH first
   const probe = os.platform() === 'win32'
     ? spawnSync('where', ['claude'], { encoding: 'utf8', windowsHide: true })
     : spawnSync('which', ['claude'], { encoding: 'utf8' })
   if (probe.status === 0 && probe.stdout?.trim()) {
-    CLAUDE_BIN_CACHE = probe.stdout.trim().split(/\r?\n/)[0]
-    persistClaudeBin(CLAUDE_BIN_CACHE)
-    return CLAUDE_BIN_CACHE
+    const fromPath = probe.stdout.trim().split(/\r?\n/)[0]
+    if (claudeBinRuns(fromPath)) {
+      CLAUDE_BIN_CACHE = fromPath
+      persistClaudeBin(CLAUDE_BIN_CACHE)
+      return CLAUDE_BIN_CACHE
+    }
   }
   // Windows: the Claude desktop app is an MSIX packaged app. The familiar
   // %APPDATA%\Claude path is a SYMLINK into the package's LocalCache, and resolving
@@ -2100,7 +2159,7 @@ function findClaudeBin() {
       } catch { continue }
       for (const v of versions) {
         const candidate = path.join(bundleRoot, v, 'claude.exe')
-        if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
+        if (fs.existsSync(candidate) && claudeBinRuns(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
       }
     }
   }
@@ -2114,7 +2173,7 @@ function findClaudeBin() {
       path.join(home, '.claude/local/claude'),
     ]
     for (const p of fixedPaths) {
-      if (fs.existsSync(p)) { CLAUDE_BIN_CACHE = p; persistClaudeBin(p); return p }
+      if (fs.existsSync(p) && claudeBinRuns(p)) { CLAUDE_BIN_CACHE = p; persistClaudeBin(p); return p }
     }
     // nvm: scan ~/.nvm/versions/node/* for the latest with claude
     try {
@@ -2126,7 +2185,7 @@ function findClaudeBin() {
           .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
         for (const v of versions) {
           const candidate = path.join(nvmRoot, v, 'bin', 'claude')
-          if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
+          if (fs.existsSync(candidate) && claudeBinRuns(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
         }
       }
     } catch {}
@@ -2140,7 +2199,7 @@ function findClaudeBin() {
           .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
         for (const v of versions) {
           const candidate = path.join(bundleRoot, v, 'claude')
-          if (fs.existsSync(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
+          if (fs.existsSync(candidate) && claudeBinRuns(candidate)) { CLAUDE_BIN_CACHE = candidate; persistClaudeBin(candidate); return candidate }
         }
       }
     } catch {}
@@ -2156,7 +2215,7 @@ app.post('/api/data/run-skill', (req, res) => {
       return res.status(400).json({ error: 'invalid folderPath' })
     }
     const runKey = `${skill} ${folderPath}`
-    if (RUNNING_SKILLS.has(runKey)) {
+    if (RUNNING_SKILLS.has(runKey) || skillRunInFlight(folderPath, skill)) {
       return res.status(409).json({ error: `${skill} is already running for this folder — wait for it to finish.` })
     }
     const claudeBin = findClaudeBin()
@@ -2187,44 +2246,70 @@ app.post('/api/data/run-skill', (req, res) => {
       }, null, 2))
     } catch {}
 
-    // Use pipe-based stdio + Node streams instead of inheriting raw fds. On
-    // Windows detached + fd inheritance can silently drop subprocess output —
-    // a piped stream that we drain to the log file is reliable. Drop detached
-    // so the subprocess stays attached and any exit code is observable.
+    // Fire-and-forget BACKGROUND run: the subprocess is DETACHED + unref'd so it survives this
+    // server exiting (e.g. the heartbeat shutdown ~3s after the browser tab closes) and runs to
+    // completion on its own. stdout+stderr go straight to the log file via inherited file
+    // descriptors — NOT piped through this process — so logging keeps working after the parent is
+    // gone. (The old "detached drops output on Windows" problem was about inheriting the parent's
+    // OWN std fds; writing to file descriptors we opened here is reliable.)
     RUNNING_SKILLS.add(runKey)
+    let outFd = 'ignore', errFd = 'ignore'
+    try {
+      outFd = fs.openSync(logPath, 'a')
+      errFd = fs.openSync(logPath, 'a')
+    } catch {
+      if (typeof outFd === 'number') { try { fs.closeSync(outFd) } catch {} }
+      outFd = 'ignore'; errFd = 'ignore'
+    }
+    const closeLogFds = () => { for (const fd of [outFd, errFd]) if (typeof fd === 'number') { try { fs.closeSync(fd) } catch {} } }
     let proc
     try {
       proc = spawn(claudeBin, args, {
         cwd: folderPath,
-        stdio: ['ignore', 'pipe', 'pipe'],
+        stdio: ['ignore', outFd, errFd],
         shell: false,
+        detached: true,
         windowsHide: true,
       })
     } catch (spawnErr) {
       RUNNING_SKILLS.delete(runKey)
+      closeLogFds()
+      // A corrupt/stale binary surfaces here as a synchronous spawn throw: EFTYPE (present but
+      // unrunnable image), EACCES (not executable), or ENOENT (missing). Invalidate the cache so
+      // the next run re-resolves and skips the bad binary via the runnability check above.
+      if (spawnErr && ['EFTYPE', 'EACCES', 'ENOENT'].includes(spawnErr.code)) {
+        CLAUDE_BIN_CACHE = null
+        try { fs.unlinkSync(CLAUDE_BIN_CACHE_FILE) } catch {}
+      }
       throw spawnErr
     }
-    const logStream = fs.createWriteStream(logPath, { flags: 'a' })
-    proc.stdout.pipe(logStream, { end: false })
-    proc.stderr.pipe(logStream, { end: false })
+    // The child inherited its own copies of the log fds — close ours so the parent doesn't keep
+    // the file open and can exit cleanly while the child keeps writing.
+    closeLogFds()
+    // Record the PID at the top of the log so the durable in-flight guard (skillRunInFlight) can
+    // tell whether a run that outlived a server restart is still alive.
+    try { fs.appendFileSync(logPath, `[spawn] pid=${proc.pid} at ${new Date().toISOString()}\n`) } catch {}
     proc.on('exit', (code, signal) => {
       RUNNING_SKILLS.delete(runKey)
-      try {
-        logStream.write(`\n[spawn] exit code=${code} signal=${signal} at ${new Date().toISOString()}\n`)
-        logStream.end()
-      } catch {}
+      // Append the finished marker so staleSkillsFor clears the spinner. Fires only while this
+      // server is alive; if it already exited, the completed workbook on disk is the signal
+      // instead (the folder flips to ✓ on the next Data Manager load).
+      try { fs.appendFileSync(logPath, `\n[spawn] exit code=${code} signal=${signal} at ${new Date().toISOString()}\n`) } catch {}
     })
     proc.on('error', (err) => {
       RUNNING_SKILLS.delete(runKey)
-      try { logStream.write(`\n[spawn] error: ${err.message}\n`); logStream.end() } catch {}
-      // Self-heal: a stale binary path (desktop app auto-updated and removed the old version
-      // folder) surfaces here as ENOENT. Invalidate the cache (memory + disk) so the next run
-      // re-resolves to the current install instead of failing forever.
-      if (err && err.code === 'ENOENT') {
+      try { fs.appendFileSync(logPath, `\n[spawn] error: ${err.message}\n`) } catch {}
+      // Self-heal: a stale or corrupt binary surfaces here as ENOENT (desktop app auto-updated
+      // and removed the old version folder), EFTYPE (present but unrunnable image), or EACCES.
+      // Invalidate the cache (memory + disk) so the next run re-resolves and skips the bad binary.
+      if (err && ['ENOENT', 'EFTYPE', 'EACCES'].includes(err.code)) {
         CLAUDE_BIN_CACHE = null
         try { fs.unlinkSync(CLAUDE_BIN_CACHE_FILE) } catch {}
       }
     })
+    // The listening server keeps the event loop alive; unref the child so IT alone can't, leaving
+    // it free to outlive the server.
+    proc.unref()
     res.json({ ok: true, pid: proc.pid, logPath, claudeBin, debugPath })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -2233,6 +2318,17 @@ app.post('/api/data/run-skill', (req, res) => {
 
 let shutdownTimer = null
 let activeConnections = 0
+
+// Auto-shutdown when the UI is gone — but NEVER while a skill subprocess is still in flight.
+// Diligence/extract runs are detached and survive the server, but keeping the server up lets the
+// run finish cleanly (write its "[spawn] exit code=" marker so the spinner clears) and avoids
+// concurrently --kill-others tearing down Vite the instant the browser tab closes mid-run. Exit
+// only once the last connection is gone AND no skill is running.
+function maybeShutdown() {
+  if (activeConnections > 0) { shutdownTimer = null; return }
+  if (RUNNING_SKILLS.size > 0) { shutdownTimer = setTimeout(maybeShutdown, 5000); return }
+  process.exit(0)
+}
 
 app.get('/api/heartbeat', (req, res) => {
   res.set({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' })
@@ -2247,7 +2343,7 @@ app.get('/api/heartbeat', (req, res) => {
     clearInterval(keepAlive)
     activeConnections--
     if (activeConnections <= 0) {
-      shutdownTimer = setTimeout(() => process.exit(0), 3000)
+      shutdownTimer = setTimeout(maybeShutdown, 3000)
     }
   })
 })
