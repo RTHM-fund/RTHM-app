@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { MONTHS } from '../utils.js'
 import './InvoiceForm.css'
 
@@ -28,14 +29,24 @@ function formatDollar(n) {
 
 function ComboInput({ value, onChange, onSelect, placeholder, showDropdown, setShowDropdown }) {
   const wrapperRef = useRef(null)
+  const inputRef = useRef(null)
   const [highlightIdx, setHighlightIdx] = useState(-1)
+  const [menuRect, setMenuRect] = useState(null)
+
+  // Position the portaled menu under the input, matching the INPUT's own width/left (the wrapper
+  // is a full-column-width flex item, wider than the field box). Recomputed each open.
+  useEffect(() => {
+    if (!showDropdown || !inputRef.current) return
+    const r = inputRef.current.getBoundingClientRect()
+    setMenuRect({ top: r.bottom + 4, left: r.left, width: r.width })
+  }, [showDropdown])
 
   useEffect(() => {
     function handleClick(e) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-        setShowDropdown(false)
-        setHighlightIdx(-1)
-      }
+      if (wrapperRef.current && wrapperRef.current.contains(e.target)) return
+      if (e.target.closest && e.target.closest('.combo-dropdown')) return
+      setShowDropdown(false)
+      setHighlightIdx(-1)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
@@ -72,6 +83,7 @@ function ComboInput({ value, onChange, onSelect, placeholder, showDropdown, setS
   return (
     <div className="combo-input-wrapper" ref={wrapperRef}>
       <input
+        ref={inputRef}
         className="field-input"
         type="text"
         value={value}
@@ -81,8 +93,11 @@ function ComboInput({ value, onChange, onSelect, placeholder, showDropdown, setS
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
       />
-      {showDropdown && (
-        <div className="combo-dropdown">
+      {showDropdown && menuRect && createPortal(
+        <div
+          className="combo-dropdown"
+          style={{ position: 'fixed', top: menuRect.top, left: menuRect.left, width: menuRect.width }}
+        >
           {ENTITY_NAMES.map((name, idx) => (
             <div
               key={name}
@@ -93,7 +108,8 @@ function ComboInput({ value, onChange, onSelect, placeholder, showDropdown, setS
               {name}
             </div>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

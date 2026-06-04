@@ -130,16 +130,15 @@
 /* Combo dropdown menu — matches .combobox-menu (Combobox.jsx) for cross-form
    visual consistency. Glass + no border, no top-attachment break. */
 .combo-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
+  /* Position (top/left/width) set inline by InvoiceForm.jsx — portaled to <body>, so it
+     escapes the form's stacking + backdrop-filter contexts and reads as clean glass over the
+     page (matches .combobox-menu). Sibling glass inputs no longer bleed through. */
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: none;
   border-radius: var(--radius);
-  z-index: 10;
+  z-index: 1000;
   box-shadow: 0 4px 20px rgba(82, 0, 190, 0.08);
   padding: 4px 0;
   isolation: isolate;
