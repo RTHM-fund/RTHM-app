@@ -1839,7 +1839,9 @@
       "AT": 285180,
       "AU": 472000,
       "AV": 310400,
-      "AW": 636000
+      "AW": 636000,
+      "AX": 385769,
+      "AY": 995385
     },
     "percent": null,
     "variableQuote": {
@@ -1850,7 +1852,9 @@
       "BG": null,
       "BH": null,
       "BI": null,
-      "BJ": null
+      "BJ": null,
+      "BK": null,
+      "BL": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1876,7 +1880,19 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Bobby Shmurda.docx",
         "createdAt": "2026-04-29T15:34:02.298Z"
       }
-    ]
+    ],
+    "grossQuote": {
+      "AC": 91900,
+      "AD": 102200,
+      "AE": 218200,
+      "AF": 294500,
+      "AG": 294000,
+      "AH": 472000,
+      "AI": 320000,
+      "AJ": 636000,
+      "AK": 397700,
+      "AL": 995385
+    }
   },
   {
     "name": "Urban and Lazar",
@@ -2922,7 +2938,9 @@
       "AT": 81286,
       "AU": 128500,
       "AV": 88173,
-      "AW": 155600
+      "AW": 155600,
+      "AX": 98824,
+      "AY": 200600
     },
     "percent": null,
     "variableQuote": {
@@ -2933,7 +2951,9 @@
       "BG": null,
       "BH": null,
       "BI": null,
-      "BJ": null
+      "BJ": null,
+      "BK": null,
+      "BL": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2959,7 +2979,19 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lambo4oe.docx",
         "createdAt": "2026-05-28T04:54:30.445Z"
       }
-    ]
+    ],
+    "grossQuote": {
+      "AC": 34000,
+      "AD": 38400,
+      "AE": 69100,
+      "AF": 92800,
+      "AG": 83800,
+      "AH": 128500,
+      "AI": 90900,
+      "AJ": 155600,
+      "AK": 101880,
+      "AL": 200600
+    }
   },
   {
     "name": "Starz Lil D",
@@ -3079,7 +3111,9 @@
       "AT": 233285,
       "AU": 374000,
       "AV": 257244,
-      "AW": 470000
+      "AW": 470000,
+      "AX": 291679,
+      "AY": 652000
     },
     "percent": null,
     "variableQuote": {
@@ -3090,7 +3124,9 @@
       "BG": null,
       "BH": null,
       "BI": null,
-      "BJ": null
+      "BJ": null,
+      "BK": null,
+      "BL": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -3121,6 +3157,18 @@
         "fileName": "RTHM Offer Letter_Eric Hudson.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Offer Letter_Eric Hudson.docx",
         "createdAt": "2026-06-01T21:20:13.135Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_Eric Hudson.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM x RAS RPA_Eric Hudson.docx",
+        "createdAt": "2026-06-03T02:12:30.882Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_Eric Hudson.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM RPA_Eric Hudson.docx",
+        "createdAt": "2026-06-03T02:12:31.716Z"
       }
     ],
     "lockedDeal": {
@@ -3133,6 +3181,18 @@
       "prAdvance": 188000,
       "prTotal": 275000,
       "legalName": "Eric Lee Hudson"
+    },
+    "grossQuote": {
+      "AC": 103400,
+      "AD": 117700,
+      "AE": 195300,
+      "AF": 262000,
+      "AG": 240500,
+      "AH": 374000,
+      "AI": 265200,
+      "AJ": 470000,
+      "AK": 300700,
+      "AL": 652000
     }
   },
   {
@@ -3246,7 +3306,9 @@
       "AT": 81286,
       "AU": 128500,
       "AV": 88173,
-      "AW": 155600
+      "AW": 155600,
+      "AX": 98824,
+      "AY": 200600
     },
     "percent": null,
     "variableQuote": {
@@ -3257,7 +3319,9 @@
       "BG": null,
       "BH": null,
       "BI": null,
-      "BJ": null
+      "BJ": null,
+      "BK": null,
+      "BL": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -3270,7 +3334,7 @@
         "12 months": "79.87",
         "36 months": "67.17",
         "60 months": "58.83",
-        "84 months": "52.7"
+        "84 months": "59.77"
       },
       "commission": 4,
       "b2bMarginRate": 5,
@@ -3281,9 +3345,21 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Lambo4oe.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lambo4oe.docx",
-        "createdAt": "2026-06-02T17:02:23.948Z"
+        "createdAt": "2026-06-02T22:17:01.045Z"
       }
-    ]
+    ],
+    "grossQuote": {
+      "AC": 34000,
+      "AD": 38400,
+      "AE": 69100,
+      "AF": 92800,
+      "AG": 83800,
+      "AH": 128500,
+      "AI": 90900,
+      "AJ": 155600,
+      "AK": 101880,
+      "AL": 200600
+    }
   },
   {
     "name": "Thraxx",
@@ -3296,7 +3372,9 @@
       "AT": 11349,
       "AU": 19500,
       "AV": 12707,
-      "AW": 25100
+      "AW": 25100,
+      "AX": 15995,
+      "AY": 37000
     },
     "percent": null,
     "variableQuote": {
@@ -3307,7 +3385,9 @@
       "BG": null,
       "BH": null,
       "BI": null,
-      "BJ": null
+      "BJ": null,
+      "BK": null,
+      "BL": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -3331,7 +3411,135 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Thraxx.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Thraxx.docx",
-        "createdAt": "2026-06-02T17:36:44.565Z"
+        "createdAt": "2026-06-02T22:17:42.344Z"
+      }
+    ],
+    "grossQuote": {
+      "AC": 4300,
+      "AD": 5100,
+      "AE": 9100,
+      "AF": 12900,
+      "AG": 11700,
+      "AH": 19500,
+      "AI": 13100,
+      "AJ": 25100,
+      "AK": 16490,
+      "AL": 37000
+    }
+  },
+  {
+    "name": "Super Miles",
+    "platform": "Concord, BMI",
+    "initialQuote": {
+      "AP": 12901,
+      "AQ": 14900,
+      "AR": 25899,
+      "AS": 35350,
+      "AT": 31913,
+      "AU": 50400,
+      "AV": 35017,
+      "AW": 61900,
+      "AX": 38800,
+      "AY": 81000
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12188226034",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-06-04T00:02:12.736Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "80.52",
+        "36 months": "68.14",
+        "60 months": "58.89",
+        "84 months": "52.61"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Super Miles.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Super Miles.docx",
+        "createdAt": "2026-06-04T00:09:56.778Z"
+      }
+    ],
+    "grossQuote": {
+      "AC": 13300,
+      "AD": 14900,
+      "AE": 26700,
+      "AF": 35350,
+      "AG": 32900,
+      "AH": 50400,
+      "AI": 36100,
+      "AJ": 61900,
+      "AK": 40000,
+      "AL": 81000
+    }
+  },
+  {
+    "name": "Igor Mamet",
+    "platform": "BMI, Downtown, WMG",
+    "initialQuote": {
+      "AP": 40158,
+      "AQ": 47800,
+      "AR": 81577,
+      "AS": 114800,
+      "AT": 100686,
+      "AU": 163700,
+      "AV": 111065,
+      "AW": 205100
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Both",
+    "commission": "4",
+    "mondayItemId": "12188254154",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-06-04T00:11:40.965Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "78.13",
+        "36 months": "66.09",
+        "60 months": "57.2",
+        "84 months": "50.36"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Igor Mamet.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Igor Mamet.docx",
+        "createdAt": "2026-06-04T00:14:34.389Z"
       }
     ]
   }

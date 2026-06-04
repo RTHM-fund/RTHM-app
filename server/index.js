@@ -48,9 +48,13 @@ const MAX_BACKUPS_PER_HOST = 50
 const HOSTNAME = os.hostname().replace(/[^a-zA-Z0-9-]/g, '-')
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
-const TERMS_ALL = ['12 months', '36 months', '60 months', '84 months']
-const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW']]
-const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ']]
+const TERMS_ALL = ['12 months', '36 months', '60 months', '84 months', '144 months']
+// Quote sources, by sheet section. Each pair = [advance col, RAS recoup col], indexed by TERMS_ALL.
+// NOTE: the code's `initialQuote` (IQ) is the sheet's "Initial quotes, net of 3% fee" section;
+// `grossQuote` (GQ) is the sheet's plain "Initial quotes" section (fallback when IQ is empty).
+const GQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ'], ['AK','AL']]
+const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
+const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
 const DEFAULT_RATES = {
   Individual: { '12 months': 70, '36 months': 60, '60 months': 50, '84 months': 45 },
   B2B:        { '12 months': 74, '36 months': 64, '60 months': 54, '84 months': 50 }
@@ -161,10 +165,11 @@ function resolveAgreementPath(ag) {
   return null
 }
 
-const WANTED_COLS = ['A','C','AP','AQ','AR','AS','AT','AU','AV','AW','BA','BC','BD','BE','BF','BG','BH','BI','BJ']
+const WANTED_COLS = ['A','C','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','BA','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL']
 
-const IQ_COLS = ['AP','AQ','AR','AS','AT','AU','AV','AW']
-const VQ_COLS = ['BC','BD','BE','BF','BG','BH','BI','BJ']
+const GQ_COLS = ['AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL']
+const IQ_COLS = ['AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY']
+const VQ_COLS = ['BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL']
 
 function buildDealData(rows) {
   const groups = {}
@@ -181,13 +186,15 @@ function buildDealData(rows) {
       const nums = groupRows.map(r => parseFloat((r[col] || '').replace(/[^0-9.-]/g, ''))).filter(n => !isNaN(n))
       return nums.length > 0 ? nums.reduce((a, b) => a + b, 0) : null
     }
+    const grossQuote = {}
+    GQ_COLS.forEach(col => { grossQuote[col] = sumCol(col) })
     const initialQuote = {}
     IQ_COLS.forEach(col => { initialQuote[col] = sumCol(col) })
     const percentRaw = groupRows.find(r => r['BA'])?.['BA'] || ''
     const percent = parseFloat(percentRaw.replace(/[^0-9.-]/g, '')) || null
     const variableQuote = {}
     VQ_COLS.forEach(col => { variableQuote[col] = sumCol(col) })
-    return { name, platform, initialQuote, percent, variableQuote }
+    return { name, platform, grossQuote, initialQuote, percent, variableQuote }
   })
 }
 
@@ -195,6 +202,23 @@ function colIndex(col) {
   let n = 0
   for (let i = 0; i < col.length; i++) n = n * 26 + (col.charCodeAt(i) - 64)
   return n - 1
+}
+
+// Does any term-pair in `prs` carry data in `obj`?
+function pairsHaveData(obj, prs) {
+  return prs.some(([a, b]) => obj?.[a] || obj?.[b])
+}
+
+// Resolve which quote block to use for a deal, by priority:
+// variable (if present) → net-of-3% initial (if present) → plain initial (grossQuote).
+// Returns { source, pairs }, both indexed by TERMS_ALL.
+function resolveQuoteSource(deal) {
+  const gq = deal.grossQuote || {}
+  const iq = deal.initialQuote || {}
+  const vq = deal.variableQuote || {}
+  if (pairsHaveData(vq, VQ_PAIRS)) return { source: vq, pairs: VQ_PAIRS }
+  if (pairsHaveData(iq, IQ_PAIRS)) return { source: iq, pairs: IQ_PAIRS }
+  return { source: gq, pairs: GQ_PAIRS }
 }
 
 function getOAuth2Client() {
@@ -711,20 +735,18 @@ app.get('/api/deals/:index/deal-sheet-tables', (req, res) => {
 
 
 
-    const iq = deal.initialQuote || {}
-    const vq = deal.variableQuote || {}
-    const hasVQ = VQ_PAIRS.some(([a, b]) => vq[a] || vq[b])
-    const pairs = hasVQ ? VQ_PAIRS : IQ_PAIRS
-    const source = hasVQ ? vq : iq
+    const { source, pairs } = resolveQuoteSource(deal)
     const vs = deal.valuationState || {}
     const effectiveRates = vs.rates || DEFAULT_RATES[dealType] || DEFAULT_RATES.Individual
 
     const structuredRows = []
-    for (const term of ['84 months', '60 months', '36 months', '12 months']) {
+    for (const term of ['144 months', '84 months', '60 months', '36 months', '12 months']) {
       const termIdx = TERMS_ALL.indexOf(term)
       const [advCol, recoupCol] = pairs[termIdx]
       const rasAdvance = parseFloat(source[advCol]) || 0
       const rasRecoup = parseFloat(source[recoupCol]) || 0
+      // 144mo exists for only some deals — omit the row entirely when this term has no quote data.
+      if (term === '144 months' && !rasAdvance && !rasRecoup) continue
       const rate = parseFloat(effectiveRates[term]) || 0
       const rthmAdvance = Math.round(rasRecoup * (rate / 100))
       const marketingBudget = Math.ceil((rasAdvance * 0.2 * 0.67) * 2.5 / 1000) * 1000
@@ -831,11 +853,7 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
 
     const effectiveRates = rates || DEFAULT_RATES[dealType] || DEFAULT_RATES.Individual
 
-    const iq = deal.initialQuote || {}
-    const vq = deal.variableQuote || {}
-    const hasVQ = VQ_PAIRS.some(([a, b]) => vq[a] || vq[b])
-    const pairs = hasVQ ? VQ_PAIRS : IQ_PAIRS
-    const source = hasVQ ? vq : iq
+    const { source, pairs } = resolveQuoteSource(deal)
 
     function fmtMoney(n) { return Math.round(n).toLocaleString('en-US') }  // no currency symbol (app-wide, incl. exports)
     function fmtPct(n) { return Number(n).toFixed(2) + '%' }  // percentages to 2 decimals (e.g. 40 → 40.00%)
@@ -843,12 +861,16 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
     const fields = { 'Deal Name': deal.name, 'Date': dateStr, showPR }
     const b2bFields = {}
     const effectiveMargin = margin != null ? parseFloat(margin) : 0
+    let has144 = false  // drives the conditional 144 row in the deal-sheet templates
 
-    for (const [term, key] of [['84 months','84'], ['60 months','60'], ['36 months','36'], ['12 months','12']]) {
+    for (const [term, key] of [['144 months','144'], ['84 months','84'], ['60 months','60'], ['36 months','36'], ['12 months','12']]) {
       const termIdx = TERMS_ALL.indexOf(term)
       const [advCol, recoupCol] = pairs[termIdx]
       const rasAdvance = parseFloat(source[advCol]) || 0
       const rasRecoup = parseFloat(source[recoupCol]) || 0
+      // 144mo is conditional — skip its fields (and leave has144 false) when the deal has no 144 data.
+      if (term === '144 months' && !rasAdvance && !rasRecoup) continue
+      if (term === '144 months') has144 = true
       const rate = parseFloat(effectiveRates[term]) || 0
       const rthmAdvance = Math.round(rasRecoup * (rate / 100))
 
@@ -871,6 +893,7 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
       b2bFields[`B2B PR ${key}`] = fmtMoney(b2bPRAdvance)
       b2bFields[`PR Total ${key}`] = fmtMoney(b2bPRAdvance + marketingBudget)
     }
+    fields['has144'] = has144  // b2b sheet spreads ...fields, so it inherits has144 too
 
     const sheetsToCreate = []
     if (!b2bOnly) {

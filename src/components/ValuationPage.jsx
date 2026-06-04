@@ -3,17 +3,20 @@ import Combobox from './Combobox.jsx'
 import { formatPct } from '../utils.js'
 import './ValuationPage.css'
 
-const TERMS = ['12 months', '36 months', '60 months', '84 months']
-const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW']]
-const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ']]
+const TERMS = ['12 months', '36 months', '60 months', '84 months', '144 months']
+// Each pair = [advance col, RAS recoup col], indexed by TERMS.
+// GQ = sheet's plain "Initial quotes"; IQ = "Initial quotes, net of 3% fee"; VQ = "Variable quotes".
+const GQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ'], ['AK','AL']]
+const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
+const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
 
 const DEFAULT_RATES = {
   Individual: { '12 months': 70, '36 months': 60, '60 months': 50, '84 months': 45 },
   B2B:        { '12 months': 74, '36 months': 64, '60 months': 54, '84 months': 50 }
 }
 
-// Terms reversed for RTHM Valuation table
-const TERMS_DESC = ['84 months', '60 months', '36 months', '12 months']
+// Terms reversed for RTHM Valuation table (longest first)
+const TERMS_DESC = ['144 months', '84 months', '60 months', '36 months', '12 months']
 
 function fmt(n) {
   if (n === null || n === undefined || n === '') return '—'
@@ -85,6 +88,8 @@ function QuoteTable({ title, percent, pairs, data }) {
             const [a, b] = pairs[TERMS.indexOf(term)]
             const q = parseFloat(data[a]) || 0
             const r = parseFloat(data[b]) || 0
+            // 144mo exists for only some deals — omit the row entirely when it has no data.
+            if (term === '144 months' && !q && !r) return null
             const rasRate = (q && r) ? (q / r) * 100 : null
             return (
               <tr key={term}>
@@ -137,11 +142,17 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
 
   if (!deal) return null
 
+  const gq = deal.grossQuote || {}
   const iq = deal.initialQuote || {}
   const vq = deal.variableQuote || {}
   const showVariable = hasValues(vq, VQ_PAIRS)
-  const pairs = showVariable ? VQ_PAIRS : IQ_PAIRS
-  const source = showVariable ? vq : iq
+  // Resolved source for the RTHM Valuation table + margins: variable → net-of-3% initial → plain initial.
+  const { source, pairs } = showVariable ? { source: vq, pairs: VQ_PAIRS }
+    : hasValues(iq, IQ_PAIRS) ? { source: iq, pairs: IQ_PAIRS }
+    : { source: gq, pairs: GQ_PAIRS }
+  // Resolved INITIAL source for the INITIAL QUOTE display table + PR Uplift (ignores variable):
+  // net-of-3% initial if present, else plain initial.
+  const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS } : { data: gq, pairs: GQ_PAIRS }
   const showPrUplift = deal.royaltyType !== 'Publishing'
 
   async function submitDealSheet(extraPayload = {}) {
@@ -182,20 +193,23 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     const [advCol, recoupCol] = pairs[termIdx]
     const rasAdvance = parseFloat(source[advCol]) || 0
     const rasRecoup = parseFloat(source[recoupCol]) || 0
+    if (term === '144 months' && !rasAdvance && !rasRecoup) return null
     const rate = parseFloat(rates[term]) || 0
     const rthmAdvance = Math.round(rasRecoup * (rate / 100))
     const margin = dealType === 'B2B'
       ? Math.round(rasAdvance - rthmAdvance)
       : Math.round(rasAdvance - rthmAdvance - rthmAdvance * (marginRate / 100))
     return { term, rasAdvance, rasRecoup, rate, rthmAdvance, margin }
-  })
+  }).filter(Boolean)
 
-  // PR Uplift always derives from Initial Quote, even when a Variable Quote is present.
+  // PR Uplift always derives from the Initial Quote (resolved: net-of-3% if present, else plain),
+  // even when a Variable Quote is present.
   const prUpliftRows = showPrUplift ? TERMS_DESC.map(term => {
     const termIdx = TERMS.indexOf(term)
-    const [advCol, recoupCol] = IQ_PAIRS[termIdx]
-    const rasAdvance = parseFloat(iq[advCol]) || 0
-    const rasRecoup = parseFloat(iq[recoupCol]) || 0
+    const [advCol, recoupCol] = resolvedInitial.pairs[termIdx]
+    const rasAdvance = parseFloat(resolvedInitial.data[advCol]) || 0
+    const rasRecoup = parseFloat(resolvedInitial.data[recoupCol]) || 0
+    if (term === '144 months' && !rasAdvance && !rasRecoup) return null
     const rate = parseFloat(rates[term]) || 0
     const rthmAdvance = Math.round(rasRecoup * (rate / 100))
 
@@ -209,7 +223,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
       ? Math.round(margin1 + margin2)
       : Math.round(margin1 + margin2 - (marginRate / 100) * advanceAmount)
     return { term, totalDealValue, advanceAmount, marketingBudget, marketingBudgetRaw, rate, margin, rasAdvance, rthmAdvance }
-  }) : []
+  }).filter(Boolean) : []
 
   return (
     <div className="valuation-page">
@@ -230,7 +244,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
       <div className="valuation-body">
 
         <div className="valuation-tables-row">
-          <QuoteTable title="INITIAL QUOTE" pairs={IQ_PAIRS} data={iq} />
+          <QuoteTable title="INITIAL QUOTE" pairs={resolvedInitial.pairs} data={resolvedInitial.data} />
           {showVariable && <QuoteTable title="VARIABLE QUOTE" percent={deal.percent} pairs={VQ_PAIRS} data={vq} />}
         </div>
 
