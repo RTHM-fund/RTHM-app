@@ -3139,7 +3139,8 @@
         "12 months": 70,
         "36 months": 60,
         "60 months": 50,
-        "84 months": 45
+        "84 months": 45,
+        "144 months": 41.74
       },
       "commission": 5,
       "b2bMarginRate": 5,
@@ -3290,8 +3291,8 @@
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Landstrip Chip.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Landstrip Chip.docx",
-        "createdAt": "2026-06-02T01:19:24.621Z"
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Landstrip Chip.docx",
+        "createdAt": "2026-06-05T16:34:23.937Z"
       }
     ]
   },
@@ -3299,16 +3300,16 @@
     "name": "Lambo4oe",
     "platform": "APG",
     "initialQuote": {
-      "AP": 32980,
-      "AQ": 38400,
-      "AR": 67027,
-      "AS": 92800,
-      "AT": 81286,
-      "AU": 128500,
-      "AV": 88173,
-      "AW": 155600,
-      "AX": 98824,
-      "AY": 200600
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null
     },
     "percent": null,
     "variableQuote": {
@@ -3334,7 +3335,8 @@
         "12 months": "79.87",
         "36 months": "67.17",
         "60 months": "58.83",
-        "84 months": "59.77"
+        "84 months": "54.33",
+        "144 months": "46.36"
       },
       "commission": 4,
       "b2bMarginRate": 5,
@@ -3400,7 +3402,8 @@
         "12 months": "76.06",
         "36 months": "63.64",
         "60 months": "54.12",
-        "84 months": "47.08"
+        "84 months": "47.08",
+        "144 months": "40.2"
       },
       "commission": 5,
       "b2bMarginRate": 5,
@@ -3463,10 +3466,11 @@
     "importedAt": "2026-06-04T00:02:12.736Z",
     "valuationState": {
       "rates": {
-        "12 months": "80.52",
+        "12 months": "80.56",
         "36 months": "68.14",
         "60 months": "58.89",
-        "84 months": "52.61"
+        "84 months": "52.61",
+        "144 months": "44.55"
       },
       "commission": 4,
       "b2bMarginRate": 5,
@@ -3528,7 +3532,8 @@
         "12 months": "78.13",
         "36 months": "66.09",
         "60 months": "57.2",
-        "84 months": "50.36"
+        "84 months": "50.36",
+        "144 months": 50
       },
       "commission": 4,
       "b2bMarginRate": 5,
@@ -3540,6 +3545,79 @@
         "fileName": "RTHM Deal Sheet_Igor Mamet.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Igor Mamet.docx",
         "createdAt": "2026-06-04T00:14:34.389Z"
+      }
+    ]
+  },
+  {
+    "name": "Landstrip Chip",
+    "platform": "BMI",
+    "grossQuote": {
+      "AC": 7800,
+      "AD": 9200,
+      "AE": 16600,
+      "AF": 23300,
+      "AG": 20600,
+      "AH": 33300,
+      "AI": 22400,
+      "AJ": 40400,
+      "AK": null,
+      "AL": null
+    },
+    "initialQuote": {
+      "AP": 7566,
+      "AQ": 9200,
+      "AR": 16102,
+      "AS": 23300,
+      "AT": 19982,
+      "AU": 33300,
+      "AV": 21728,
+      "AW": 40400,
+      "AX": null,
+      "AY": null
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12204516958",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-06-05T16:36:16.019Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "76.48",
+        "36 months": "64.27",
+        "60 months": "55.80",
+        "84 months": "50.02"
+      },
+      "commission": 4,
+      "b2bMarginRate": 8,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Landstrip Chip.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Landstrip Chip.docx",
+        "createdAt": "2026-06-05T17:18:10.884Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Landstrip Chip.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Landstrip Chip.docx",
+        "createdAt": "2026-06-05T17:18:10.884Z"
       }
     ]
   }

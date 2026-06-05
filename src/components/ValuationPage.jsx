@@ -10,9 +10,11 @@ const GQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ'], ['AK','AL'
 const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
 const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
 
-const DEFAULT_RATES = {
-  Individual: { '12 months': 70, '36 months': 60, '60 months': 50, '84 months': 45 },
-  B2B:        { '12 months': 74, '36 months': 64, '60 months': 54, '84 months': 50 }
+// Auto-filled starting recoup = the deal's own RAS rate minus a per-term offset (percentage points).
+// B2B offsets run 2pts tighter than Individual. Fills blanks only; saved/tuned rates always win.
+const OFFSETS = {
+  Individual: { '12 months': 6, '36 months': 5, '60 months': 4, '84 months': 4, '144 months': 3 },
+  B2B:        { '12 months': 4, '36 months': 3, '60 months': 2, '84 months': 2, '144 months': 1 }
 }
 
 // Terms reversed for RTHM Valuation table (longest first)
@@ -108,8 +110,30 @@ function QuoteTable({ title, percent, pairs, data }) {
 
 export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreements, valuationState, onUpdateValuationState }) {
   const dealType = deal?.dealType || 'Individual'
-  const defaultRates = DEFAULT_RATES[dealType] || DEFAULT_RATES.Individual
-  const [rates, setRates] = useState(valuationState?.rates || { ...defaultRates })
+
+  // Resolved quote source (variable → net-of-3% initial → plain initial) + the initial-only
+  // source for the INITIAL QUOTE table / PR Uplift. Hoisted above useState so the auto-filled
+  // starting recoup can be computed at init; depends only on the deal prop.
+  const gq = deal?.grossQuote || {}
+  const iq = deal?.initialQuote || {}
+  const vq = deal?.variableQuote || {}
+  const showVariable = hasValues(vq, VQ_PAIRS)
+  const { source, pairs } = showVariable ? { source: vq, pairs: VQ_PAIRS }
+    : hasValues(iq, IQ_PAIRS) ? { source: iq, pairs: IQ_PAIRS }
+    : { source: gq, pairs: GQ_PAIRS }
+  const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS } : { data: gq, pairs: GQ_PAIRS }
+
+  // Auto-filled starting recoup per term = RAS rate (advance ÷ recoup) − per-term offset, ≥ 0.
+  // Only terms with quote data get a default; saved rates win (fill-blanks-only).
+  const offsets = OFFSETS[dealType] || OFFSETS.Individual
+  const startDefaults = {}
+  TERMS.forEach(term => {
+    const [advCol, recoupCol] = pairs[TERMS.indexOf(term)]
+    const adv = parseFloat(source[advCol]), rec = parseFloat(source[recoupCol])
+    if (adv && rec) startDefaults[term] = Math.max(0, Math.round((adv / rec * 100 - offsets[term]) * 100) / 100)
+  })
+
+  const [rates, setRates] = useState({ ...startDefaults, ...(valuationState?.rates || {}) })
   const [commission, setCommission] = useState((valuationState?.commission ?? parseFloat(deal?.commission)) || 4)
   const [b2bMarginRate, setB2bMarginRate] = useState(valuationState?.b2bMarginRate ?? 5)
   const [recoupLocked, setRecoupLocked] = useState(valuationState?.recoupLocked || false)
@@ -142,17 +166,6 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
 
   if (!deal) return null
 
-  const gq = deal.grossQuote || {}
-  const iq = deal.initialQuote || {}
-  const vq = deal.variableQuote || {}
-  const showVariable = hasValues(vq, VQ_PAIRS)
-  // Resolved source for the RTHM Valuation table + margins: variable → net-of-3% initial → plain initial.
-  const { source, pairs } = showVariable ? { source: vq, pairs: VQ_PAIRS }
-    : hasValues(iq, IQ_PAIRS) ? { source: iq, pairs: IQ_PAIRS }
-    : { source: gq, pairs: GQ_PAIRS }
-  // Resolved INITIAL source for the INITIAL QUOTE display table + PR Uplift (ignores variable):
-  // net-of-3% initial if present, else plain initial.
-  const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS } : { data: gq, pairs: GQ_PAIRS }
   const showPrUplift = deal.royaltyType !== 'Publishing'
 
   async function submitDealSheet(extraPayload = {}) {

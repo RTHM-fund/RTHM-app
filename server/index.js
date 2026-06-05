@@ -55,9 +55,11 @@ const TERMS_ALL = ['12 months', '36 months', '60 months', '84 months', '144 mont
 const GQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ'], ['AK','AL']]
 const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
 const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
-const DEFAULT_RATES = {
-  Individual: { '12 months': 70, '36 months': 60, '60 months': 50, '84 months': 45 },
-  B2B:        { '12 months': 74, '36 months': 64, '60 months': 54, '84 months': 50 }
+// Auto-filled starting recoup = the deal's own RAS rate minus a per-term offset (percentage points).
+// B2B offsets run 2pts tighter than Individual. See effectiveRatesFor.
+const OFFSETS = {
+  Individual: { '12 months': 6, '36 months': 5, '60 months': 4, '84 months': 4, '144 months': 3 },
+  B2B:        { '12 months': 4, '36 months': 3, '60 months': 2, '84 months': 2, '144 months': 1 }
 }
 
 function readDeals() {
@@ -219,6 +221,22 @@ function resolveQuoteSource(deal) {
   if (pairsHaveData(vq, VQ_PAIRS)) return { source: vq, pairs: VQ_PAIRS }
   if (pairsHaveData(iq, IQ_PAIRS)) return { source: iq, pairs: IQ_PAIRS }
   return { source: gq, pairs: GQ_PAIRS }
+}
+
+// Per-term effective recoup rate: the saved rate if present, else the auto-fill
+// (RAS rate − per-term offset, clamped ≥ 0). Mirrors ValuationPage so the exported
+// rate equals the on-screen rate. Fills blanks only.
+function effectiveRatesFor(source, pairs, savedRates, dealType) {
+  const offsets = OFFSETS[dealType] || OFFSETS.Individual
+  const saved = savedRates || {}
+  const out = {}
+  TERMS_ALL.forEach(term => {
+    if (saved[term] != null) { out[term] = saved[term]; return }
+    const [advCol, recoupCol] = pairs[TERMS_ALL.indexOf(term)]
+    const adv = parseFloat(source[advCol]), rec = parseFloat(source[recoupCol])
+    if (adv && rec) out[term] = Math.max(0, Math.round((adv / rec * 100 - offsets[term]) * 100) / 100)
+  })
+  return out
 }
 
 function getOAuth2Client() {
@@ -737,7 +755,7 @@ app.get('/api/deals/:index/deal-sheet-tables', (req, res) => {
 
     const { source, pairs } = resolveQuoteSource(deal)
     const vs = deal.valuationState || {}
-    const effectiveRates = vs.rates || DEFAULT_RATES[dealType] || DEFAULT_RATES.Individual
+    const effectiveRates = effectiveRatesFor(source, pairs, vs.rates, dealType)
 
     const structuredRows = []
     for (const term of ['144 months', '84 months', '60 months', '36 months', '12 months']) {
@@ -851,9 +869,8 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
     const dealType = deal.dealType || 'Individual'
     const showPR = deal.royaltyType !== 'Publishing'
 
-    const effectiveRates = rates || DEFAULT_RATES[dealType] || DEFAULT_RATES.Individual
-
     const { source, pairs } = resolveQuoteSource(deal)
+    const effectiveRates = effectiveRatesFor(source, pairs, rates, dealType)
 
     function fmtMoney(n) { return Math.round(n).toLocaleString('en-US') }  // no currency symbol (app-wide, incl. exports)
     function fmtPct(n) { return Number(n).toFixed(2) + '%' }  // percentages to 2 decimals (e.g. 40 → 40.00%)
