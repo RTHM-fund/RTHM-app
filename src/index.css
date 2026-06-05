@@ -56,6 +56,17 @@ body {
 }
 
 /* ============================================================
+   TABLE ALIGNMENT — app-wide schema (see docs/design_system.md)
+   Leftmost column left-aligned; every other column centered (header + cell).
+   Tables whose first column is a #/checkbox keep column 2 left too — handled
+   per-table (.valuate-tracks-label; .modal-rows-table column 2).
+   ============================================================ */
+table th,
+table td { text-align: center; }
+table th:first-child,
+table td:first-child { text-align: left; }
+
+/* ============================================================
    SCROLLBARS — no scrollbar UI, app-wide
    Native scrollbars are HIDDEN everywhere (zero reserved width) and there is NO
    custom thumb either — scrolling works (wheel/trackpad/keyboard/touch) with no

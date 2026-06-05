@@ -146,7 +146,6 @@
    re-applies the grey --ink-light in OfferLetterForm.css. */
 .modal-table th {
   padding: 10px 16px;
-  text-align: left;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -171,7 +170,7 @@
 .modal-rows-table th:first-child,
 .modal-rows-table td:first-child { width: 56px; }
 .modal-rows-table th:nth-child(2),
-.modal-rows-table td:nth-child(2) { width: 50%; }
+.modal-rows-table td:nth-child(2) { width: 50%; text-align: left; }
 
 .modal-table td {
   padding: 10px 16px;

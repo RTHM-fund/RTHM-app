@@ -126,7 +126,6 @@
 
 .data-manager-table th {
   padding: 12px 20px;
-  text-align: left;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.07em;
@@ -204,7 +203,7 @@
 .data-manager-table tbody td:first-child { min-width: 280px; width: auto; }
 .data-manager-table .data-manager-td-spark { width: 104px; } /* = 64px sparkline + 2×20px cell padding */
 .data-manager-table .data-manager-th-num,
-.data-manager-table .data-manager-td-num { width: 100px; text-align: left; white-space: nowrap; }
+.data-manager-table .data-manager-td-num { width: 100px; white-space: nowrap; }
 .data-manager-table thead th:nth-child(8),
 .data-manager-table tbody td:nth-child(8),
 .data-manager-table thead th:nth-child(9),
@@ -212,7 +211,6 @@
 .data-manager-table thead th:nth-child(10),
 .data-manager-table tbody td:nth-child(10) {
   width: 90px;
-  text-align: center;
 }
 
 .diligence-mark {
@@ -275,7 +273,6 @@
   display: block;
 }
 .data-manager-td-num {
-  text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--primary);
   font-weight: 700;

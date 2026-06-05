@@ -454,6 +454,29 @@ Outside-click handler exempts the table wrap AND its sibling header-actions cont
 
 ---
 
+## Table Alignment (app-wide schema)
+
+Every `<table>` follows one column-alignment rule, enforced globally in `src/index.css` — **new tables need no alignment CSS**:
+
+- **First column → left. Every other column → center** (both `<th>` and `<td>`).
+
+```css
+table th, table td { text-align: center; }
+table th:first-child, table td:first-child { text-align: left; }
+```
+
+**Exception — narrow first column.** When column 1 is a rank `#` or a checkbox and the real name/label sits in **column 2**, keep **both** column 1 and column 2 left; center everything after. Two sites, handled per-table:
+- Valuate **Tracks** (`# | Track | …`): `.valuate-tracks-rank` + `.valuate-tracks-label` stay left (both classes live on the `th` and the `td`, so one rule covers header + body).
+- Import **select-rows** picker (`☐ | Deal | Distributor`): column 2 left via `.modal-rows-table th/td:nth-child(2)` — scoped to the rows table, NOT the shared `.modal-table`, so the deal-sheet picker (`Term`-first) keeps the default.
+
+**Rules:**
+- Action/button columns are centered by the default rule (the button sits under its centered header; the right-most action still lands flush at the edge via the slack-absorber `width:100%` column — alignment doesn't affect that).
+- Numeric columns are **centered**, not right-aligned. Keep `font-variant-numeric: tabular-nums` for digit-width consistency.
+- **Never** re-add `text-align: left/right` to a table's base `th`/`td` — a class selector overrides the global rule and breaks the schema. Per-column `text-align` overrides exist only for the narrow-first-column exception above.
+- Already compliant by construction: `.quote-table`, `.income-table` (their explicit center / first-child-left rules predate the global rule — redundant but harmless).
+
+---
+
 ## Table Header Schemas — Main vs Sub-Table
 
 Two distinct `thead th` typographic schemas. Pick by the table's role; never mix them.
@@ -485,7 +508,9 @@ The `11px / 700 / 0.05em / uppercase` part is constant either way — only the *
 
 *Transparent header → ink (`--ink`):*
 - Generic modal-table base — `.modal-table th` (`ImportModal.css`); covers the Import "select rows" picker, whose header is transparent on the modal glass. (The deal-sheet modal overrides back to grey above.)
-- Valuate Tracks table — `.valuate-tracks-table th` (`ValuatePage.css`)
+
+*Exception — grey on a transparent header:*
+- Valuate Tracks table — `.valuate-tracks-table th` (`ValuatePage.css`) uses **grey (`--ink-light`)** on a transparent header (no white bar). By explicit user choice — the chart-card glass carries the grey fine, and a white header bar was not wanted. The one place grey sits on a non-white header.
 
 **NOT this schema — form input-grids.** A row of column labels sitting above *form inputs* (not data cells) is not a sub-table. These use a separate, smaller field-label style — **`10px / 700 / 0.04em / var(--ink)`** — and must not be pulled into the sub-table schema: Offer-Letter income-split (`.income-table th`, `OfferLetterForm.css`) and Invoice line-items (`.line-item-header`, `InvoiceForm.css`). They match each other.
 

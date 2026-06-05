@@ -91,7 +91,6 @@
 
 .deals-table th {
   padding: 12px 20px;
-  text-align: left;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.07em;
@@ -109,14 +108,6 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
-}
-
-/* Center header + cell for the five action/link columns (Status [monday.com],
-   Valuation, Agreements, Deal Materials, Delete) — matches the Data Manager
-   pattern where header text sits above the row buttons it controls. */
-.deals-table thead th:nth-child(n+5),
-.deals-table tbody td:nth-child(n+5) {
-  text-align: center;
 }
 
 /* Deal Name column absorbs all slack so every other column shrinks to its
