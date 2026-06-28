@@ -1176,7 +1176,7 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
         let headerIdx = -1, colMonths = null
         for (let i = 0; i < Math.min(rows.length, 8); i++) {
           const cand = (rows[i] || []).map(parseHeader)
-          if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+          if (isHeaderRow(cand, rows[i] || [])) { headerIdx = i; colMonths = cand; break }
         }
         if (headerIdx < 0) continue
         const headerLen = (rows[headerIdx] || []).length
@@ -1309,7 +1309,7 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
         let headerIdx = -1, colMonths = null
         for (let i = 0; i < Math.min(rows.length, 8); i++) {
           const cand = (rows[i] || []).map(parseHeader)
-          if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+          if (isHeaderRow(cand, rows[i] || [])) { headerIdx = i; colMonths = cand; break }
         }
         if (headerIdx < 0) continue
         const headerLen = (rows[headerIdx] || []).length
@@ -1559,8 +1559,8 @@ function parseMonthHeader(v) {
       return { key: `${yr}-${String(mo).padStart(2,'0')}`, label: s }
     }
   }
-  // MMMyy / MMMyyyy — no separator (e.g. "Aug25", "Aug2025"). Diligence-workbook default format.
-  m = s.match(/^([A-Za-z]+)(\d{2,4})$/)
+  // MMMyy / MMMyyyy — no separator (e.g. "Aug25", "Aug2025"); optional trailing apostrophe ("Aug22'").
+  m = s.match(/^([A-Za-z]+)(\d{2,4})['’]?$/)
   if (m) {
     const mo = MONTH_MAP[m[1].slice(0,3).toLowerCase()]
     if (mo) {
@@ -1573,7 +1573,7 @@ function parseMonthHeader(v) {
   // the bucket spacing is meaningful (Q1→Jan, Q2→Apr, Q3→Jul, Q4→Oct).
   // The graph displays one point per reporting period (no interpolation across the
   // gap months) — quarterly deals naturally show ~4 points/year, semi-annual ~2/year.
-  m = s.match(/^Q([1-4])['\-/\s]?(\d{2,4})$/i) || s.match(/^([1-4])Q(\d{2,4})$/i)
+  m = s.match(/^Q([1-4])['’\-/\s]*(\d{2,4})$/i) || s.match(/^([1-4])Q(\d{2,4})$/i)
   if (m) {
     const q = Number(m[1])
     const startMo = (q - 1) * 3 + 1
@@ -1594,11 +1594,22 @@ function parseMonthHeader(v) {
     const yr = m[1].length === 4 ? m[1] : `20${m[1]}`
     return { key: `${yr}-${m[2] === '1' ? '01' : '07'}`, label: s }
   }
-  m = s.match(/^H([12])['\-/\s]?(\d{2,4})$/i)
+  m = s.match(/^H([12])['’\-/\s]*(\d{2,4})$/i)
   if (m) {
     const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
     return { key: `${yr}-${m[1] === '1' ? '01' : '07'}`, label: s }
   }
+  // Half-first half-yearly: 1H23 / 2H2024 (half then year). Same start-month anchor.
+  m = s.match(/^([12])H(\d{2,4})$/i)
+  if (m) {
+    const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
+    return { key: `${yr}-${m[1] === '1' ? '01' : '07'}`, label: s }
+  }
+  // Annual: bare calendar year (2015) or fiscal year (FY2023 / FY 23). Anchor to Jan.
+  m = s.match(/^((?:19|20)\d{2})$/)
+  if (m) return { key: `${m[1]}-01`, label: s }
+  m = s.match(/^FY\s?(\d{2}|\d{4})$/i)
+  if (m) { const yr = m[1].length === 4 ? m[1] : `20${m[1]}`; return { key: `${yr}-01`, label: s } }
   return null
 }
 
@@ -1616,6 +1627,22 @@ function parseMonthHeaderFor(platformName) {
     const stripped = v.replace(prefixRe, '')
     return stripped === v ? null : parseMonthHeader(stripped)
   }
+}
+
+// A row is a period-header row if it has >=2 parseable period cells at col>=2, OR
+// exactly one that is a STRONG (non-bare-year) format. Admits single-period sheets
+// ("Dec23") and multi-year annual headers, while rejecting a lone stray year in a
+// data row (a bare "2011" among royalty values). MUST stay identical to isHeaderRow
+// in server/data-manager/pivot.js.
+function isHeaderRow(cand, row) {
+  const idxs = []
+  for (let i = 2; i < cand.length; i++) if (cand[i]) idxs.push(i)
+  if (idxs.length >= 2) return true
+  if (idxs.length === 1) {
+    const raw = row[idxs[0]] == null ? '' : String(row[idxs[0]]).trim()
+    return !/^(?:FY\s?)?(?:19|20)\d{2}$/i.test(raw)
+  }
+  return false
 }
 
 // Shared aggregate-row filter — used by Valuate's track extraction AND
@@ -1722,7 +1749,7 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
         let headerIdx = -1, colMonths = null
         for (let i = 0; i < Math.min(rows.length, 8); i++) {
           const cand = (rows[i] || []).map(parseHeader)
-          if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+          if (isHeaderRow(cand, rows[i] || [])) { headerIdx = i; colMonths = cand; break }
         }
         if (headerIdx < 0) continue
         const headerLen = (rows[headerIdx] || []).length
@@ -1835,7 +1862,7 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
         let headerIdx = -1, colMonths = null
         for (let i = 0; i < Math.min(rows.length, 8); i++) {
           const cand = (rows[i] || []).map(parseHeader)
-          if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+          if (isHeaderRow(cand, rows[i] || [])) { headerIdx = i; colMonths = cand; break }
         }
         if (headerIdx < 0) continue
         const headerLen = (rows[headerIdx] || []).length

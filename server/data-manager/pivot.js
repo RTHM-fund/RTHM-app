@@ -15,6 +15,9 @@ const XLSX = require('xlsx')
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const MONTH_MAP = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 }
 
+// Period-header parser — MUST stay behavior-identical to parseMonthHeader in
+// server/index.js:1536. Supports monthly (Aug25, Aug-21, Aug22', Aug 2025), quarterly
+// (Q1-25, 1Q25, 23Q1, Q3 '14), half-yearly (22H1, H1-22, 1H23), and annual (2015, FY2023).
 function parseMonthHeader(v) {
   if (v == null || v === '') return null
   if (v instanceof Date && !isNaN(v)) {
@@ -29,12 +32,8 @@ function parseMonthHeader(v) {
   if (m) return { key: `${m[2]}-${m[1].padStart(2,'0')}`, label: s }
   m = s.match(/^(\d{1,2})[-/](\d{2})$/)
   if (m) return { key: `20${m[2]}-${m[1].padStart(2,'0')}`, label: s }
-  m = s.match(/^([A-Za-z]+)[-\s]+(\d{4})$/)
-  if (m) {
-    const mo = MONTH_MAP[m[1].slice(0,3).toLowerCase()]
-    if (mo) return { key: `${m[2]}-${String(mo).padStart(2,'0')}`, label: s }
-  }
-  m = s.match(/^([A-Za-z]+)(\d{2,4})$/)
+  // MMM YYYY / MMM-YYYY / MMM-YY (e.g. "Aug 2025", "Aug-21" — 2-digit year => 20yy)
+  m = s.match(/^([A-Za-z]+)[-\s]+(\d{2}|\d{4})$/)
   if (m) {
     const mo = MONTH_MAP[m[1].slice(0,3).toLowerCase()]
     if (mo) {
@@ -42,14 +41,68 @@ function parseMonthHeader(v) {
       return { key: `${yr}-${String(mo).padStart(2,'0')}`, label: s }
     }
   }
-  m = s.match(/^Q([1-4])['\-/\s]?(\d{2,4})$/i) || s.match(/^([1-4])Q(\d{2,4})$/i)
+  // MMMyy / MMMyyyy — no separator (e.g. "Aug25", "Aug2025"); optional trailing apostrophe ("Aug22'").
+  m = s.match(/^([A-Za-z]+)(\d{2,4})['’]?$/)
+  if (m) {
+    const mo = MONTH_MAP[m[1].slice(0,3).toLowerCase()]
+    if (mo) {
+      const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
+      return { key: `${yr}-${String(mo).padStart(2,'0')}`, label: s }
+    }
+  }
+  // Quarterly: Q1-25, Q1 25, Q1/25, Q1'25, Q3 '14 (space+apostrophe), Q1-2025, Q12025, 1Q25, etc.
+  m = s.match(/^Q([1-4])['’\-/\s]*(\d{2,4})$/i) || s.match(/^([1-4])Q(\d{2,4})$/i)
   if (m) {
     const q = Number(m[1])
     const startMo = (q - 1) * 3 + 1
     const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
     return { key: `${yr}-${String(startMo).padStart(2,'0')}`, label: s }
   }
+  // Year-first quarterly: 2023Q1, 23Q1 (year then quarter). Same START-month anchor.
+  m = s.match(/^(\d{2,4})Q([1-4])$/i)
+  if (m) {
+    const startMo = (Number(m[2]) - 1) * 3 + 1
+    const yr = m[1].length === 4 ? m[1] : `20${m[1]}`
+    return { key: `${yr}-${String(startMo).padStart(2,'0')}`, label: s }
+  }
+  // Half-yearly (semi-annual): 22H1 / 2022H1 (year-first) or H1-22 / H1 2022 (H-first).
+  m = s.match(/^(\d{2,4})\s*H([12])$/i)
+  if (m) {
+    const yr = m[1].length === 4 ? m[1] : `20${m[1]}`
+    return { key: `${yr}-${m[2] === '1' ? '01' : '07'}`, label: s }
+  }
+  m = s.match(/^H([12])['’\-/\s]*(\d{2,4})$/i)
+  if (m) {
+    const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
+    return { key: `${yr}-${m[1] === '1' ? '01' : '07'}`, label: s }
+  }
+  // Half-first half-yearly: 1H23 / 2H2024 (half then year). Same start-month anchor.
+  m = s.match(/^([12])H(\d{2,4})$/i)
+  if (m) {
+    const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
+    return { key: `${yr}-${m[1] === '1' ? '01' : '07'}`, label: s }
+  }
+  // Annual: bare calendar year (2015) or fiscal year (FY2023 / FY 23). Anchor to Jan.
+  m = s.match(/^((?:19|20)\d{2})$/)
+  if (m) return { key: `${m[1]}-01`, label: s }
+  m = s.match(/^FY\s?(\d{2}|\d{4})$/i)
+  if (m) { const yr = m[1].length === 4 ? m[1] : `20${m[1]}`; return { key: `${yr}-01`, label: s } }
   return null
+}
+
+// Platform-prefixed period headers ("BMI 22Q1", "Pulse 23H1") — some workbooks repeat
+// the sheet's platform name in every period column. Returns a parser that tries the raw
+// header first, then retries with the platform prefix stripped. MUST stay identical to
+// parseMonthHeaderFor in server/index.js:1610.
+function parseMonthHeaderFor(platformName) {
+  const esc = String(platformName || '').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const prefixRe = esc ? new RegExp(`^${esc}[\\s–—―\\-]+`, 'i') : null
+  return v => {
+    const direct = parseMonthHeader(v)
+    if (direct || !prefixRe || typeof v !== 'string') return direct
+    const stripped = v.replace(prefixRe, '')
+    return stripped === v ? null : parseMonthHeader(stripped)
+  }
 }
 
 function isAggregateRow(label) {
@@ -82,7 +135,7 @@ function monthGap(keyA, keyB) {
 }
 
 // Detect stepMonths from the period axis: the median gap between consecutive periods.
-// Snaps to {1, 3, 6} — the only cadences the engine supports.
+// Snaps to {1, 3, 6, 12} — the cadences the engine supports (monthly/qtr/half/annual).
 function detectStepMonths(sortedKeys) {
   if (sortedKeys.length < 2) return 1
   const gaps = []
@@ -95,21 +148,39 @@ function detectStepMonths(sortedKeys) {
   const median = gaps[Math.floor(gaps.length / 2)]
   if (median <= 1) return 1
   if (median <= 3) return 3
-  return 6
+  if (median <= 6) return 6
+  return 12
+}
+
+// A row is a period-header row if it has >=2 parseable period cells at col>=2, OR
+// exactly one that is a STRONG (non-bare-year) format. This admits single-period
+// sheets ("Dec23") and multi-year annual headers, while rejecting a lone stray year
+// sitting in a data row (a bare "2011" among royalty values). MUST stay identical to
+// isHeaderRow in server/index.js.
+function isHeaderRow(cand, row) {
+  const idxs = []
+  for (let i = 2; i < cand.length; i++) if (cand[i]) idxs.push(i)
+  if (idxs.length >= 2) return true
+  if (idxs.length === 1) {
+    const raw = row[idxs[0]] == null ? '' : String(row[idxs[0]]).trim()
+    return !/^(?:FY\s?)?(?:19|20)\d{2}$/i.test(raw)  // a lone bare year is not enough
+  }
+  return false
 }
 
 // Parse a single sheet into { headerIdx, colMonths, projectionStartCol, rows }.
 // Returns null if no header row is found. Shared between platform-line + per-track passes.
-function parseSheet(wb, sheetName) {
+function parseSheet(wb, sheetName, platformName) {
   const ws = wb.Sheets[sheetName]
   if (!ws) return null
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null })
   if (rows.length < 3) return null
+  const parseHeader = parseMonthHeaderFor(platformName)
   let headerIdx = -1
   let colMonths = null
   for (let i = 0; i < Math.min(rows.length, 8); i++) {
-    const cand = (rows[i] || []).map(parseMonthHeader)
-    if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
+    const cand = (rows[i] || []).map(parseHeader)
+    if (isHeaderRow(cand, rows[i] || [])) { headerIdx = i; colMonths = cand; break }
   }
   if (headerIdx < 0) return null
   const headerLen = (rows[headerIdx] || []).length
@@ -130,10 +201,10 @@ function parseSheet(wb, sheetName) {
 // Used only for the adj-vs-rep comparison (matches legacy server/index.js:1438-1443
 // rule: if rep totals === adj totals across all months, use rep — no adjustments
 // applied. Otherwise use adj). Returns Map<periodKey, totalValue>.
-function platformTotalSeries(wb, entries) {
+function platformTotalSeries(wb, entries, platformName) {
   const byMonth = new Map()
   for (const e of entries) {
-    const parsed = parseSheet(wb, e.sheetName)
+    const parsed = parseSheet(wb, e.sheetName, platformName)
     if (!parsed) continue
     const { rows, headerIdx, colMonths, projectionStartCol } = parsed
     for (let r = headerIdx + 1; r < rows.length; r++) {
@@ -174,14 +245,19 @@ function seriesMatch(repSeries, adjSeries) {
 function buildPivotFromWorkbook(wbPath, dealName) {
   const wb = XLSX.readFile(wbPath, { cellDates: true })
 
-  // Platform-sheet detection — same regex as the legacy parser.
-  const sheetKindRe = /^(?:(.+?)\s*[–—―\-]\s*)?(?:By\s+)?(Track|Source|Brkdn|Breakdown)\s+\(?(Rep|Reported|Adj|Adjusted)\)?\s*$/i
+  // Platform-sheet detection — MUST stay byte-identical to SHEET_KIND_RE in
+  // server/index.js:1128 (the canonical, proven parser). Accepts the real-world
+  // tab-name variants the diligence skill emits when shortening under Excel's
+  // 31-char limit: the "Trk" abbreviation, whitespace-only separators, and the
+  // glued "TrkRep" form (Rep/Adj separator optional).
+  // Examples: "SR1 - Track Rep", "BMI-Trk Rep", "MCDONNEL-TrkRep", "Avex Trk Rep".
+  const sheetKindRe = /^(?:(.+?)[\s–—―\-]+)??(?:By\s+)?(Track|Trk|Source|Brkdn|Breakdown)\s*\(?(Rep|Reported|Adj|Adjusted)\)?\s*$/i
   const platformSheets = new Map()
   for (const sheetName of wb.SheetNames) {
     const m = sheetName.match(sheetKindRe)
     if (!m) continue
     const name = (m[1] || dealName).trim()
-    const isTrack = /^Track$/i.test(m[2])
+    const isTrack = /^(?:Track|Trk)$/i.test(m[2])
     const isAdj = /^Adj/i.test(m[3])
     if (!platformSheets.has(name)) platformSheets.set(name, [])
     platformSheets.get(name).push({ isTrack, isAdj, sheetName })
@@ -208,8 +284,8 @@ function buildPivotFromWorkbook(wbPath, dealName) {
 
     let useEntries
     if (adjSheets.length > 0 && repSheets.length > 0) {
-      const repSeries = platformTotalSeries(wb, repSheets)
-      const adjSeries = platformTotalSeries(wb, adjSheets)
+      const repSeries = platformTotalSeries(wb, repSheets, platformName)
+      const adjSeries = platformTotalSeries(wb, adjSheets, platformName)
       const matches = seriesMatch(repSeries, adjSeries)
       useEntries = matches ? repSheets : adjSheets
     } else if (adjSheets.length > 0) {
@@ -221,7 +297,7 @@ function buildPivotFromWorkbook(wbPath, dealName) {
     }
 
     for (const e of useEntries) {
-      const parsed = parseSheet(wb, e.sheetName)
+      const parsed = parseSheet(wb, e.sheetName, platformName)
       if (!parsed) continue
       const { rows, headerIdx, colMonths, projectionStartCol } = parsed
 

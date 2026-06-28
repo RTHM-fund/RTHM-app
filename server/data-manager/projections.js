@@ -204,8 +204,8 @@ function projectDecay({ baseline, floor, k0, k_inf, gamma, stepMonths, lastHistD
 // every path at MAX_PROJ_YEARS.
 function buildProjections(pivot, params, opts) {
   const { stepMonths } = pivot
-  if (![1, 3, 6].includes(stepMonths)) {
-    throw new Error(`buildProjections: invalid stepMonths=${stepMonths}, must be 1, 3, or 6`)
+  if (![1, 3, 6, 12].includes(stepMonths)) {
+    throw new Error(`buildProjections: invalid stepMonths=${stepMonths}, must be 1, 3, 6, or 12`)
   }
   const customProjPeriods = opts && opts.customProjPeriods
 
