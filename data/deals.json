@@ -3618,7 +3618,292 @@
         "fileName": "Skyline Deal Sheet_Landstrip Chip.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Landstrip Chip.docx",
         "createdAt": "2026-06-05T17:18:10.884Z"
+      },
+      {
+        "type": "Skyline Offer Letter",
+        "fileName": "Skyline Offer Letter_Landstrip Chip.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Offer Letter_Landstrip Chip.docx",
+        "createdAt": "2026-06-10T19:02:59.908Z"
+      },
+      {
+        "type": "B2B RPA",
+        "fileName": "B2B RPA_Landstrip Chip.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/B2B RPA_Landstrip Chip.docx",
+        "createdAt": "2026-06-17T18:59:09.587Z"
+      }
+    ],
+    "lockedDeal": {
+      "advanceAmount": 13777,
+      "recoupRate": 64.27,
+      "term": "36 months",
+      "recoupAmount": 23300,
+      "rasAdvance": 16102,
+      "marketingBudget": 6000,
+      "prAdvance": 11980,
+      "prTotal": 17980,
+      "legalName": "Jordan Holt-May ",
+      "transactionId": "RTHM-RPA-34"
+    }
+  },
+  {
+    "name": "Yung Dee",
+    "platform": "BMI",
+    "grossQuote": {
+      "AC": 13600,
+      "AD": 15700,
+      "AE": 28700,
+      "AF": 39400,
+      "AG": 36300,
+      "AH": 57900,
+      "AI": 40300,
+      "AJ": 73600,
+      "AK": null,
+      "AL": null
+    },
+    "initialQuote": {
+      "AP": 13192,
+      "AQ": 15229,
+      "AR": 27839,
+      "AS": 38218,
+      "AT": 35211,
+      "AU": 56163,
+      "AV": 39091,
+      "AW": 71392,
+      "AX": null,
+      "AY": null
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12246791543",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-06-10T20:54:31.854Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "80.56",
+        "36 months": "67.74",
+        "60 months": "58.31",
+        "84 months": "50.92"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Yung Dee.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Yung Dee.docx",
+        "createdAt": "2026-06-10T20:57:18.488Z"
       }
     ]
+  },
+  {
+    "name": "Jay Lewis",
+    "platform": "Create",
+    "grossQuote": {
+      "AC": 20800,
+      "AD": 23500,
+      "AE": 40200,
+      "AF": 53800,
+      "AG": 49800,
+      "AH": 77400,
+      "AI": 54700,
+      "AJ": 96000,
+      "AK": 63050,
+      "AL": 126800
+    },
+    "initialQuote": {
+      "AP": 20176,
+      "AQ": 22795,
+      "AR": 38994,
+      "AS": 52186,
+      "AT": 48306,
+      "AU": 75078,
+      "AV": 53059,
+      "AW": 93120,
+      "AX": 61159,
+      "AY": 122996
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12258043894",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-06-11T22:02:23.467Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 82.51,
+        "36 months": 69.72,
+        "60 months": 60.34,
+        "84 months": 52.98,
+        "144 months": "40.66"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Jay Lewis.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Jay Lewis.docx",
+        "createdAt": "2026-06-11T22:06:17.223Z"
+      },
+      {
+        "type": "RTHM Offer Letter",
+        "fileName": "RTHM Offer Letter_Jay Lewis.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Offer Letter_Jay Lewis.docx",
+        "createdAt": "2026-06-11T22:14:16.341Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_Jay Lewis.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM x RAS RPA_Jay Lewis.docx",
+        "createdAt": "2026-06-11T22:19:14.347Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_Jay Lewis.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM RPA_Jay Lewis.docx",
+        "createdAt": "2026-06-11T22:19:14.432Z"
+      }
+    ]
+  },
+  {
+    "name": "AJ McQueen",
+    "platform": "United Masters",
+    "grossQuote": {
+      "AC": 39000,
+      "AD": 44500,
+      "AE": 73000,
+      "AF": 98000,
+      "AG": 86000,
+      "AH": 135000,
+      "AI": 93000,
+      "AJ": 162000,
+      "AK": 100395,
+      "AL": 200000
+    },
+    "initialQuote": {
+      "AP": 37830,
+      "AQ": 43165,
+      "AR": 70810,
+      "AS": 95060,
+      "AT": 83420,
+      "AU": 130950,
+      "AV": 90210,
+      "AW": 157140,
+      "AX": 97383,
+      "AY": 194000
+    },
+    "percent": 90,
+    "variableQuote": {
+      "BC": 34047,
+      "BD": 38849,
+      "BE": 63729,
+      "BF": 85554,
+      "BG": 75078,
+      "BH": 117855,
+      "BI": 81189,
+      "BJ": 141426,
+      "BK": 87645,
+      "BL": 174600
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12267580280",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-06-12T22:51:20.511Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "80.63",
+        "36 months": "68.53",
+        "60 months": "58.61",
+        "84 months": "52.81",
+        "144 months": "46.18"
+      },
+      "commission": 4,
+      "b2bMarginRate": 10,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_AJ McQueen.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_AJ McQueen.docx",
+        "createdAt": "2026-06-14T23:45:54.907Z"
+      },
+      {
+        "type": "TopValley Deal Sheet",
+        "fileName": "TopValley Deal Sheet_AJ McQueen.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/TopValley Deal Sheet_AJ McQueen.docx",
+        "createdAt": "2026-06-14T23:45:54.907Z"
+      },
+      {
+        "type": "TopValley Offer Letter",
+        "fileName": "TopValley Offer Letter_AJ McQueen.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/TopValley Offer Letter_AJ McQueen.docx",
+        "createdAt": "2026-06-15T18:11:58.378Z"
+      },
+      {
+        "type": "B2B RPA",
+        "fileName": "B2B RPA_AJ McQueen.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/B2B RPA_AJ McQueen.docx",
+        "createdAt": "2026-06-15T20:36:12.617Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_AJ McQueen.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM x RAS RPA_AJ McQueen.docx",
+        "createdAt": "2026-06-18T15:46:50.842Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_AJ McQueen.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM RPA_AJ McQueen.docx",
+        "createdAt": "2026-06-18T15:46:50.975Z"
+      }
+    ],
+    "b2bPartner": "TopValley",
+    "lockedDeal": {
+      "advanceAmount": 72567,
+      "recoupRate": 46.18,
+      "term": "144 months",
+      "recoupAmount": 174600,
+      "rasAdvance": 87645,
+      "marketingBudget": 30000,
+      "prAdvance": 64504,
+      "prTotal": 94504,
+      "legalName": "Albert Jermain McQueen",
+      "transactionId": "RTHM-RPA-33"
+    }
   }
 ]
