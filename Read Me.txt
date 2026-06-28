@@ -9,8 +9,7 @@ Windows:
   It will automatically install everything and create a desktop shortcut.
 
 Mac:
-  Right-click "RTHM Setup.command" -> Open -> Open
-  (Mac blocks new apps on first run — this only happens once)
+  Double-click "RTHM Setup (Mac)"
   It will automatically install everything and create a desktop shortcut.
 
 

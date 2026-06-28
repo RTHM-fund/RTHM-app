@@ -144,6 +144,16 @@ function checkForDropboxConflicts() {
 }
 checkForDropboxConflicts()
 
+// macOS: Dropbox doesn't sync the Unix exec bit, so Windows-side edits to the
+// .command launchers arrive non-executable on Macs. Re-apply at every boot so
+// direct double-clicks in Finder keep working. (The Desktop shortcut launches
+// via bash and never needs the bit.)
+if (os.platform() === 'darwin') {
+  for (const f of ['RTHM Setup.command', 'RTHM Launch.command']) {
+    try { fs.chmodSync(path.join(__dirname, '..', '..', f), 0o755) } catch {}
+  }
+}
+
 // Cleanup helper for endpoints that resolve a stale reference and need to
 // remove it from deals.json + return a 404 with a UI refresh hint.
 function clearAndRespond404(res, deals, msg, mutate) {
@@ -632,8 +642,9 @@ app.post('/api/deals/:index/pick-folder', (req, res) => {
 
     if (!folderPath) return res.json({ cancelled: true })
 
-    // Store relative to Dropbox root for cross-platform compat
-    const relPath = folderPath.startsWith(DROPBOX_RTHM) ? folderPath.slice(DROPBOX_RTHM.length).replace(/^[/\\]/, '') : folderPath
+    // Store relative to Dropbox root for cross-platform compat — always with
+    // forward slashes so the stored path resolves on both Windows and Mac.
+    const relPath = (folderPath.startsWith(DROPBOX_RTHM) ? folderPath.slice(DROPBOX_RTHM.length).replace(/^[/\\]/, '') : folderPath).replace(/\\/g, '/')
     deals[idx].folderPath = relPath
     writeDeals(deals)
     res.json({ ok: true, folderPath })
@@ -652,8 +663,19 @@ app.post('/api/deals/:index/open-folder', (req, res) => {
 
     const stored = deals[idx].folderPath
     if (!stored) return res.status(400).json({ error: 'No folder saved' })
-    const resolved = path.isAbsolute(stored) ? stored : path.join(DROPBOX_RTHM, stored)
+    // A Windows-absolute path can't resolve on a non-Windows machine — fail loud,
+    // never clear (the link is still valid on the machine that saved it).
+    if (/^[A-Za-z]:/.test(stored) && os.platform() !== 'win32') {
+      return res.status(404).json({ error: 'Folder link was saved with a Windows path — re-pick the folder on this machine' })
+    }
+    // Legacy relative paths may carry the other platform's separators — split on both.
+    const resolved = path.isAbsolute(stored) ? stored : path.join(DROPBOX_RTHM, ...stored.split(/[/\\]/).filter(Boolean))
     if (!fs.existsSync(resolved)) {
+      // Gate the destructive clear: if the Materials root itself is absent, this
+      // machine just hasn't synced the subtree — never clear shared links from here.
+      if (!fs.existsSync(MATERIALS_ROOT)) {
+        return res.status(404).json({ error: 'Deal Materials folder is not synced on this machine yet' })
+      }
       return clearAndRespond404(res, deals, 'Folder no longer exists', d => { d[idx].folderPath = null })
     }
 
@@ -1096,6 +1118,16 @@ app.delete('/api/deals/:index', (req, res) => {
 // DATA MANAGER
 // ═══════════════════════════════════════════════════
 
+// Diligence-workbook sheet matcher — SHARED by the valuate endpoint and the Data
+// Manager summary builder so the two can never drift. Matches "<Platform><sep><Kind><Rep|Adj>":
+//   • <sep> is a dash OR space(s); the platform group is LAZY so bare "By Track (Reported)"
+//     keeps no platform (deal name is used) instead of capturing "By".
+//   • <Kind>: Track/Trk → track; Source/Brkdn/Breakdown → breakdown/source.
+//   • the Rep/Adj separator is optional, so glued "TrkRep" also matches.
+//   Examples: "SR1 - Track Rep", "BMI-Trk Rep", "MCDONNEL-TrkRep", "Avex Trk Rep".
+const SHEET_KIND_RE = /^(?:(.+?)[\s–—―\-]+)??(?:By\s+)?(Track|Trk|Source|Brkdn|Breakdown)\s*\(?(Rep|Reported|Adj|Adjusted)\)?\s*$/i
+const sheetKindIsTrack = kind => /^(?:Track|Trk)$/i.test(kind)
+
 // GET /api/data/diligence-workbook?folder=<absolute-path>
 // Reads the diligence workbook produced by the `diligence` skill and returns
 // cross-platform monthly aggregates for the Track Rep + Track Adj sheets.
@@ -1117,23 +1149,14 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
     if (!wbPath) return res.status(404).json({ error: 'no diligence workbook yet' })
 
     const wb = XLSX.readFile(wbPath, { cellDates: true })
-    // Sheet-name patterns accepted (case-insensitive):
-    //   `<Platform> – Track Rep`              (multi-platform standard)
-    //   `Track Rep`                            (bare, single-platform — uses deal name)
-    //   `<Platform> – Breakdown Adj`           (Brkdn alias also accepted)
-    //   `By Track (Reported)` / `By Source (Adjusted)`  (legacy Hirschmann-style)
-    // Normalizes: "By Track" → track, "By Source" → breakdown, "Reported"/"Adjusted"
-    // → Rep/Adj. Bare sheet names attribute to deal folder name as platform.
-    const sheetKindRe = /^(?:(.+?)\s*[–—―\-]\s*)?(?:By\s+)?(Track|Source|Brkdn|Breakdown)\s+\(?(Rep|Reported|Adj|Adjusted)\)?\s*$/i
-
-    // Pass 1: group matching sheet names by platform. Bare sheet names (no prefix)
-    // use the deal folder name as the platform identifier.
+    // Pass 1: group matching sheet names by platform (see SHEET_KIND_RE). Bare sheet
+    // names (no platform prefix) use the deal folder name as the platform identifier.
     const platformSheets = new Map() // name -> { entries: [{isTrack, isAdj, sheetName}] }
     for (const sheetName of wb.SheetNames) {
-      const m = sheetName.match(sheetKindRe)
+      const m = sheetName.match(SHEET_KIND_RE)
       if (!m) continue
       const name = (m[1] || basename).trim()
-      const isTrack = /^Track$/i.test(m[2])
+      const isTrack = sheetKindIsTrack(m[2])
       const isAdj = /^Adj/i.test(m[3])
       if (!platformSheets.has(name)) platformSheets.set(name, { entries: [] })
       platformSheets.get(name).entries.push({ isTrack, isAdj, sheetName })
@@ -1142,7 +1165,8 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
     // Build a month series from a set of sheet refs. Each Adj sheet contributes to
     // the adj line; each Rep sheet contributes to the rep line. Months are merged
     // by YYYY-MM key across all input sheets.
-    function buildSeries(entries) {
+    function buildSeries(entries, platformName) {
+      const parseHeader = parseMonthHeaderFor(platformName)
       const byMonth = new Map()
       for (const e of entries) {
         const ws = wb.Sheets[e.sheetName]
@@ -1151,7 +1175,7 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
         // Header row position varies — scan top 8 rows for first with a month-parseable cell at col >= 2.
         let headerIdx = -1, colMonths = null
         for (let i = 0; i < Math.min(rows.length, 8); i++) {
-          const cand = (rows[i] || []).map(parseMonthHeader)
+          const cand = (rows[i] || []).map(parseHeader)
           if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
         }
         if (headerIdx < 0) continue
@@ -1215,7 +1239,7 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
     for (const [name, ps] of platformSheets) {
       const trackEntries = ps.entries.filter(e => e.isTrack)
       const useEntries = trackEntries.length ? trackEntries : ps.entries
-      platforms.push({ name, ...buildSeries(useEntries) })
+      platforms.push({ name, ...buildSeries(useEntries, name) })
     }
 
     // Pass 2b: statements count = number of distinct reporting periods present
@@ -1275,7 +1299,8 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
     //   • "Adjustment Bridge" / "Bridge note" / "Bridge Tie" / "Bridge per X"
     //   • "— Memo: X" / "Net Payable to Seller" / "Source field: X"
     //   • "Statement PDF total" / "Reserve Account Release"
-    function trackLifetimeFromEntries(entries) {
+    function trackLifetimeFromEntries(entries, platformName) {
+      const parseHeader = parseMonthHeaderFor(platformName)
       const trackMap = new Map()
       for (const e of entries) {
         const ws = wb.Sheets[e.sheetName]
@@ -1283,7 +1308,7 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
         if (rows.length < 3) continue
         let headerIdx = -1, colMonths = null
         for (let i = 0; i < Math.min(rows.length, 8); i++) {
-          const cand = (rows[i] || []).map(parseMonthHeader)
+          const cand = (rows[i] || []).map(parseHeader)
           if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
         }
         if (headerIdx < 0) continue
@@ -1462,7 +1487,7 @@ app.get('/api/data/diligence-workbook', async (req, res) => {
       let relevant = trackOnly.filter(e => e.isAdj === wantAdj)
       if (relevant.length === 0) relevant = trackOnly.filter(e => e.isAdj === false)
       if (relevant.length === 0) relevant = trackOnly
-      const platformTracks = trackLifetimeFromEntries(relevant)
+      const platformTracks = trackLifetimeFromEntries(relevant, name)
       tracksByPlatformMap.set(name, platformTracks)
       for (const [label, info] of platformTracks) {
         const existing = allTrackLifetimes.get(label) || { lifetime: 0, firstKey: null, monthly: new Map() }
@@ -1525,11 +1550,14 @@ function parseMonthHeader(v) {
   // M/YY or MM/YY — 2-digit year => 20yy
   m = s.match(/^(\d{1,2})[-/](\d{2})$/)
   if (m) return { key: `20${m[2]}-${m[1].padStart(2,'0')}`, label: s }
-  // MMM YYYY / MMM-YYYY (e.g. "Aug 2025")
-  m = s.match(/^([A-Za-z]+)[-\s]+(\d{4})$/)
+  // MMM YYYY / MMM-YYYY / MMM-YY (e.g. "Aug 2025", "Aug-21" — 2-digit year => 20yy)
+  m = s.match(/^([A-Za-z]+)[-\s]+(\d{2}|\d{4})$/)
   if (m) {
     const mo = MONTH_MAP[m[1].slice(0,3).toLowerCase()]
-    if (mo) return { key: `${m[2]}-${String(mo).padStart(2,'0')}`, label: s }
+    if (mo) {
+      const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
+      return { key: `${yr}-${String(mo).padStart(2,'0')}`, label: s }
+    }
   }
   // MMMyy / MMMyyyy — no separator (e.g. "Aug25", "Aug2025"). Diligence-workbook default format.
   m = s.match(/^([A-Za-z]+)(\d{2,4})$/)
@@ -1552,7 +1580,42 @@ function parseMonthHeader(v) {
     const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
     return { key: `${yr}-${String(startMo).padStart(2,'0')}`, label: s }
   }
+  // Year-first quarterly: 2023Q1, 23Q1 (year then quarter). Same START-month anchor.
+  m = s.match(/^(\d{2,4})Q([1-4])$/i)
+  if (m) {
+    const startMo = (Number(m[2]) - 1) * 3 + 1
+    const yr = m[1].length === 4 ? m[1] : `20${m[1]}`
+    return { key: `${yr}-${String(startMo).padStart(2,'0')}`, label: s }
+  }
+  // Half-yearly (semi-annual): 22H1 / 2022H1 (year-first) or H1-22 / H1 2022 (H-first).
+  // H1 anchors to Jan, H2 to Jul (start month) — same convention as quarters.
+  m = s.match(/^(\d{2,4})\s*H([12])$/i)
+  if (m) {
+    const yr = m[1].length === 4 ? m[1] : `20${m[1]}`
+    return { key: `${yr}-${m[2] === '1' ? '01' : '07'}`, label: s }
+  }
+  m = s.match(/^H([12])['\-/\s]?(\d{2,4})$/i)
+  if (m) {
+    const yr = m[2].length === 4 ? m[2] : `20${m[2]}`
+    return { key: `${yr}-${m[1] === '1' ? '01' : '07'}`, label: s }
+  }
   return null
+}
+
+// Platform-prefixed period headers ("BMI 22Q1", "Pulse 23H1") — some workbooks
+// repeat the sheet's platform name in every period column. Returns a parser that
+// first tries the raw header, then retries with the platform prefix stripped.
+// Anchored formats in parseMonthHeader keep this safe: "BMI Total" strips to
+// "Total" which still parses to null, and already-parseable headers never strip.
+function parseMonthHeaderFor(platformName) {
+  const esc = String(platformName || '').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const prefixRe = esc ? new RegExp(`^${esc}[\\s–—―\\-]+`, 'i') : null
+  return v => {
+    const direct = parseMonthHeader(v)
+    if (direct || !prefixRe || typeof v !== 'string') return direct
+    const stripped = v.replace(prefixRe, '')
+    return stripped === v ? null : parseMonthHeader(stripped)
+  }
 }
 
 // Shared aggregate-row filter — used by Valuate's track extraction AND
@@ -1639,19 +1702,18 @@ function diligenceWorkbookExists(folder) {
 function computeWorkbookSummaryInner(wbPath, dealName) {
   try {
     const wb = XLSX.readFile(wbPath, { cellDates: true })
-    // See full pattern docs in computeDiligenceWorkbook above.
-    const sheetKindRe = /^(?:(.+?)\s*[–—―\-]\s*)?(?:By\s+)?(Track|Source|Brkdn|Breakdown)\s+\(?(Rep|Reported|Adj|Adjusted)\)?\s*$/i
     const platformSheets = new Map()
     for (const sheetName of wb.SheetNames) {
-      const m = sheetName.match(sheetKindRe)
+      const m = sheetName.match(SHEET_KIND_RE)
       if (!m) continue
       const name = (m[1] || dealName).trim()
-      const isTrack = /^Track$/i.test(m[2])
+      const isTrack = sheetKindIsTrack(m[2])
       const isAdj = /^Adj/i.test(m[3])
       if (!platformSheets.has(name)) platformSheets.set(name, { entries: [] })
       platformSheets.get(name).entries.push({ isTrack, isAdj, sheetName })
     }
-    function buildSeries(entries) {
+    function buildSeries(entries, platformName) {
+      const parseHeader = parseMonthHeaderFor(platformName)
       const byMonth = new Map()
       for (const e of entries) {
         const ws = wb.Sheets[e.sheetName]
@@ -1659,7 +1721,7 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
         if (rows.length < 3) continue
         let headerIdx = -1, colMonths = null
         for (let i = 0; i < Math.min(rows.length, 8); i++) {
-          const cand = (rows[i] || []).map(parseMonthHeader)
+          const cand = (rows[i] || []).map(parseHeader)
           if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
         }
         if (headerIdx < 0) continue
@@ -1711,7 +1773,7 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
     for (const [name, ps] of platformSheets) {
       const trackEntries = ps.entries.filter(e => e.isTrack)
       const useEntries = trackEntries.length ? trackEntries : ps.entries
-      platforms.push({ name, ...buildSeries(useEntries) })
+      platforms.push({ name, ...buildSeries(useEntries, name) })
     }
     if (platforms.length === 0) return null
     // Combined view by month key
@@ -1766,12 +1828,13 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
       let relevant = trackOnly.filter(e => e.isAdj === wantAdj)
       if (relevant.length === 0) relevant = trackOnly.filter(e => !e.isAdj)
       if (relevant.length === 0) relevant = trackOnly
+      const parseHeader = parseMonthHeaderFor(name)
       for (const e of relevant) {
         const ws = wb.Sheets[e.sheetName]
         const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null })
         let headerIdx = -1, colMonths = null
         for (let i = 0; i < Math.min(rows.length, 8); i++) {
-          const cand = (rows[i] || []).map(parseMonthHeader)
+          const cand = (rows[i] || []).map(parseHeader)
           if (cand.some((v, idx) => v && idx >= 2)) { headerIdx = i; colMonths = cand; break }
         }
         if (headerIdx < 0) continue
@@ -2056,7 +2119,7 @@ const ALLOWED_SKILLS = new Set(['diligence', 'catalog-extract'])
 const LOGS_DIR = path.join(__dirname, '..', 'logs')
 // Guards a folder against a second concurrent run of the same skill — two processes
 // writing the same `_Due Diligence` / `_Data Engine` output would corrupt it. Keyed
-// `${skill} ${folderPath}`; entries are cleared on subprocess exit/error.
+// `${skill}\u0000${folderPath}`; entries are cleared on subprocess exit/error.
 const RUNNING_SKILLS = new Set()
 
 // Durable in-flight guard. RUNNING_SKILLS (in-memory) is lost when the server restarts, but a
@@ -2239,7 +2302,7 @@ app.post('/api/data/run-skill', (req, res) => {
     if (!folderPath || typeof folderPath !== 'string' || !fs.existsSync(folderPath)) {
       return res.status(400).json({ error: 'invalid folderPath' })
     }
-    const runKey = `${skill} ${folderPath}`
+    const runKey = `${skill}\u0000${folderPath}`
     if (RUNNING_SKILLS.has(runKey) || skillRunInFlight(folderPath, skill)) {
       return res.status(409).json({ error: `${skill} is already running for this folder — wait for it to finish.` })
     }

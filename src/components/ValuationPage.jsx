@@ -121,7 +121,9 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
   const { source, pairs } = showVariable ? { source: vq, pairs: VQ_PAIRS }
     : hasValues(iq, IQ_PAIRS) ? { source: iq, pairs: IQ_PAIRS }
     : { source: gq, pairs: GQ_PAIRS }
-  const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS } : { data: gq, pairs: GQ_PAIRS }
+  // Net-of-3%-fee section in use → surface the 97% net multiplier next to the title
+  // (same convention as the Variable Quote's percent). Gross fallback shows none.
+  const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS, percent: 97 } : { data: gq, pairs: GQ_PAIRS }
 
   // Auto-filled starting recoup per term = RAS rate (advance ÷ recoup) − per-term offset, ≥ 0.
   // Only terms with quote data get a default; saved rates win (fill-blanks-only).
@@ -133,10 +135,15 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     if (adv && rec) startDefaults[term] = Math.max(0, Math.round((adv / rec * 100 - offsets[term]) * 100) / 100)
   })
 
-  const [rates, setRates] = useState({ ...startDefaults, ...(valuationState?.rates || {}) })
-  const [commission, setCommission] = useState((valuationState?.commission ?? parseFloat(deal?.commission)) || 4)
-  const [b2bMarginRate, setB2bMarginRate] = useState(valuationState?.b2bMarginRate ?? 5)
-  const [recoupLocked, setRecoupLocked] = useState(valuationState?.recoupLocked || false)
+  // Hydrate from the session cache when present, else the deal's own persisted
+  // state. Without the deal fallback, the first open of a session saw null here,
+  // initialized from defaults, and the auto-save effect below silently OVERWROTE
+  // the saved tuned rates and unlocked the recoup toggle.
+  const savedState = valuationState ?? deal?.valuationState ?? null
+  const [rates, setRates] = useState({ ...startDefaults, ...(savedState?.rates || {}) })
+  const [commission, setCommission] = useState((savedState?.commission ?? parseFloat(deal?.commission)) || 4)
+  const [b2bMarginRate, setB2bMarginRate] = useState(savedState?.b2bMarginRate ?? 5)
+  const [recoupLocked, setRecoupLocked] = useState(savedState?.recoupLocked || false)
   const [advanceDraft, setAdvanceDraft] = useState({})
   const [marginDraft, setMarginDraft] = useState({})
   const [creating, setCreating] = useState(false)
@@ -257,7 +264,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
       <div className="valuation-body">
 
         <div className="valuation-tables-row">
-          <QuoteTable title="INITIAL QUOTE" pairs={resolvedInitial.pairs} data={resolvedInitial.data} />
+          <QuoteTable title="INITIAL QUOTE" percent={resolvedInitial.percent} pairs={resolvedInitial.pairs} data={resolvedInitial.data} />
           {showVariable && <QuoteTable title="VARIABLE QUOTE" percent={deal.percent} pairs={VQ_PAIRS} data={vq} />}
         </div>
 

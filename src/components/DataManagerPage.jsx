@@ -119,7 +119,8 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
           window.alert(`Could not start ${skill}:\n\n${data.error}`)
         }
       })
-      .catch(() => {})
+      // Network-level failure (server unreachable) — fail loud like the server-error path above.
+      .catch(() => window.alert(`Could not start ${skill}:\n\nserver not reachable — try relaunching the app.`))
   }
 
   // Action availability per the table columns: each button is enabled only when
