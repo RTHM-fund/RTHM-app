@@ -1708,12 +1708,7 @@ function computeWorkbookSummary(folder) {
     const cached = summaryCache.get(wbPath)
     if (cached && cached.mtimeMs === mtimeMs) return cached.summary
     const summary = computeWorkbookSummaryInner(wbPath, basename)
-    // Don't cache an internally-inconsistent read — tracks found but zero lifetime can't happen for
-    // real data (tracks are counted by non-zero lifetime), so it signals an incomplete/transient
-    // read (e.g. a Dropbox online-only placeholder still downloading). Caching it would pin a wrong 0
-    // until the file's mtime next changes; recompute on the next request instead.
-    const transientBadRead = summary && summary.trackCount > 0 && !summary.lifetime
-    if (!transientBadRead) summaryCache.set(wbPath, { mtimeMs, summary })
+    summaryCache.set(wbPath, { mtimeMs, summary })
     return summary
   } catch (e) { console.warn('[computeWorkbookSummary]', folder, e.message); return null }
 }
@@ -1808,24 +1803,30 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
       platforms.push({ name, ...buildSeries(useEntries, name) })
     }
     if (platforms.length === 0) return null
-    // Combined view by month key
+    // Combined view by month key. Choose rep vs adj PER PLATFORM (not globally) — this mirrors the
+    // per-platform basis the track walk below uses (platMatches -> wantAdj -> rep fallback). A
+    // workbook can mix accounts that have Adj sheets with accounts that have only Rep sheets (e.g.
+    // OwnBoss): a single global adjLine drops the rep-only accounts to zero, and an all-Rep workbook
+    // (e.g. State Of Mine) zeroes out entirely. Per platform: take the adjusted line only when that
+    // platform actually has adjusted data that differs from reported; otherwise reported. Keeps the
+    // combined line consistent with the per-track lifetimes computed below.
     const combinedByMonth = new Map()
+    let anyAdjUsed = false
     for (const p of platforms) {
+      const platAdjHasData = p.adj.some(v => v !== 0)
+      const platMatches = p.rep.length === p.adj.length && p.rep.every((v, i) => v === p.adj[i])
+      const platUseAdj = platAdjHasData && !platMatches
+      if (platUseAdj) anyAdjUsed = true
+      const chosen = platUseAdj ? p.adj : p.rep
       for (let i = 0; i < p.keys.length; i++) {
         const key = p.keys[i]
-        if (!combinedByMonth.has(key)) combinedByMonth.set(key, { rep: 0, adj: 0 })
-        const b = combinedByMonth.get(key)
-        b.rep += p.rep[i] || 0
-        b.adj += p.adj[i] || 0
+        combinedByMonth.set(key, (combinedByMonth.get(key) || 0) + (chosen[i] || 0))
       }
     }
     const combinedSorted = [...combinedByMonth.entries()].sort(([a], [b]) => a.localeCompare(b))
     if (combinedSorted.length === 0) return null
     const keys = combinedSorted.map(([k]) => k)
-    const repLine = combinedSorted.map(([, v]) => v.rep)
-    const adjLine = combinedSorted.map(([, v]) => v.adj)
-    const adjMatchesRep = repLine.every((v, i) => v === adjLine[i])
-    const line = adjMatchesRep ? repLine : adjLine
+    const line = combinedSorted.map(([, v]) => v)
     const lifetime = line.reduce((s, v) => s + v, 0)
     // TTM = trailing 12 calendar months anchored on the latest data month
     let ttm = lifetime
@@ -1941,7 +1942,7 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
     const ages = trackInfos.map(t => ageY(t.firstKey)).filter(a => a != null)
     const dollarAge = ages.length > 0 ? ages.reduce((s, a) => s + a, 0) / ages.length : null
 
-    return { line, lifetime, ttm, hasAdj: !adjMatchesRep, trackCount, top80Count, dollarAge, keys, trackInfos: [...trackTotals.values()] }
+    return { line, lifetime, ttm, hasAdj: anyAdjUsed, trackCount, top80Count, dollarAge, keys, trackInfos: [...trackTotals.values()] }
   } catch { return null }
 }
 
