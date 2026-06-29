@@ -291,15 +291,11 @@
 .data-manager-container-row:hover .data-manager-container-name {
   color: var(--primary-hover);
 }
-/* X/N "done" count — matches the table's numeric weight/size; green once every catalog is done. */
+/* X/N "done" count — plain ink table text (not the bold purple of the numeric columns). */
 .data-manager-rollup-count {
-  font-size: 13px;
-  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--ink-light);
-}
-.data-manager-rollup-count.complete {
-  color: #16A34A;
+  color: var(--ink);
+  font-weight: 500;
 }
 /* DATA MANAGER title acts as the back affordance when drilled into a container. */
 .data-manager-title-back {

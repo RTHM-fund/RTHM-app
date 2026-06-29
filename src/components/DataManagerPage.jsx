@@ -213,9 +213,9 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
                       <td className="data-manager-td-num">{f.summary && Number.isFinite(f.summary.trackCount) ? fmtInt(f.summary.trackCount) : <span className="data-manager-cell-empty">—</span>}</td>
                       <td className="data-manager-td-num">{f.summary && Number.isFinite(f.summary.top80Count) ? fmtInt(f.summary.top80Count) : <span className="data-manager-cell-empty">—</span>}</td>
                       <td className="data-manager-td-num">{f.summary && Number.isFinite(f.summary.dollarAge) ? f.summary.dollarAge.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'y' : <span className="data-manager-cell-empty">—</span>}</td>
-                      <td><span className={`data-manager-rollup-count${f.childCount > 0 && f.dilDone === f.childCount ? ' complete' : ''}`}>{f.dilDone}/{f.childCount}</span></td>
-                      <td><span className={`data-manager-rollup-count${f.childCount > 0 && f.quoteDone === f.childCount ? ' complete' : ''}`}>{f.quoteDone}/{f.childCount}</span></td>
-                      <td><span className={`data-manager-rollup-count${f.childCount > 0 && f.extractDone === f.childCount ? ' complete' : ''}`}>{f.extractDone}/{f.childCount}</span></td>
+                      <td><span className="data-manager-rollup-count">{f.dilDone}/{f.childCount}</span></td>
+                      <td><span className="data-manager-rollup-count">{f.quoteDone}/{f.childCount}</span></td>
+                      <td><span className="data-manager-rollup-count">{f.extractDone}/{f.childCount}</span></td>
                     </tr>
                   )
                 }

@@ -1708,7 +1708,12 @@ function computeWorkbookSummary(folder) {
     const cached = summaryCache.get(wbPath)
     if (cached && cached.mtimeMs === mtimeMs) return cached.summary
     const summary = computeWorkbookSummaryInner(wbPath, basename)
-    summaryCache.set(wbPath, { mtimeMs, summary })
+    // Don't cache an internally-inconsistent read — tracks found but zero lifetime can't happen for
+    // real data (tracks are counted by non-zero lifetime), so it signals an incomplete/transient
+    // read (e.g. a Dropbox online-only placeholder still downloading). Caching it would pin a wrong 0
+    // until the file's mtime next changes; recompute on the next request instead.
+    const transientBadRead = summary && summary.trackCount > 0 && !summary.lifetime
+    if (!transientBadRead) summaryCache.set(wbPath, { mtimeMs, summary })
     return summary
   } catch (e) { console.warn('[computeWorkbookSummary]', folder, e.message); return null }
 }
