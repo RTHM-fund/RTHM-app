@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Sparkline from './Sparkline.jsx'
+import useSkillRuns from './useSkillRuns.js'
 import './DataManagerPage.css'
 
 function fmtInt(v) {
@@ -32,7 +33,10 @@ function clearCompletedSkills(prev, list) {
 // switching to Deal Manager and back no longer drops the folder list and forces a
 // re-fetch/re-parse on remount. The fetch still runs on mount + window focus; the
 // previously-fetched list stays visible during the refresh.
-export default function DataManagerPage({ runningSkills, setRunningSkills, folders, setFolders, onOpenValuate }) {
+export default function DataManagerPage({ runningSkills, setRunningSkills, folders, setFolders, onOpenValuate, drillContainer, setDrillContainer }) {
+  // Global adaptive cap — disables the run triggers when at capacity (FR-008). Polled in this leaf
+  // (not lifted to App) so the 1.5s refresh re-renders only this page, never the whole tree.
+  const { atCap } = useSkillRuns(runningSkills)
   const [selectedFolderPath, setSelectedFolderPath] = useState(null)
   const [search, setSearch] = useState('')
 
@@ -40,7 +44,7 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
     loadFolders()
     window.addEventListener('focus', loadFolders)
     return () => window.removeEventListener('focus', loadFolders)
-  }, [])
+  }, [drillContainer?.path])
 
   useEffect(() => {
     function handleDocMouseDown(e) {
@@ -58,10 +62,14 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
     if (runningSkills.size === 0) return
     const interval = setInterval(loadFolders, 10000)
     return () => clearInterval(interval)
-  }, [runningSkills.size > 0])
+  }, [runningSkills.size > 0, drillContainer?.path])
 
   function loadFolders() {
-    fetch('/api/data/folders')
+    // Drilled into a container → list its child catalogs; otherwise the top-level list.
+    const url = drillContainer?.path
+      ? `/api/data/folders?path=${encodeURIComponent(drillContainer.path)}`
+      : '/api/data/folders'
+    fetch(url)
       .then(r => r.json())
       .then(data => {
         const list = Array.isArray(data) ? data : []
@@ -115,8 +123,8 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
             next.set(folderPath, skills)
             return next
           })
-        } else if (data && data.error) {
-          window.alert(`Could not start ${skill}:\n\n${data.error}`)
+        } else if (data && (data.error || data.message)) {
+          window.alert(`Could not start ${skill}:\n\n${data.message || data.error}`)
         }
       })
       // Network-level failure (server unreachable) — fail loud like the server-error path above.
@@ -127,18 +135,23 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
   // a folder is selected AND that folder's corresponding column shows ?.
   // Diligence ↔ hasDiligence,  Valuate ↔ hasQuote (Valuation column),  Extract ↔ hasExtract.
   const selectedFolder = folders.find(f => f.path === selectedFolderPath) || null
-  const diligenceDisabled = !selectedFolder || selectedFolder.hasDiligence || !!runningSkills.get(selectedFolderPath)?.has('diligence')
+  const diligenceDisabled = !selectedFolder || selectedFolder.hasDiligence || atCap || !!runningSkills.get(selectedFolderPath)?.has('diligence')
   const valuateDisabled = !selectedFolder || !selectedFolder.hasDiligence || selectedFolder.hasQuote
-  const extractDisabled = !selectedFolder || selectedFolder.hasExtract || !!runningSkills.get(selectedFolderPath)?.has('catalog-extract')
+  const extractDisabled = !selectedFolder || selectedFolder.hasExtract || atCap || !!runningSkills.get(selectedFolderPath)?.has('catalog-extract')
 
   const q = search.trim().toLowerCase()
-  const visibleFolders = q ? folders.filter(f => (f.name || '').toLowerCase().includes(q)) : folders
+  const visibleFolders = q ? folders.filter(f => ((f.displayName || f.name) || '').toLowerCase().includes(q)) : folders
 
   return (
     <div className="data-manager-page">
       <div className="data-manager-header">
         <div className="data-manager-title-row">
-          <h1 className="data-manager-title">DATA MANAGER</h1>
+          <h1
+            className={`data-manager-title${drillContainer ? ' data-manager-title-back' : ''}`}
+            onClick={drillContainer ? () => setDrillContainer(null) : undefined}
+            title={drillContainer ? 'back to all folders' : undefined}
+          >DATA MANAGER</h1>
+          {drillContainer && <span className="data-manager-breadcrumb">› {drillContainer.name}</span>}
           <span className="data-manager-count-badge">{folders.length}</span>
           <div className="data-manager-header-actions">
             <button className="data-manager-summarize-btn" disabled={diligenceDisabled} onClick={() => runSkill('diligence')}><span>Diligence</span></button>
@@ -184,6 +197,28 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
             </thead>
             <tbody>
               {visibleFolders.map((f) => {
+                // Container ("!"-folder): purple clickable name → drill in; rollup data columns;
+                // X/N done counts (status-only, not runnable).
+                if (f.isContainer) {
+                  return (
+                    <tr key={f.path} className="data-manager-container-row" onClick={() => setDrillContainer({ path: f.path, name: f.displayName })}>
+                      <td className="data-manager-td-name" title={f.displayName}>
+                        <div className="data-manager-cell-truncate data-manager-container-name">{f.displayName}</div>
+                      </td>
+                      <td className="data-manager-td-spark">
+                        {f.summary ? <Sparkline values={f.summary.line} emptyClassName="data-manager-cell-empty" /> : <span className="data-manager-cell-empty">—</span>}
+                      </td>
+                      <td className="data-manager-td-num">{f.summary ? fmtInt(f.summary.lifetime) : <span className="data-manager-cell-empty">—</span>}</td>
+                      <td className="data-manager-td-num">{f.summary ? fmtInt(f.summary.ttm) : <span className="data-manager-cell-empty">—</span>}</td>
+                      <td className="data-manager-td-num">{f.summary && Number.isFinite(f.summary.trackCount) ? fmtInt(f.summary.trackCount) : <span className="data-manager-cell-empty">—</span>}</td>
+                      <td className="data-manager-td-num">{f.summary && Number.isFinite(f.summary.top80Count) ? fmtInt(f.summary.top80Count) : <span className="data-manager-cell-empty">—</span>}</td>
+                      <td className="data-manager-td-num">{f.summary && Number.isFinite(f.summary.dollarAge) ? f.summary.dollarAge.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'y' : <span className="data-manager-cell-empty">—</span>}</td>
+                      <td><span className={`data-manager-rollup-count${f.childCount > 0 && f.dilDone === f.childCount ? ' complete' : ''}`}>{f.dilDone}/{f.childCount}</span></td>
+                      <td><span className={`data-manager-rollup-count${f.childCount > 0 && f.quoteDone === f.childCount ? ' complete' : ''}`}>{f.quoteDone}/{f.childCount}</span></td>
+                      <td><span className={`data-manager-rollup-count${f.childCount > 0 && f.extractDone === f.childCount ? ' complete' : ''}`}>{f.extractDone}/{f.childCount}</span></td>
+                    </tr>
+                  )
+                }
                 const isSelected = selectedFolderPath === f.path
                 const isRunning = runningSkills.has(f.path)
                 const dilRunning = !!runningSkills.get(f.path)?.has('diligence')
@@ -254,9 +289,9 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
                       ) : (
                         <button
                           className="diligence-mark-btn"
-                          disabled={dilRunning}
+                          disabled={dilRunning || atCap}
                           onClick={() => runSkill('diligence', f.path)}
-                          title={dilRunning ? 'diligence running…' : 'run diligence'}
+                          title={dilRunning ? 'diligence running…' : (atCap ? 'at capacity — wait for a run to finish' : 'run diligence')}
                         >
                           <span className="diligence-mark missing">?</span>
                         </button>
@@ -293,9 +328,9 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
                       ) : (
                         <button
                           className="diligence-mark-btn"
-                          disabled={extRunning}
+                          disabled={extRunning || atCap}
                           onClick={() => runSkill('catalog-extract', f.path)}
-                          title={extRunning ? 'extract running…' : 'run extract'}
+                          title={extRunning ? 'extract running…' : (atCap ? 'at capacity — wait for a run to finish' : 'run extract')}
                         >
                           <span className="diligence-mark missing">?</span>
                         </button>

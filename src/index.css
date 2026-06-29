@@ -3,6 +3,7 @@
 :root {
   --primary: #5200BE;
   --primary-dark: #3A0090;
+  --primary-hover: #4400B0; /* deepen-on-hover for purple clickable text — see design_system */
   --primary-mid: #6218C8;
   --primary-light: #EAE0FF;
   --primary-faint: #F4F0FF;

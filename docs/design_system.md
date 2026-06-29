@@ -334,6 +334,34 @@ When adding a new modal variant, define the sub-class for sizing/padding only �
 
 ---
 
+## Persistent Run Monitor
+
+`DiligenceMonitor` — the floating monitor for skill runs (diligence + catalog-extract). The one
+**persistent, movable, always-on-top** surface in the app; distinct from modals (no backdrop, never
+blocks the page, can't be dismissed while work is in flight).
+
+- **Mount:** rendered once at the `App.jsx` root (sibling of `MainArea` / `orb-layer`) so it survives
+  page navigation. State/logic live in the Data Manager-owned `useSkillRuns` hook (polls the
+  read-only `/api/data/skill-runs` ledger; no Deal Manager coupling). DataManagerPage calls the same
+  hook in-leaf for `atCap` so the 1.5s poll never re-renders the whole tree.
+- **Surface:** glass panel — `rgba(255,255,255,0.85)` + `blur(24px) saturate(180%)`, `border-radius:
+  12px`, modal drop shadow. `z-index: 9000` (above modals at 100, below chart tooltips at 10000).
+- **Movable:** drag by the header (`cursor: move`); position persists to `localStorage`
+  (`rthm-monitor-pos`) and is clamped within the viewport on drag and on window resize. Default
+  (un-dragged) position is bottom-right via CSS; a dragged position switches to `left/top` inline.
+- **Non-closable while active:** there is no close control. Individual finished/failed runs expose a
+  `dismiss` text-link (back-btn style — not a pill, so no liquid-pill wiring needed). The panel
+  auto-hides only when nothing is running AND all finished runs are dismissed; a failure holds it
+  open until acknowledged.
+- **Run rows:** clean flat rows — **state is read from the content**, not decorative chrome: a purple
+  progress bar (running, with the `[stage] i/n` label + indeterminate shimmer until the first stage),
+  green "done" (succeeded), a red failure line (failed). Name in `--ink`; skill label `--ink`
+  uppercase pinned right; `dismiss` text-link to its left on finished runs. All copy lowercase.
+- **Right-click suppressed** (`onContextMenu` preventDefault); it sits outside `.main-area`, so it
+  never triggers the arcade gesture.
+
+---
+
 ## Page Headers
 
 Pattern (`.valuation-header`, `.valuate-header`, `.agreements-header`, `.data-manager-header`, etc.):
@@ -440,6 +468,26 @@ velocity: 0.1      spacing: 0.20
 - Breath scale and pairwise repulsion damping are not gated — orbs keep breathing at rest, residual velocity dies out cleanly.
 
 To tweak orb count, palette, or physics: edit `ORB_DEFS` and `LOCKED` in `App.jsx`. The in-app drag playground (with magenta dots + readout panel) was removed after the anchor tune-in pass — re-add only if rebalancing positions.
+
+---
+
+## Purple Clickable Text
+
+Plain **text that is purple (`--primary`) AND clickable** deepens to **`--primary-hover`** (#4400B0) on
+hover — no underline, no other effect, `cursor: pointer`. It's the text equivalent of the pill-button
+hover, kept deliberately minimal: a single color deepen, nothing more.
+
+**Instances (app-wide — keep this list complete):**
+- `.data-manager-container-name` — a Data Manager `!`-container row name (e.g. "Kendall Deals"); click drills in.
+- `.data-manager-title-back` — the **DATA MANAGER** page title while drilled into a container; click returns to the top-level table.
+
+**Rules:**
+- Rest `color: var(--primary)` → hover `color: var(--primary-hover)`. **Never** `text-decoration: underline`.
+- Any new purple clickable text uses this exact hover and gets added to the list above.
+
+**NOT this pattern:**
+- `.back-btn` is a text-link that is **ink at rest → `--primary` on hover** (not purple until hovered) — its own convention.
+- Pill **buttons** (purple fill) use the liquid-pill radial hover, not this.
 
 ---
 

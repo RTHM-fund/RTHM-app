@@ -1936,8 +1936,103 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
     const ages = trackInfos.map(t => ageY(t.firstKey)).filter(a => a != null)
     const dollarAge = ages.length > 0 ? ages.reduce((s, a) => s + a, 0) / ages.length : null
 
-    return { line, lifetime, ttm, hasAdj: !adjMatchesRep, trackCount, top80Count, dollarAge }
+    return { line, lifetime, ttm, hasAdj: !adjMatchesRep, trackCount, top80Count, dollarAge, keys, trackInfos: [...trackTotals.values()] }
   } catch { return null }
+}
+
+// --- Container-folder support (Data Manager) ---------------------------------------------------
+// A top-level "!"-prefixed folder is a CONTAINER: a collection of catalog subfolders, shown as one
+// row whose data columns are a rollup of its catalogs and whose skill columns show X/N done.
+
+// Immediate subdirectories of a folder, as absolute paths.
+function listSubdirs(dir) {
+  try {
+    return fs.readdirSync(dir, { withFileTypes: true })
+      .filter(e => e.isDirectory())
+      .map(e => path.join(dir, e.name))
+  } catch { return [] }
+}
+
+// The three skill flags that drive a catalog row's ✓/? marks — single source of truth so the
+// catalog rows and the container child-counts can't drift.
+function folderSkillFlags(folderPath) {
+  const name = path.basename(folderPath)
+  let hasExtract = false
+  try {
+    hasExtract = fs.readdirSync(folderPath, { withFileTypes: true })
+      .some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_data engine'))
+  } catch {}
+  const hasQuote = fs.existsSync(path.join(folderPath, `${name} - Quote.xlsx`))
+  const hasDiligence = diligenceWorkbookExists(folderPath)
+  return { hasDiligence, hasExtract, hasQuote }
+}
+
+// Strip the internal rollup fields (keys, trackInfos) before sending a summary to the client.
+function publicSummary(s) {
+  if (!s) return null
+  const { line, lifetime, ttm, hasAdj, trackCount, top80Count, dollarAge } = s
+  return { line, lifetime, ttm, hasAdj, trackCount, top80Count, dollarAge }
+}
+
+// Roll a container's child catalogs up into ONE virtual mega-catalog: sum the per-month series by
+// calendar month and concat every per-track record, then run the SAME aggregation that
+// computeWorkbookSummaryInner uses. The TTM + track formulas below MIRROR that function — keep them
+// in sync if the single-deal aggregation ever changes.
+function computeContainerRollup(childPaths) {
+  const monthMap = new Map()
+  let allTracks = []
+  let contributing = 0
+  for (const child of childPaths) {
+    const s = computeWorkbookSummary(child)
+    if (!s || !Array.isArray(s.keys)) continue
+    contributing += 1
+    for (let i = 0; i < s.keys.length; i++) {
+      monthMap.set(s.keys[i], (monthMap.get(s.keys[i]) || 0) + (s.line[i] || 0))
+    }
+    if (Array.isArray(s.trackInfos)) allTracks = allTracks.concat(s.trackInfos)
+  }
+  if (contributing === 0) return null
+
+  // Monthly: line / lifetime / TTM (trailing 12 calendar months on the merged series).
+  const keys = [...monthMap.keys()].sort((a, b) => a.localeCompare(b))
+  const line = keys.map(k => monthMap.get(k))
+  const lifetime = line.reduce((sum, v) => sum + v, 0)
+  let ttm = lifetime
+  if (keys.length) {
+    const lastKey = keys[keys.length - 1]
+    const [ly, lm] = lastKey.split('-').map(Number)
+    const [fy, fm] = keys[0].split('-').map(Number)
+    if ((ly - fy) * 12 + (lm - fm) + 1 >= 12) {
+      let sm = lm - 11, sy = ly
+      while (sm <= 0) { sm += 12; sy -= 1 }
+      const ttmStartKey = `${sy}-${String(sm).padStart(2, '0')}`
+      ttm = 0
+      for (let i = 0; i < keys.length; i++) {
+        if (keys[i] >= ttmStartKey && keys[i] <= lastKey) ttm += line[i] || 0
+      }
+    }
+  }
+
+  // Tracks: count / top-80% / dollar-age over the combined track set.
+  const live = allTracks.filter(t => t && t.lifetime > 0)
+  const ranked = live.map(t => t.lifetime).sort((a, b) => b - a)
+  const trackCount = ranked.length
+  const dealLife = ranked.reduce((sum, v) => sum + v, 0)
+  let top80Count = 0
+  if (dealLife > 0) {
+    let cum = 0
+    for (const v of ranked) { top80Count += 1; cum += v; if (cum / dealLife >= 0.80) break }
+  }
+  const now = new Date()
+  const ages = live.map(t => {
+    if (!t.firstKey) return null
+    const [y, m] = t.firstKey.split('-').map(Number)
+    if (!Number.isFinite(y) || !Number.isFinite(m)) return null
+    return Math.max(0, ((now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m)) / 12)
+  }).filter(a => a != null)
+  const dollarAge = ages.length > 0 ? ages.reduce((sum, a) => sum + a, 0) / ages.length : null
+
+  return { line, lifetime, ttm, trackCount, top80Count, dollarAge }
 }
 
 // POST /api/data/open-folder — open a folder in the OS file browser.
@@ -2059,8 +2154,24 @@ app.post('/api/data/open-folder', (req, res) => {
 app.get('/api/data/folders', (req, res) => {
   try {
     const CURRENT_DIR = path.join(DATA_ROOT, '1. Current')
-    if (!fs.existsSync(CURRENT_DIR)) return res.json([])
-    const entries = fs.readdirSync(CURRENT_DIR, { withFileTypes: true })
+    // Drill-in: ?path=<container> lists that container's child catalogs (validated under DATA_ROOT);
+    // with no path, list the top-level 1. Current folders.
+    let baseDir = CURRENT_DIR
+    let inDrill = false
+    if (req.query.path) {
+      const resolved = path.resolve(String(req.query.path))
+      const safeRoot = path.resolve(DATA_ROOT)
+      if (resolved !== safeRoot && !resolved.startsWith(safeRoot + path.sep)) {
+        return res.status(403).json({ error: 'path outside data root' })
+      }
+      if (!fs.existsSync(resolved) || !fs.statSync(resolved).isDirectory()) {
+        return res.status(404).json({ error: 'folder not found' })
+      }
+      baseDir = resolved
+      inDrill = true
+    }
+    if (!fs.existsSync(baseDir)) return res.json([])
+    const entries = fs.readdirSync(baseDir, { withFileTypes: true })
 
     // Pre-list logs/ once for stale-run detection. A skill is "stale" (spinner should
     // clear) when its most recent log shows the process has ENDED — either it wrote the
@@ -2108,29 +2219,41 @@ app.get('/api/data/folders', (req, res) => {
     const folders = entries
       .filter(e => e.isDirectory())
       .map(e => {
-        const fullPath = path.join(CURRENT_DIR, e.name)
-        const stat = fs.statSync(fullPath)
-        let hasExtract = false
-        try {
-          const subs = fs.readdirSync(fullPath, { withFileTypes: true })
-          hasExtract = subs.some(s => s.isDirectory() && s.name.toLowerCase().endsWith('_data engine'))
-        } catch {}
-        // Quote-export existence — drives the Data Manager "Valuation" green check.
-        const hasQuote = fs.existsSync(path.join(fullPath, `${e.name} - Quote.xlsx`))
+        const fullPath = path.join(baseDir, e.name)
+        const mtime = fs.statSync(fullPath).mtime.toISOString()
+        // Container = a top-level "!"-prefixed folder holding a collection of catalogs. One level
+        // only, so drill-in children (inDrill) are always plain catalogs. The "!" is dropped for
+        // display; the row shows a rollup of its catalogs + X/N done counts and is not runnable.
+        if (!inDrill && e.name.startsWith('!')) {
+          const childPaths = listSubdirs(fullPath)
+          let dilDone = 0, quoteDone = 0, extractDone = 0
+          for (const cp of childPaths) {
+            const f = folderSkillFlags(cp)
+            if (f.hasDiligence) dilDone += 1
+            if (f.hasQuote) quoteDone += 1
+            if (f.hasExtract) extractDone += 1
+          }
+          return {
+            name: e.name, displayName: e.name.replace(/^!/, ''), path: fullPath, mtime,
+            isContainer: true, childCount: childPaths.length, dilDone, quoteDone, extractDone,
+            summary: computeContainerRollup(childPaths),
+          }
+        }
+        // Regular catalog row (also used for a container's children in the drill-in view).
+        const { hasDiligence, hasExtract, hasQuote } = folderSkillFlags(fullPath)
         const staleSkills = staleSkillsFor(e.name)
-        // Summary (sparkline line + Lifetime + TTM). Returns null when there's no
-        // diligence folder, no workbook, or the workbook is unparseable.
         const summary = computeWorkbookSummary(fullPath)
-        // Diligence is "done" when a workbook EXISTS on disk — NOT gated on the summary
-        // parsing (some skill-produced workbooks use sheet-naming variants the summary
-        // parser doesn't recognize yet, but diligence was genuinely done). An empty
-        // `_Due Diligence` folder with no workbook still correctly shows "?". The summary
-        // independently drives the data columns (sparkline / Lifetime / TTM), which stay
-        // blank if the workbook can't be parsed.
-        const hasDiligence = diligenceWorkbookExists(fullPath)
-        return { name: e.name, path: fullPath, mtime: stat.mtime.toISOString(), hasDiligence, hasExtract, hasQuote, staleSkills, summary }
+        return {
+          name: e.name, displayName: e.name, path: fullPath, mtime,
+          isContainer: false, hasDiligence, hasExtract, hasQuote, staleSkills,
+          summary: publicSummary(summary),
+        }
       })
-      .sort((a, b) => b.mtime.localeCompare(a.mtime))
+      .sort((a, b) => {
+        // Containers pinned to the top; each group newest-first by mtime.
+        if (a.isContainer !== b.isContainer) return a.isContainer ? -1 : 1
+        return b.mtime.localeCompare(a.mtime)
+      })
     res.json(folders)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -2333,6 +2456,12 @@ app.post('/api/data/run-skill', (req, res) => {
     if (RUNNING_SKILLS.has(runKey) || skillRunInFlight(folderPath, skill)) {
       return res.status(409).json({ error: `${skill} is already running for this folder — wait for it to finish.` })
     }
+    // Global adaptive cap (US4): never exceed the effective cap (self-tunes on rate-limiting). The
+    // client also disables the trigger at capacity; this is the authoritative backstop.
+    const capActive = listSkillRuns().filter(r => r.state === 'running').length
+    if (capActive >= diligenceEffectiveCap) {
+      return res.status(409).json({ error: 'at_cap', effectiveCap: diligenceEffectiveCap, configuredCap: DILIGENCE_CAP_CEILING, message: `at capacity (${capActive} running) — wait for a run to finish` })
+    }
     const claudeBin = findClaudeBin()
     if (!claudeBin) return res.status(500).json({ error: 'Claude CLI not found. Run RTHM Setup.command again, or install manually: npm install -g @anthropic-ai/claude-code' })
     if (!fs.existsSync(LOGS_DIR)) {
@@ -2356,6 +2485,7 @@ app.post('/api/data/run-skill', (req, res) => {
         timestamp: new Date().toISOString(),
         claudeBin, args, cwd: folderPath,
         platform: os.platform(),
+        host: os.hostname(),
         nodeVersion: process.version,
         env: { HOME: process.env.HOME, USERPROFILE: process.env.USERPROFILE, APPDATA: process.env.APPDATA, PATH_present: !!process.env.PATH },
       }, null, 2))
@@ -2426,6 +2556,227 @@ app.post('/api/data/run-skill', (req, res) => {
     // it free to outlive the server.
     proc.unref()
     res.json({ ok: true, pid: proc.pid, logPath, claudeBin, debugPath })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ─── Skill-Run Monitor (Diligence Run Monitor feature) ───────────────────────
+// Read-only run state derived from the LOGS_DIR ledger — the single source of truth for the
+// persistent monitor and for re-attaching to detached runs that outlived the app. This block
+// NEVER writes logs, source files, or workbooks.
+
+// Cap CEILING for concurrent skill runs. Per-machine (NOT Dropbox-synced) because the Claude CLI
+// can't report the account tier headlessly: default 2 (safe for a $20 Pro account); a Max machine
+// sets DILIGENCE_MAX_CONCURRENT higher. The EFFECTIVE cap self-tunes downward on rate-limiting.
+const DILIGENCE_CAP_CEILING = Math.max(1, parseInt(process.env.DILIGENCE_MAX_CONCURRENT, 10) || 2)
+let diligenceEffectiveCap = DILIGENCE_CAP_CEILING
+
+// Adaptive cap (US4): the EFFECTIVE cap self-tunes to what the signed-in account actually sustains —
+// drop by 1 on an observed rate-limit failure, recover by 1 after 2 consecutive clean completions
+// (count-based, deterministic — no wall-clock). Each finished run is counted exactly once.
+const adaptiveProcessed = new Set()
+let diligenceCleanStreak = 0
+function updateAdaptiveCap(runs) {
+  const newlyFinished = runs
+    .filter(r => r.state !== 'running' && r.logFile && !adaptiveProcessed.has(r.logFile))
+    .sort((a, b) => (Date.parse(a.finishedAt) || 0) - (Date.parse(b.finishedAt) || 0))
+  for (const r of newlyFinished) {
+    adaptiveProcessed.add(r.logFile)
+    if (r.state === 'failed' && r.failureKind === 'rate_limit') {
+      diligenceEffectiveCap = Math.max(1, diligenceEffectiveCap - 1)
+      diligenceCleanStreak = 0
+    } else {
+      diligenceCleanStreak += 1
+      if (diligenceCleanStreak >= 2) {
+        diligenceEffectiveCap = Math.min(DILIGENCE_CAP_CEILING, diligenceEffectiveCap + 1)
+        diligenceCleanStreak = 0
+      }
+    }
+  }
+}
+
+// Latest "[stage] i/n label" marker a running skill emitted (logging-only; emitted by the skills).
+function parseLatestStage(text) {
+  const re = /\[stage\]\s+(\d+)\s*\/\s*(\d+)\s+(.+)/g
+  let m, last = null
+  while ((m = re.exec(text)) !== null) last = m
+  if (!last) return null
+  const i = Number(last[1]), n = Number(last[2])
+  if (!Number.isFinite(i) || !Number.isFinite(n) || n <= 0) return null
+  return { i, n, label: last[3].trim() }
+}
+
+// Classify a failure from the log tail so the monitor can show an actionable reason.
+function classifyFailure(tail) {
+  const t = (tail || '').toLowerCase()
+  if (/rate.?limit|429|usage limit|quota|too many requests/.test(t)) return 'rate_limit'
+  if (/\b401\b|invalid authentication|unauthorized|authentication_error|not logged in|please run.{0,8}login|enoent|eftype|eacces|not a valid application|command not found|claude (cli )?not found/.test(t)) return 'tooling_unavailable'
+  return 'process_error'
+}
+
+// catalog-extract's real completion signal: a "<name>_Data Engine" subfolder with its manifest.
+function extractOutputExists(folder) {
+  try {
+    for (const e of fs.readdirSync(folder, { withFileTypes: true })) {
+      if (e.isDirectory() && /_Data Engine$/i.test(e.name) && fs.existsSync(path.join(folder, e.name, '.manifest.json'))) return true
+    }
+  } catch {}
+  return false
+}
+
+// A run is genuinely "succeeded" only when its expected output exists (no false completions).
+function outputExistsFor(skill, folder) {
+  if (!folder) return false
+  if (skill === 'diligence') return diligenceWorkbookExists(folder)
+  if (skill === 'catalog-extract') return extractOutputExists(folder)
+  return false
+}
+
+// "<safeFolder>_<skill>_<ts>.log" -> { skill, ts, safeFolder } | null.
+function parseLogName(name) {
+  for (const skill of ALLOWED_SKILLS) {
+    const m = name.match(new RegExp(`^(.+)_${skill}_(\\d+)\\.log$`))
+    if (m) return { skill, ts: Number(m[2]), safeFolder: m[1] }
+  }
+  return null
+}
+
+// The real catalog folder (cwd) is recorded in the spawn-debug sidecar — the reliable way to map a
+// sanitized log name back to its folder (so we can verify output existence and show a real name).
+function folderPathForLog(logFileName) {
+  try {
+    const j = JSON.parse(fs.readFileSync(path.join(LOGS_DIR, logFileName.replace(/\.log$/, '.spawn-debug.json')), 'utf8'))
+    if (j && typeof j.cwd === 'string') return j.cwd
+  } catch {}
+  return null
+}
+
+// The machine that spawned a run (from the spawn-debug sidecar). logs/ syncs via Dropbox, so a run
+// from another machine appears here; we use this to avoid probing a foreign PID against our own
+// process table (which would misread a teammate's in-flight run as a failure).
+function sidecarHost(logFileName) {
+  try {
+    const j = JSON.parse(fs.readFileSync(path.join(LOGS_DIR, logFileName.replace(/\.log$/, '.spawn-debug.json')), 'utf8'))
+    if (j && typeof j.host === 'string') return j.host
+  } catch {}
+  return null
+}
+
+function lastMeaningfulLine(tail) {
+  const lines = (tail || '').split(/\r?\n/).map(s => s.trim()).filter(s => s && !s.startsWith('[spawn]') && !s.startsWith('[stage]'))
+  return lines.length ? lines[lines.length - 1] : null
+}
+
+// Classify ONE run log into a Skill Run record. Liveness mirrors skillRunInFlight; this additionally
+// derives stage / failureKind / true success. Never fabricates — succeeded needs exit 0 AND output.
+function classifyRun(logFileName) {
+  const meta = parseLogName(logFileName)
+  if (!meta) return null
+  const logPath = path.join(LOGS_DIR, logFileName)
+  let st
+  try { st = fs.statSync(logPath) } catch { return null }
+  const folderPath = folderPathForLog(logFileName)
+  const folderName = folderPath ? path.basename(folderPath) : meta.safeFolder
+  const startedAt = new Date(meta.ts).toISOString()
+
+  let head = '', tail = ''
+  try {
+    const fd = fs.openSync(logPath, 'r')
+    try {
+      const headLen = Math.min(2048, st.size)
+      if (headLen > 0) { const b = Buffer.alloc(headLen); fs.readSync(fd, b, 0, headLen, 0); head = b.toString('utf8') }
+      const tailLen = Math.min(65536, st.size)
+      if (tailLen > 0) { const b = Buffer.alloc(tailLen); fs.readSync(fd, b, 0, tailLen, st.size - tailLen); tail = b.toString('utf8') }
+    } finally { fs.closeSync(fd) }
+  } catch {}
+
+  const exitMatch = tail.match(/\[spawn\] exit code=(-?\d+|null)/)
+  const errored = tail.includes('[spawn] error:')
+  const stage = parseLatestStage(tail)
+
+  let state, failureKind = null, error = null, finishedAt = null
+  if (exitMatch || errored) {
+    finishedAt = st.mtime.toISOString()
+    const code = exitMatch ? exitMatch[1] : null
+    if (code === '0' && outputExistsFor(meta.skill, folderPath)) {
+      state = 'succeeded'
+    } else {
+      state = 'failed'
+      failureKind = classifyFailure(tail)
+      const spawnErr = (tail.match(/\[spawn\] error:.*/g) || []).pop()
+      error = spawnErr ? spawnErr.replace('[spawn] error:', '').trim()
+            : (lastMeaningfulLine(tail) || `run ended with exit code ${code}`)
+    }
+  } else {
+    // No terminal marker yet. A run started on ANOTHER machine (logs/ syncs via Dropbox) can't have
+    // its PID probed against our process table, so only probe our OWN runs; an unfinished foreign run
+    // is shown as running on that machine rather than as a false failure.
+    const host = sidecarHost(logFileName)
+    if (host && host !== os.hostname()) {
+      state = 'running'
+    } else {
+      const pidMatch = head.match(/\[spawn\] pid=(\d+)/)
+      let alive = false
+      if (pidMatch) { try { process.kill(Number(pidMatch[1]), 0); alive = true } catch (e) { alive = (e.code === 'EPERM') } }
+      if (alive) {
+        state = 'running'
+      } else {
+        state = 'failed'
+        failureKind = 'process_error'
+        error = pidMatch ? 'run ended without completing — process is gone and wrote no exit code' : 'run did not start'
+        finishedAt = st.mtime.toISOString()
+      }
+    }
+  }
+  return { skill: meta.skill, folderPath, folderName, state, stage, failureKind, error, startedAt, finishedAt, logFile: logFileName }
+}
+
+// Latest run per (skill, folder). Keeps a finished run visible for RECENT_DONE_MS so re-attach can
+// surface an outcome that completed while the app was closed.
+const RECENT_DONE_MS = 60 * 60 * 1000
+function listSkillRuns() {
+  let names = []
+  try { names = fs.readdirSync(LOGS_DIR, { withFileTypes: true }).filter(f => f.isFile() && f.name.endsWith('.log')).map(f => f.name) } catch {}
+  const latest = new Map()
+  for (const name of names) {
+    const meta = parseLogName(name)
+    if (!meta) continue
+    // Cross-machine safety: logs/ syncs via Dropbox, so a run done on another machine appears here
+    // with a foreign cwd (e.g. a Mac path on a Windows box). Only surface runs whose catalog folder
+    // exists on THIS machine — otherwise a teammate's run would be misclassified locally.
+    const fp = folderPathForLog(name)
+    if (fp && !fs.existsSync(fp)) continue
+    const key = `${meta.skill} ${meta.safeFolder}`
+    const prev = latest.get(key)
+    if (!prev || meta.ts > prev.ts) latest.set(key, name)
+  }
+  const now = Date.now()
+  const runs = []
+  for (const name of latest.values()) {
+    const r = classifyRun(name)
+    if (!r) continue
+    if (r.state === 'running') { runs.push(r); continue }
+    const finishedMs = r.finishedAt ? Date.parse(r.finishedAt) : 0
+    if (now - finishedMs <= RECENT_DONE_MS) runs.push(r)
+  }
+  runs.sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+  return runs
+}
+
+// GET /api/data/skill-runs — read-only run ledger + adaptive cap state. Drives the monitor + re-attach.
+app.get('/api/data/skill-runs', (req, res) => {
+  try {
+    const runs = listSkillRuns()
+    updateAdaptiveCap(runs)
+    const activeCount = runs.filter(r => r.state === 'running').length
+    res.json({
+      configuredCap: DILIGENCE_CAP_CEILING,
+      effectiveCap: diligenceEffectiveCap,
+      activeCount,
+      atCap: activeCount >= diligenceEffectiveCap,
+      runs,
+    })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

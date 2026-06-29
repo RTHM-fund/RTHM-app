@@ -1,71 +1,53 @@
-# Claude Progress — Session Save (2026-06-28)
+# Claude Progress — Session Save (2026-06-29)
 
-## ✅ Accomplished this session — Data Manager parser overhaul (LIVE, not committed)
+## ✅ Accomplished
 
-Started from one reported error (`no platform sheets found`); deep verification uncovered a whole class of parser-drift + silent-undercount bugs. All fixed, exhaustively verified on the real 127-workbook corpus, and the dev server was restarted so it's LIVE.
+### Spec Kit walkthrough → Diligence Run Monitor (feature 001)
+Walked the full SDD cycle (constitution → specify → clarify → plan → tasks → analyze → implement).
+Artifacts in `<RTHM App root>/specs/001-diligence-run-monitor/` + ratified
+`<root>/.specify/memory/constitution.md` (v1.0.0). **These live at the RTHM App ROOT — Dropbox-synced,
+NOT in the App Files git repo.**
 
-### Bugs fixed (all in the Data Manager pivot path; index.js kept in sync)
-1. **Platform-sheet regex drift** (`pivot.js` `sheetKindRe`) — was stricter than canonical `SHEET_KIND_RE`; dropped `Trk`, required dash sep, required space before Rep/Adj. → matched canonical.
-2. **`parseMonthHeader` incomplete copy** — missing `Mmm-YY` ("Aug-21"), year-first quarterly ("23Q1"), all half-yearly ("22H1"). Silently dropped those columns → undercounted even non-throwing deals. → matched canonical.
-3. **New exotic formats added to BOTH `pivot.js` and `index.js` parseMonthHeader** (sync): `Q3 '14` (loosened quarterly sep `?`→`*`), `Aug22'` (trailing apostrophe), `1H23` (half-first). Plus **platform-prefixed headers** ("BMI 22Q1") via porting `parseMonthHeaderFor` into pivot.js + threading platformName through `parseSheet`/`platformTotalSeries` (Super Miles).
-4. **Annual cadence (full support)** — parse bare year (2015) + FY (FY2023) → Jan key; `detectStepMonths` now returns 12; `projections.js` allowlist `[1,3,6]`→`[1,3,6,12]`. Engine verified: Damon Thomas/Pavel project at 12-mo spacing, monotonic decay, finite.
-5. **`isHeaderRow` robustness** (new shared helper, both files) — a header row needs ≥2 period cells OR one STRONG (non-bare-year) cell. Kills a stray "2011" in a data row being misread as a header (Mickey Valen CK) WITHOUT dropping legit single-period sheets (Igor 10K "Dec23"). Replaced the old `cand.some(idx>=2)` at all sites (pivot.js parseSheet + index.js ×4).
+**Diligence Run Monitor** (`DiligenceMonitor.jsx`/`.css`, `useSkillRuns.js`, `server/index.js`):
+- Persistent, draggable, always-on-top glass panel at the App root; survives page nav; bottom-anchored
+  (grows upward, never clips); soft-fade name truncation (app schema).
+- Honest **named-stage progress** (`[stage] i/n` markers added to diligence + catalog-extract SKILL.md —
+  logging only, in the Dropbox Data tree); **loud failures** with classified `failureKind`
+  (tooling_unavailable incl. 401/auth, rate_limit, process_error).
+- `GET /api/data/skill-runs` read-only ledger: `classifyRun` from logs (pid probe + markers),
+  `succeeded` gated on real output (no false completions), re-attach to detached in-flight runs.
+- **Adaptive per-account cap**: configurable ceiling `DILIGENCE_MAX_CONCURRENT` (default 2) + auto-backoff
+  on `rate_limit`, recover after 2 clean completions; trigger disabled at cap + 409 backstop.
+- **Host-tagging**: runs carry `os.hostname()`; a foreign (other-machine) in-flight run shows "running",
+  not a false "failed" (logs/ syncs via Dropbox).
 
-### Verification (real data, this machine — Data root IS synced)
-- **127-workbook before/after snapshot diff:** exactly the intended deals changed; one accidental regression (Igor, −$58K) was caught via the diff and fixed with `isHeaderRow`; re-confirmed Igor reverted.
-- **7 of 8 previously-throwing deals now parse:** Damon Thomas, White Gold, Zafrir, Super Miles (+Sharing dup), Too $hort, Pavel — correct cadences (annual step 12, half step 6).
-- **4 "silent undercount" deals CORRECTED** (annual platforms were being wholly dropped): State Of Mine **$371K→$1.61M**, OwnBoss $466K→$548K, Mickey Valen $75K→$124K, Carla Prata $41.7K→$41.9K. **Each ties penny-exact to the workbook's OWN grand-total rows** (authoritative tie-out) and to an independent re-sum.
-- **All 125 parsed workbooks reconcile penny-exact** to an independently-coded reference parser. 0 non-finite.
-- **LIVE on :3001:** Data Manager `projection-preview` 200 for fixed deals incl. Damon Thomas (stepMonths=12). Valuation `diligence-workbook` 200 with matching numbers (Super Miles BMI platform parsed; State Of Mine repSum=1,606,924 == pivot). Server log clean.
+### claude CLI auth fixed
+Diligence 401s were a stale OAuth token (`auth status` said logged-in but calls 401'd). Re-ran
+`claude auth login`; verified `AUTHOK` headless. `.claude-bin` cleared (self-heals to the Windows bundle).
 
-### Still failing (2) — genuine DATA issues, failing loud is correct (NOT parser gaps)
-- **Tyga** — its `Empire - Track Adj` tab is a bridge SUMMARY (rows = "TOTAL Included (Rep)", "Bridge: less Sync", "TOTAL Included (Adj)"), no track-level rows; rep/adj selector picks adj → 0 tracks. Also its Rep sheet keys col0 by Section (Included/Legendary), not song. Needs `/diligence` re-run to the standard 4-tab per-track format. Forcing rep would overstate by sync + mis-key tracks.
-- **Lil Sheik** — source has no track/ISRC detail ("Catalog Aggregate"), 1 period. Nothing to extract.
+### Data Manager — Container Folders (`!`-folders)
+`!`-prefixed `1. Current/` folders = collections of catalogs. Purple clickable name (`!` dropped) →
+drills into its catalogs (`?path=` on `/api/data/folders`); back via the DATA MANAGER title / Backspace
+(drill state lifted to `App.jsx`, routed through `handleGoBack`); **pinned to top**; **X/N** done counts;
+**right-way rollup** (`computeContainerRollup` = virtual mega-catalog: combined top-80% / dollar-age /
+sparkline). `computeWorkbookSummary` math is UNTOUCHED — only `keys` + `trackInfos` appended to its return.
 
-### Files changed (all uncommitted)
-- `server/data-manager/pivot.js` — regex, parseMonthHeader (+formats +annual), parseMonthHeaderFor, parseSheet/platformTotalSeries platformName threading, detectStepMonths(12), isHeaderRow.
-- `server/index.js` — parseMonthHeader (+formats +annual), isHeaderRow (+4 sites).
-- `server/data-manager/projections.js` — stepMonths allowlist `[1,3,6,12]`.
-- `_claude_progress.md`.
-
-### Architecture note (recurring-drift root cause)
-`pivot.js` deliberately DUPLICATES index.js's parser helpers (modularity rule) and they keep silently drifting → bugs. Both now carry "MUST stay identical to …" pin comments. The permanent cure (not done — flagged) is extracting one shared `server/lib/workbook-parsing.js` both import. Decide later.
-
----
-
-## ✅ Earlier this session
-
-### Data Manager pivot bug — TWO parser-drift bugs fixed in `server/data-manager/pivot.js` (NOT committed)
-`pivot.js` deliberately keeps its OWN copy of the diligence-workbook parsing helpers (modularity rule, header comment pivot.js:6-11) and is supposed to stay byte-identical to the canonical proven parser in `server/index.js`. TWO of those helpers had silently drifted.
-
-**Bug 1 — platform-sheet regex** (`sheetKindRe`, ~pivot.js:183). Threw `no platform sheets found`.
-- Drifted stricter than `SHEET_KIND_RE` (index.js:1128): dropped the `Trk` abbreviation, required a dash separator (rejected whitespace-only), required a space before `Rep`/`Adj` (rejected glued `TrkRep`). The `/diligence` skill emits all those when shortening tab names under Excel's 31-char limit (SKILL.md §2E line 233).
-- Fix: regex made byte-identical to index.js:1128 (`Trk`, loose separators, glued form); `isTrack` changed `/^Track$/i` → `/^(?:Track|Trk)$/i`. Pinned with a sync comment.
-
-**Bug 2 — period-header parser** (`parseMonthHeader`, ~pivot.js:18). After Bug 1 was fixed, 3 more deals threw `no track-level data found`. Root cause: pivot.js's `parseMonthHeader` was an INCOMPLETE copy of index.js:1536 — missing (a) `Mmm-YY` 2-digit-year ("Aug-21"), (b) year-first quarterly ("23Q1"), (c) ALL half-yearly ("22H1"/"H1-22"). Unparseable headers were silently DROPPED → undercounted totals even on deals that didn't throw (OwnBoss $5.7K→$466K, John Debney $2.0M→$3.07M, Andy Mineo $4.78M→$6.51M once the missing periods parsed).
-- Fix: replaced pivot.js's `parseMonthHeader` body with the canonical index.js version verbatim; pinned with a sync comment. **This same canonical parser already runs all these workbooks in production for the Valuation page**, so it introduces no new behavior — only parity.
-
-`isTrack` overlap, `isAggregateRow`, MONTH_NAMES/MONTH_MAP, and the track-walk were audited and are already in sync. `index.js` left untouched (already correct).
-
-### Verification (real data, this machine — Data root workbooks ARE synced locally)
-- **15 previously-failing workbooks now parse** end-to-end (the reproduce set: 21 South, Andy Mineo, John Debney, OwnBoss, Tech It Deep, Bassline Club Vibes, diedlonely, Eddie Palmieri, Edrick Miles, James Keyz Foye III, Teddi Gold, Torae, State Of Mine, + dups).
-- **Penny-exact integrity check:** every one of the 15 reconciles to an INDEPENDENTLY-coded reference parser, max per-period diff `0.000000`.
-- **Regression sweep of all 127 workbooks:** 118 PASS, **0 non-finite values**, 9 throw (all pre-existing — see below).
-
-### Remaining: 9 workbooks (8 distinct deals) still throw `no track-level data` — PRE-EXISTING, not caused by this change
-Exotic period-header formats that NEITHER parser supports (so the Valuation page fails them too), plus one true parity gap:
-- **Annual cadence** (bare years `2015`, `FY2023`): Damon Thomas, Tyga, Pavel Shilov — likely a deeper engine question (projections/decay assume monthly/qtr/half).
-- **`Q3 '14`** (qtr+space+apostrophe): White Gold. **`Aug22'`** (trailing apostrophe): Zafrir. **`1H23`** (half-first): Too $hort.
-- **Lil Sheik**: genuinely aggregate-only (source has no track/ISRC detail) — fail-loud is arguably correct.
-- **Super Miles**: platform-prefixed headers `BMI 22Q1`. index.js HANDLES this via `parseMonthHeaderFor` (prefix-strip); pivot.js's `parseSheet` calls bare `parseMonthHeader`. **True parity gap — Valuation chart works but Data Manager doesn't.** Fixable by porting `parseMonthHeaderFor` into pivot.js + threading platform name through `parseSheet`.
+### Design system
+New schemas documented: Persistent Run Monitor, container rows, **Purple Clickable Text** (hover → new
+`--primary-hover` #4400B0 token; the only 2 instances are the container name + the DATA MANAGER back title).
 
 ## 🧭 Current state
-- `server/data-manager/pivot.js` edited (2 helpers), **NOT committed**.
-- **Server is STALE:** running PID on :3001 was started before these edits, so it has the OLD pivot.js (and its `/api/data/diligence-workbook` returned 0 months for 21 South). Reopening the app did NOT restart the server. **Must restart the Node server for the fix to go live.**
-- App UI runs in a Chrome tab (localhost) → computer-use can't drive it (browsers are read-only); would need the Claude-in-Chrome extension to click through the UI. Verification this session was done directly against the parser on real data instead (stronger than a single UI click).
+- App Files repo `master`: this session's app changes committed + pushed.
+- This push ALSO sent a pre-existing local commit **d4f829c** ("Fix Data Manager pivot parser drift + add
+  annual cadence support", by Richard Kim 2026-06-28, penny-exact verified) that was sitting unpushed.
+- **Server restart needed** for this session's `server/index.js` changes (skill-runs ledger, container
+  rollup/endpoint, host-tagging) to go fully live — HMR only reloads the front end.
+- Left untracked on purpose: `node_modules (Yanel Fils-aime's conflicted copy 2026-06-11)/` — a Dropbox
+  conflict copy, NOT committed; safe to delete.
+- Verified: `vite build` clean + `node --check server/index.js` clean.
 
 ## ⏭️ Next / open tasks
-1. **Restart the Node server** (:3001) so both fixes go live; then optionally spot-check a fixed deal (e.g. 21 South) in Data Manager.
-2. **Decide on the 9 remaining deals** — fix the exotic header formats (spec-first; annual cadence needs an engine decision) and/or port `parseMonthHeaderFor` to close the Super Miles parity gap. Currently OUT of the reported bug's scope.
-3. Decide whether to **commit** the pivot.js fix.
-4. Carried over from last session (still open): Real-Mac launcher cert; team Claude account for `/diligence` (Ownboss run failed "Not logged in"); `/simplify`+`/code-review` never fully ran; James Avex grand-total gap.
+1. On a live restart, spot-check a container's **Lifetime == Σ its catalogs' Lifetimes** (penny-exact).
+2. Diligence/extract stage bar only advances once the `[stage]` markers fire in a real run — confirm e2e.
+3. Delete the stray `node_modules (… conflicted copy …)/` junk dir when convenient.
+4. Pre-existing James Avex grand-total reconcile gap (orthogonal, flagged earlier sessions).

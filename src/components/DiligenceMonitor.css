@@ -1,0 +1,135 @@
+/* Diligence Run Monitor — persistent, always-on-top, content-sized glass panel.
+   Follows the design system: modal-style glass surface, 12px radius, left-accent run states
+   (mirrors the selection-state pattern), lowercase copy. Drag/move comes in US3. */
+
+.diligence-monitor {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9000; /* above modals (100); below chart tooltips (10000) */
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(82, 0, 190, 0.18);
+  isolation: isolate;
+  overflow: hidden;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--ink);
+}
+
+.diligence-monitor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: move;
+  user-select: none;
+}
+
+.dm-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.dm-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-light);
+  font-variant-numeric: tabular-nums;
+}
+
+.diligence-monitor-body {
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Clean flat rows — state is carried by the content (purple progress bar = running, green "done",
+   red failure line), not by decorative accent bars. Rows separated by padding alone. */
+.dm-run {
+  padding: 12px 16px;
+}
+
+.dm-run-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dm-run-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  /* Soft right-edge fade — the app-wide truncation schema (matches .data-manager-cell-truncate),
+     not a hard ellipsis. */
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+}
+
+.dm-run-skill {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.dm-run-dismiss {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-light);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.dm-run-dismiss:hover { color: var(--primary); }
+
+.dm-run-progress { margin-top: 8px; }
+
+.dm-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(82, 0, 190, 0.12);
+  overflow: hidden;
+}
+.dm-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.4s ease;
+}
+.dm-bar--indeterminate .dm-bar-fill {
+  width: 40%;
+  animation: dm-indeterminate 1.2s ease-in-out infinite;
+}
+@keyframes dm-indeterminate {
+  0% { margin-left: -40%; }
+  100% { margin-left: 100%; }
+}
+
+.dm-run-stage {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--ink-light);
+}
+
+.dm-run-status {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.dm-run-status--ok { color: var(--success); }
+.dm-run-status--fail { color: var(--error); }

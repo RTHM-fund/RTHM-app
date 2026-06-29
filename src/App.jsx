@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar.jsx'
 import MainArea from './components/MainArea.jsx'
+import DiligenceMonitor from './components/DiligenceMonitor.jsx'
 import './App.css'
 
 export default function App() {
@@ -12,6 +13,8 @@ export default function App() {
   const [selectedDealIndex, setSelectedDealIndex] = useState(null)
   // Data Manager — selected catalog folder for the Valuate page (charts of its diligence workbook)
   const [valuateFolder, setValuateFolder] = useState(null)
+  // Data Manager drill-in: the "!"-container currently being viewed ({path, name}), or null = top level.
+  const [drillContainer, setDrillContainer] = useState(null)
   const [valuationStates, setValuationStates] = useState({})
   const [mainArcade, setMainArcade] = useState(false)
   const [pageHistory, setPageHistory] = useState([])
@@ -62,6 +65,11 @@ export default function App() {
   }
 
   function handleGoBack() {
+    // Data Manager drill-in takes precedence over page-back: Backspace / back exits the drill first.
+    if (activePage === 'dataManager' && drillContainer) {
+      setDrillContainer(null)
+      return
+    }
     const prev = pageHistory[pageHistory.length - 1]
     if (!prev) {
       setPrefillData(null)
@@ -77,6 +85,11 @@ export default function App() {
     setSelectedDealIndex(prev.dealIndex)
     setValuateFolder(prev.valuateFolder ?? null)
   }
+
+  // Leaving Data Manager resets any drill-in, so returning shows the top-level list.
+  useEffect(() => {
+    if (activePage !== 'dataManager' && drillContainer) setDrillContainer(null)
+  }, [activePage])
 
   useEffect(() => {
     fetch('/api/templates')
@@ -463,7 +476,10 @@ export default function App() {
         setDataFolders={setDataFolders}
         valuateFolder={valuateFolder}
         onOpenValuate={handleOpenValuate}
+        drillContainer={drillContainer}
+        setDrillContainer={setDrillContainer}
       />
+      <DiligenceMonitor runningSkills={runningSkills} />
     </div>
   )
 }

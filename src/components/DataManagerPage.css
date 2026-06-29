@@ -283,6 +283,38 @@
   font-weight: 500;
 }
 
+/* Container ("!"-folder) rows — purple clickable name + X/N rollup counts in the skill columns. */
+.data-manager-container-name {
+  color: var(--primary);
+  font-weight: 700;
+}
+.data-manager-container-row:hover .data-manager-container-name {
+  color: var(--primary-hover);
+}
+/* X/N "done" count — matches the table's numeric weight/size; green once every catalog is done. */
+.data-manager-rollup-count {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-light);
+}
+.data-manager-rollup-count.complete {
+  color: #16A34A;
+}
+/* DATA MANAGER title acts as the back affordance when drilled into a container. */
+.data-manager-title-back {
+  cursor: pointer;
+}
+.data-manager-title-back:hover {
+  color: var(--primary-hover);
+}
+.data-manager-breadcrumb {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
 .data-manager-delete-btn {
   padding: 5px 14px;
   background: rgba(220, 38, 38, 0.1);
