@@ -3498,57 +3498,6 @@
     }
   },
   {
-    "name": "Igor Mamet",
-    "platform": "BMI, Downtown, WMG",
-    "initialQuote": {
-      "AP": 40158,
-      "AQ": 47800,
-      "AR": 81577,
-      "AS": 114800,
-      "AT": 100686,
-      "AU": 163700,
-      "AV": 111065,
-      "AW": 205100
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
-    },
-    "dealType": "Individual",
-    "royaltyType": "Both",
-    "commission": "4",
-    "mondayItemId": "12188254154",
-    "mondayBoardId": 18397562279,
-    "importedAt": "2026-06-04T00:11:40.965Z",
-    "valuationState": {
-      "rates": {
-        "12 months": "78.13",
-        "36 months": "66.09",
-        "60 months": "57.2",
-        "84 months": "50.36",
-        "144 months": 50
-      },
-      "commission": 4,
-      "b2bMarginRate": 5,
-      "recoupLocked": true
-    },
-    "agreements": [
-      {
-        "type": "Deal Sheet",
-        "fileName": "RTHM Deal Sheet_Igor Mamet.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Igor Mamet.docx",
-        "createdAt": "2026-06-04T00:14:34.389Z"
-      }
-    ]
-  },
-  {
     "name": "Landstrip Chip",
     "platform": "BMI",
     "grossQuote": {
@@ -3844,22 +3793,22 @@
     "importedAt": "2026-06-12T22:51:20.511Z",
     "valuationState": {
       "rates": {
-        "12 months": "80.63",
-        "36 months": "68.53",
-        "60 months": "58.61",
-        "84 months": "52.81",
-        "144 months": "46.18"
+        "12 months": 82.51,
+        "36 months": 69.72,
+        "60 months": 60.34,
+        "84 months": 52.98,
+        "144 months": "40.66"
       },
       "commission": 4,
-      "b2bMarginRate": 10,
+      "b2bMarginRate": 5,
       "recoupLocked": true
     },
     "agreements": [
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_AJ McQueen.docx",
-        "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_AJ McQueen.docx",
-        "createdAt": "2026-06-14T23:45:54.907Z"
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_AJ McQueen.docx",
+        "createdAt": "2026-06-29T19:45:37.320Z"
       },
       {
         "type": "TopValley Deal Sheet",
@@ -3890,9 +3839,15 @@
         "fileName": "RTHM RPA_AJ McQueen.docx",
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM RPA_AJ McQueen.docx",
         "createdAt": "2026-06-18T15:46:50.975Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_AJ McQueen.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_AJ McQueen.docx",
+        "createdAt": "2026-06-29T19:45:37.320Z"
       }
     ],
-    "b2bPartner": "TopValley",
+    "b2bPartner": "Skyline",
     "lockedDeal": {
       "advanceAmount": 72567,
       "recoupRate": 46.18,

@@ -61,9 +61,8 @@ format (pre-existing "fails by design"), untouched by this fix.
 - **Dev server is RUNNING** (background `npm run dev` from `App Files/`, ports 3001 + 5173) with the fix live;
   Kendall Deals values verified via the API. The backend does NOT watch files — any further `server/index.js`
   edit needs a manual restart (kill 3001 → `npm run dev`). Boot prewarm takes ~70s before the API responds.
-- **`data/deals.json` left UNcommitted on purpose** — it has an unrelated Deal Manager change (7 deals removed
-  incl. Igor Mamet; 60 del / 15 ins). Looks like runtime/cross-machine-sync churn, not this session's work.
-  Awaiting the user's call on whether to commit it.
+- **`data/deals.json` committed** per the user's "commit all" — a clean single-deal removal (Igor Mamet;
+  HEAD 66 -> 65 deals, valid JSON). A Deal Manager runtime change, not this session's code work.
 - Untracked junk, NOT committed: `node_modules (Yanel Fils-aime's conflicted copy 2026-06-11)/` (Dropbox
   conflict copy) and `src/components/DataManagerPage.css.tmp.2076.823b6c07d983` (orphaned editor write-temp).
   Both safe to delete.
@@ -72,7 +71,8 @@ format (pre-existing "fails by design"), untouched by this fix.
 ## ⏭️ Next / open tasks
 1. **Tyga (and Lil Sheik) still show 0 tracks** — per-track parser can't read their format ("fails by design").
    Tyga now shows a $19.7M series total but no track breakdown; revisit if a real fix is wanted.
-2. Decide on `data/deals.json` (commit the deal removals or revert) + delete the two untracked junk files.
+2. Delete the two untracked junk files when convenient (Dropbox conflict-copy node_modules dir + a stray
+   `DataManagerPage.css.tmp`); left in place pending explicit confirmation.
 3. Spot-check a container's **Lifetime == Σ its catalogs' Lifetimes** (penny-exact) in the live UI.
 4. Diligence/extract stage bar only advances once the `[stage]` markers fire in a real run — confirm e2e.
 5. Pre-existing James Avex grand-total reconcile gap (orthogonal, flagged earlier sessions).
