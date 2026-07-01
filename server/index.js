@@ -1827,23 +1827,6 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
     if (combinedSorted.length === 0) return null
     const keys = combinedSorted.map(([k]) => k)
     const line = combinedSorted.map(([, v]) => v)
-    const lifetime = line.reduce((s, v) => s + v, 0)
-    // TTM = trailing 12 calendar months anchored on the latest data month
-    let ttm = lifetime
-    const lastKey = keys[keys.length - 1]
-    const [ly, lm] = lastKey.split('-').map(Number)
-    const firstKey = keys[0]
-    const [fy, fm] = firstKey.split('-').map(Number)
-    const totalMonths = (ly - fy) * 12 + (lm - fm) + 1
-    if (totalMonths >= 12) {
-      let sm = lm - 11, sy = ly
-      while (sm <= 0) { sm += 12; sy -= 1 }
-      const ttmStartKey = `${sy}-${String(sm).padStart(2, '0')}`
-      ttm = 0
-      for (let i = 0; i < keys.length; i++) {
-        if (keys[i] >= ttmStartKey && keys[i] <= lastKey) ttm += line[i] || 0
-      }
-    }
 
     // Track counts — mirrors the per-track extraction in /api/data/diligence-workbook.
     // trackCount = total distinct tracks with non-zero lifetime across all platforms
@@ -1916,33 +1899,8 @@ function computeWorkbookSummaryInner(wbPath, dealName) {
         }
       }
     }
-    const trackInfos = [...trackTotals.values()].filter(t => t.lifetime > 0)
-    const ranked = trackInfos.map(t => t.lifetime).sort((a, b) => b - a)
-    const trackCount = ranked.length
-    const dealLife = ranked.reduce((s, v) => s + v, 0)
-    let top80Count = 0
-    if (dealLife > 0) {
-      let cum = 0
-      for (const v of ranked) {
-        top80Count += 1
-        cum += v
-        if (cum / dealLife >= 0.80) break
-      }
-    }
-    // Catalog Dollar Age — simple unweighted average of per-track ages (years
-    // from each track's first non-zero earning month to today). Matches the
-    // Valuate-page convention. Tracks with no firstKey are skipped.
-    const now = new Date()
-    function ageY(key) {
-      if (!key) return null
-      const [y, m] = key.split('-').map(Number)
-      if (!Number.isFinite(y) || !Number.isFinite(m)) return null
-      return Math.max(0, ((now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m)) / 12)
-    }
-    const ages = trackInfos.map(t => ageY(t.firstKey)).filter(a => a != null)
-    const dollarAge = ages.length > 0 ? ages.reduce((s, a) => s + a, 0) / ages.length : null
-
-    return { line, lifetime, ttm, hasAdj: anyAdjUsed, trackCount, top80Count, dollarAge, keys, trackInfos: [...trackTotals.values()] }
+    const trackInfos = [...trackTotals.values()]
+    return { line, keys, hasAdj: anyAdjUsed, trackInfos, ...aggregateSummary(keys, line, trackInfos) }
   } catch { return null }
 }
 
@@ -1980,29 +1938,13 @@ function publicSummary(s) {
   return { line, lifetime, ttm, hasAdj, trackCount, top80Count, dollarAge }
 }
 
-// Roll a container's child catalogs up into ONE virtual mega-catalog: sum the per-month series by
-// calendar month and concat every per-track record, then run the SAME aggregation that
-// computeWorkbookSummaryInner uses. The TTM + track formulas below MIRROR that function — keep them
-// in sync if the single-deal aggregation ever changes.
-function computeContainerRollup(childPaths) {
-  const monthMap = new Map()
-  let allTracks = []
-  let contributing = 0
-  for (const child of childPaths) {
-    const s = computeWorkbookSummary(child)
-    if (!s || !Array.isArray(s.keys)) continue
-    contributing += 1
-    for (let i = 0; i < s.keys.length; i++) {
-      monthMap.set(s.keys[i], (monthMap.get(s.keys[i]) || 0) + (s.line[i] || 0))
-    }
-    if (Array.isArray(s.trackInfos)) allTracks = allTracks.concat(s.trackInfos)
-  }
-  if (contributing === 0) return null
-
-  // Monthly: line / lifetime / TTM (trailing 12 calendar months on the merged series).
-  const keys = [...monthMap.keys()].sort((a, b) => a.localeCompare(b))
-  const line = keys.map(k => monthMap.get(k))
-  const lifetime = line.reduce((sum, v) => sum + v, 0)
+// Shared post-parse aggregation — the SINGLE source of truth for the headline totals derived from a
+// combined monthly series (keys + line, keys ascending) and the per-track records: lifetime, the
+// trailing-12-calendar-month TTM window, track count, the 80%-cumulative top-track cutoff, and the
+// unweighted dollar-age. Called by BOTH computeWorkbookSummaryInner (one catalog) and
+// computeContainerRollup (a container's catalogs summed) so the two can never drift (data-integrity).
+function aggregateSummary(keys, line, trackInfos) {
+  const lifetime = line.reduce((s, v) => s + v, 0)
   let ttm = lifetime
   if (keys.length) {
     const lastKey = keys[keys.length - 1]
@@ -2018,12 +1960,11 @@ function computeContainerRollup(childPaths) {
       }
     }
   }
-
-  // Tracks: count / top-80% / dollar-age over the combined track set.
-  const live = allTracks.filter(t => t && t.lifetime > 0)
+  // Track count + top-80% cutoff + unweighted dollar-age, over tracks with positive lifetime.
+  const live = trackInfos.filter(t => t && t.lifetime > 0)
   const ranked = live.map(t => t.lifetime).sort((a, b) => b - a)
   const trackCount = ranked.length
-  const dealLife = ranked.reduce((sum, v) => sum + v, 0)
+  const dealLife = ranked.reduce((s, v) => s + v, 0)
   let top80Count = 0
   if (dealLife > 0) {
     let cum = 0
@@ -2036,9 +1977,32 @@ function computeContainerRollup(childPaths) {
     if (!Number.isFinite(y) || !Number.isFinite(m)) return null
     return Math.max(0, ((now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m)) / 12)
   }).filter(a => a != null)
-  const dollarAge = ages.length > 0 ? ages.reduce((sum, a) => sum + a, 0) / ages.length : null
+  const dollarAge = ages.length > 0 ? ages.reduce((s, a) => s + a, 0) / ages.length : null
+  return { lifetime, ttm, trackCount, top80Count, dollarAge }
+}
 
-  return { line, lifetime, ttm, trackCount, top80Count, dollarAge }
+// Roll a container's child catalogs up into ONE virtual mega-catalog: sum the per-month series by
+// calendar month and concat every per-track record, then run the SAME aggregation (aggregateSummary)
+// a single catalog uses — so a container's totals can never drift from its catalogs'.
+function computeContainerRollup(childPaths) {
+  const monthMap = new Map()
+  let allTracks = []
+  let contributing = 0
+  for (const child of childPaths) {
+    const s = computeWorkbookSummary(child)
+    if (!s || !Array.isArray(s.keys)) continue
+    contributing += 1
+    for (let i = 0; i < s.keys.length; i++) {
+      monthMap.set(s.keys[i], (monthMap.get(s.keys[i]) || 0) + (s.line[i] || 0))
+    }
+    if (Array.isArray(s.trackInfos)) allTracks = allTracks.concat(s.trackInfos)
+  }
+  if (contributing === 0) return null
+
+  // Merged monthly series across children; run it through the SAME aggregation as a single catalog.
+  const keys = [...monthMap.keys()].sort((a, b) => a.localeCompare(b))
+  const line = keys.map(k => monthMap.get(k))
+  return { line, ...aggregateSummary(keys, line, allTracks) }
 }
 
 // POST /api/data/open-folder — open a folder in the OS file browser.
@@ -2648,25 +2612,15 @@ function parseLogName(name) {
   return null
 }
 
-// The real catalog folder (cwd) is recorded in the spawn-debug sidecar — the reliable way to map a
-// sanitized log name back to its folder (so we can verify output existence and show a real name).
-function folderPathForLog(logFileName) {
+// Read a run's spawn-debug sidecar. It records the real catalog folder (cwd) — the reliable way to
+// map a sanitized log name back to its folder (to verify output existence and show a real name) —
+// and the spawning host: logs/ syncs via Dropbox so a run from another machine appears here, and
+// `host` lets us avoid probing a foreign PID against our own process table (which would misread a
+// teammate's in-flight run as a failure). Returns {} when missing/unreadable.
+function readSidecar(logFileName) {
   try {
-    const j = JSON.parse(fs.readFileSync(path.join(LOGS_DIR, logFileName.replace(/\.log$/, '.spawn-debug.json')), 'utf8'))
-    if (j && typeof j.cwd === 'string') return j.cwd
-  } catch {}
-  return null
-}
-
-// The machine that spawned a run (from the spawn-debug sidecar). logs/ syncs via Dropbox, so a run
-// from another machine appears here; we use this to avoid probing a foreign PID against our own
-// process table (which would misread a teammate's in-flight run as a failure).
-function sidecarHost(logFileName) {
-  try {
-    const j = JSON.parse(fs.readFileSync(path.join(LOGS_DIR, logFileName.replace(/\.log$/, '.spawn-debug.json')), 'utf8'))
-    if (j && typeof j.host === 'string') return j.host
-  } catch {}
-  return null
+    return JSON.parse(fs.readFileSync(path.join(LOGS_DIR, logFileName.replace(/\.log$/, '.spawn-debug.json')), 'utf8')) || {}
+  } catch { return {} }
 }
 
 function lastMeaningfulLine(tail) {
@@ -2682,7 +2636,8 @@ function classifyRun(logFileName) {
   const logPath = path.join(LOGS_DIR, logFileName)
   let st
   try { st = fs.statSync(logPath) } catch { return null }
-  const folderPath = folderPathForLog(logFileName)
+  const sidecar = readSidecar(logFileName)
+  const folderPath = typeof sidecar.cwd === 'string' ? sidecar.cwd : null
   const folderName = folderPath ? path.basename(folderPath) : meta.safeFolder
   const startedAt = new Date(meta.ts).toISOString()
 
@@ -2718,7 +2673,7 @@ function classifyRun(logFileName) {
     // No terminal marker yet. A run started on ANOTHER machine (logs/ syncs via Dropbox) can't have
     // its PID probed against our process table, so only probe our OWN runs; an unfinished foreign run
     // is shown as running on that machine rather than as a false failure.
-    const host = sidecarHost(logFileName)
+    const host = typeof sidecar.host === 'string' ? sidecar.host : null
     if (host && host !== os.hostname()) {
       state = 'running'
     } else {
@@ -2751,7 +2706,8 @@ function listSkillRuns() {
     // Cross-machine safety: logs/ syncs via Dropbox, so a run done on another machine appears here
     // with a foreign cwd (e.g. a Mac path on a Windows box). Only surface runs whose catalog folder
     // exists on THIS machine — otherwise a teammate's run would be misclassified locally.
-    const fp = folderPathForLog(name)
+    const fpRaw = readSidecar(name).cwd
+    const fp = typeof fpRaw === 'string' ? fpRaw : null
     if (fp && !fs.existsSync(fp)) continue
     const key = `${meta.skill} ${meta.safeFolder}`
     const prev = latest.get(key)
