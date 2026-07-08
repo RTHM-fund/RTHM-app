@@ -3860,5 +3860,820 @@
       "legalName": "Albert Jermain McQueen",
       "transactionId": "RTHM-RPA-33"
     }
+  },
+  {
+    "name": "Eddie Palmeri (Full)",
+    "platform": "BMI, BMG, SX, Concord",
+    "grossQuote": {
+      "AC": 43200,
+      "AD": 49400,
+      "AE": 100100,
+      "AF": 139600,
+      "AG": 132700,
+      "AH": 220300,
+      "AI": 151600,
+      "AJ": 293700,
+      "AK": 180420,
+      "AL": 451532
+    },
+    "initialQuote": {
+      "AP": 41904,
+      "AQ": 47918,
+      "AR": 97097,
+      "AS": 135412,
+      "AT": 128719,
+      "AU": 213691,
+      "AV": 147052,
+      "AW": 284889,
+      "AX": 175007,
+      "AY": 437986
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Both",
+    "commission": "4",
+    "mondayItemId": "12422407107",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-01T16:27:08.129Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "75.00",
+        "36 months": "65.00",
+        "60 months": "55.00",
+        "84 months": "49.00",
+        "144 months": "38.00"
+      },
+      "commission": 4,
+      "b2bMarginRate": 8,
+      "recoupLocked": true
+    },
+    "b2bPartner": "Skyline",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Eddie Palmeri (Full).docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Eddie Palmeri (Full).docx",
+        "createdAt": "2026-07-01T16:51:34.461Z"
+      },
+      {
+        "type": "Skyline Deal Sheet",
+        "fileName": "Skyline Deal Sheet_Eddie Palmeri (Full).docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_Eddie Palmeri (Full).docx",
+        "createdAt": "2026-07-01T16:51:34.461Z"
+      }
+    ]
+  },
+  {
+    "name": "2Rare",
+    "platform": "DistroKid",
+    "grossQuote": {
+      "AC": 5900,
+      "AD": 6800,
+      "AE": 11200,
+      "AF": 15000,
+      "AG": 13300,
+      "AH": 20100,
+      "AI": 14200,
+      "AJ": 23300,
+      "AK": 0,
+      "AL": 0
+    },
+    "initialQuote": {
+      "AP": 5723,
+      "AQ": 6596,
+      "AR": 10864,
+      "AS": 14550,
+      "AT": 12901,
+      "AU": 19497,
+      "AV": 13774,
+      "AW": 22601,
+      "AX": null,
+      "AY": null
+    },
+    "percent": 90,
+    "variableQuote": {
+      "BC": 5151,
+      "BD": 5936,
+      "BE": 9778,
+      "BF": 13095,
+      "BG": 11611,
+      "BH": 17547,
+      "BI": 12397,
+      "BJ": 20341,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12423015806",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-01T17:23:11.144Z",
+    "valuationState": {
+      "rates": {
+        "12 months": "78.00",
+        "36 months": "68.70",
+        "60 months": "55.00",
+        "84 months": "49.62",
+        "144 months": "35.85"
+      },
+      "commission": 4,
+      "b2bMarginRate": 8,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_2Rare.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_2Rare.docx",
+        "createdAt": "2026-07-01T17:28:30.010Z"
+      }
+    ]
+  },
+  {
+    "name": "Igor Mamet",
+    "platform": "BMI, Downtown, WMG",
+    "grossQuote": {
+      "AC": 41400,
+      "AD": 47800,
+      "AE": 83900,
+      "AF": 114800,
+      "AG": 103600,
+      "AH": 163700,
+      "AI": 114200,
+      "AJ": 205100,
+      "AK": 126000,
+      "AL": 290000
+    },
+    "initialQuote": {
+      "AP": 40158,
+      "AQ": 46366,
+      "AR": 81383,
+      "AS": 111356,
+      "AT": 100492,
+      "AU": 158789,
+      "AV": 110774,
+      "AW": 198947,
+      "AX": 122220,
+      "AY": 281300
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Both",
+    "commission": "4",
+    "mondayItemId": "12423071934",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-01T17:26:43.558Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 80.61,
+        "36 months": 68.08,
+        "60 months": 59.29,
+        "84 months": 51.68,
+        "144 months": "40.45"
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Igor Mamet.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Igor Mamet.docx",
+        "createdAt": "2026-07-01T17:32:20.692Z"
+      }
+    ]
+  },
+  {
+    "name": "BPG Records",
+    "platform": "Sony Masters",
+    "grossQuote": {
+      "AC": 250000,
+      "AD": 282000,
+      "AE": 510000,
+      "AF": 685000,
+      "AG": 628000,
+      "AH": 969000,
+      "AI": 688000,
+      "AJ": 1196000,
+      "AK": 737000,
+      "AL": 1595000
+    },
+    "initialQuote": {
+      "AP": 242500,
+      "AQ": 273540,
+      "AR": 494700,
+      "AS": 664450,
+      "AT": 609160,
+      "AU": 939930,
+      "AV": 667360,
+      "AW": 1160120,
+      "AX": 714890,
+      "AY": 1547150
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12423185543",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-01T17:35:27.848Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 82.65,
+        "36 months": "69.50",
+        "60 months": 60.81,
+        "84 months": "54.00",
+        "144 months": 43.21
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_BPG Records.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_BPG Records.docx",
+        "createdAt": "2026-07-01T17:41:36.035Z"
+      }
+    ]
+  },
+  {
+    "name": "Cicero",
+    "platform": "Sony Pub",
+    "grossQuote": {
+      "AC": 26000,
+      "AD": 28500,
+      "AE": 53500,
+      "AF": 70000,
+      "AG": 67000,
+      "AH": 100500,
+      "AI": 73500,
+      "AJ": 125500,
+      "AK": 77500,
+      "AL": 170000
+    },
+    "initialQuote": {
+      "AP": 25220,
+      "AQ": 27645,
+      "AR": 51895,
+      "AS": 67900,
+      "AT": 64990,
+      "AU": 97485,
+      "AV": 71295,
+      "AW": 121735,
+      "AX": 75175,
+      "AY": 164900
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12480862265",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:35:08.672Z"
+  },
+  {
+    "name": "Cicero",
+    "platform": "Sony Pub",
+    "grossQuote": {
+      "AC": 26000,
+      "AD": 28500,
+      "AE": 53500,
+      "AF": 70000,
+      "AG": 67000,
+      "AH": 100500,
+      "AI": 73500,
+      "AJ": 125500,
+      "AK": 77500,
+      "AL": 170000
+    },
+    "initialQuote": {
+      "AP": 25220,
+      "AQ": 27645,
+      "AR": 51895,
+      "AS": 67900,
+      "AT": 64990,
+      "AU": 97485,
+      "AV": 71295,
+      "AW": 121735,
+      "AX": 75175,
+      "AY": 164900
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12480921237",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:35:19.080Z"
+  },
+  {
+    "name": "Ian Lewis pka Shife Karbeen",
+    "platform": "Warner",
+    "grossQuote": {
+      "AC": 29000,
+      "AD": 33000,
+      "AE": 61500,
+      "AF": 82000,
+      "AG": 77500,
+      "AH": 121000,
+      "AI": 86500,
+      "AJ": 154000,
+      "AK": 95000,
+      "AL": 221000
+    },
+    "initialQuote": {
+      "AP": 28130,
+      "AQ": 32010,
+      "AR": 59655,
+      "AS": 79540,
+      "AT": 75175,
+      "AU": 117370,
+      "AV": 83905,
+      "AW": 149380,
+      "AX": 92150,
+      "AY": 214370
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12480894884",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:35:34.199Z"
+  },
+  {
+    "name": "Mik",
+    "platform": "DistroKid",
+    "grossQuote": {
+      "AC": 7300,
+      "AD": 8500,
+      "AE": 14500,
+      "AF": 20000,
+      "AG": 18000,
+      "AH": 28500,
+      "AI": 20000,
+      "AJ": 35500,
+      "AK": null,
+      "AL": null
+    },
+    "initialQuote": {
+      "AP": 7081,
+      "AQ": 8245,
+      "AR": 14065,
+      "AS": 19400,
+      "AT": 17460,
+      "AU": 27645,
+      "AV": 19400,
+      "AW": 34435,
+      "AX": null,
+      "AY": null
+    },
+    "percent": 87,
+    "variableQuote": {
+      "BC": 6160,
+      "BD": 7173,
+      "BE": 12237,
+      "BF": 16878,
+      "BG": 15190,
+      "BH": 24051,
+      "BI": 16878,
+      "BJ": 29958,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12480902422",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:35:54.690Z"
+  },
+  {
+    "name": "Edrick Miles",
+    "platform": "BMI",
+    "grossQuote": {
+      "AC": 5000,
+      "AD": 5700,
+      "AE": 11000,
+      "AF": 16000,
+      "AG": 14500,
+      "AH": 24500,
+      "AI": 16500,
+      "AJ": 31500,
+      "AK": 18000,
+      "AL": 45000
+    },
+    "initialQuote": {
+      "AP": 4850,
+      "AQ": 5529,
+      "AR": 10670,
+      "AS": 15520,
+      "AT": 14065,
+      "AU": 23765,
+      "AV": 16005,
+      "AW": 30555,
+      "AX": 17460,
+      "AY": 43650
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12481001350",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:47:58.008Z"
+  },
+  {
+    "name": "Sofiya Nzau",
+    "platform": "Sony Music",
+    "grossQuote": {
+      "AC": 30000,
+      "AD": 33000,
+      "AE": 64000,
+      "AF": 84000,
+      "AG": 82000,
+      "AH": 126000,
+      "AI": 92000,
+      "AJ": 162000,
+      "AK": 98500,
+      "AL": 238500
+    },
+    "initialQuote": {
+      "AP": 29100,
+      "AQ": 32010,
+      "AR": 62080,
+      "AS": 81480,
+      "AT": 79540,
+      "AU": 122220,
+      "AV": 89240,
+      "AW": 157140,
+      "AX": 95545,
+      "AY": 231345
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12481019604",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:48:14.460Z"
+  },
+  {
+    "name": "Courtney Morrison",
+    "platform": "Empire",
+    "grossQuote": {
+      "AC": 20300,
+      "AD": 22800,
+      "AE": 42400,
+      "AF": 57000,
+      "AG": 53500,
+      "AH": 84000,
+      "AI": 59100,
+      "AJ": 105100,
+      "AK": null,
+      "AL": null
+    },
+    "initialQuote": {
+      "AP": 19691,
+      "AQ": 22116,
+      "AR": 41128,
+      "AS": 55290,
+      "AT": 51895,
+      "AU": 81480,
+      "AV": 57327,
+      "AW": 101947,
+      "AX": null,
+      "AY": null
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12480997874",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:48:38.563Z"
+  },
+  {
+    "name": "Cjota",
+    "platform": "ONErpm",
+    "grossQuote": {
+      "AC": 65000,
+      "AD": 74000,
+      "AE": 121000,
+      "AF": 160500,
+      "AG": 142500,
+      "AH": 212500,
+      "AI": 151000,
+      "AJ": 244500,
+      "AK": 155000,
+      "AL": 281000
+    },
+    "initialQuote": {
+      "AP": 63050,
+      "AQ": 71780,
+      "AR": 117370,
+      "AS": 155685,
+      "AT": 138225,
+      "AU": 206125,
+      "AV": 146470,
+      "AW": 237165,
+      "AX": 150350,
+      "AY": 272570
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12481017194",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:49:51.329Z"
+  },
+  {
+    "name": "Paco Panama",
+    "platform": "CodeSwitch",
+    "grossQuote": {
+      "AC": 15700,
+      "AD": 17700,
+      "AE": 29700,
+      "AF": 39500,
+      "AG": 36300,
+      "AH": 55700,
+      "AI": 39500,
+      "AJ": 68500,
+      "AK": 42500,
+      "AL": 89500
+    },
+    "initialQuote": {
+      "AP": 15229,
+      "AQ": 17169,
+      "AR": 28809,
+      "AS": 38315,
+      "AT": 35211,
+      "AU": 54029,
+      "AV": 38315,
+      "AW": 66445,
+      "AX": 41225,
+      "AY": 86815
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12481034667",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:50:08.312Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 84.7,
+        "36 months": 72.19,
+        "60 months": 63.17,
+        "84 months": 55.66,
+        "144 months": 46.49
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": false
+    }
+  },
+  {
+    "name": "Yung Nation",
+    "platform": "TuneCore",
+    "grossQuote": {
+      "AC": 5100,
+      "AD": 5800,
+      "AE": 11200,
+      "AF": 15500,
+      "AG": 14300,
+      "AH": 23100,
+      "AI": 15900,
+      "AJ": 29100,
+      "AK": null,
+      "AL": null
+    },
+    "initialQuote": {
+      "AP": 4947,
+      "AQ": 5626,
+      "AR": 10864,
+      "AS": 15035,
+      "AT": 13871,
+      "AU": 22407,
+      "AV": 15423,
+      "AW": 28227,
+      "AX": null,
+      "AY": null
+    },
+    "percent": 87,
+    "variableQuote": {
+      "BC": 4304,
+      "BD": 4895,
+      "BE": 9452,
+      "BF": 13080,
+      "BG": 12068,
+      "BH": 19494,
+      "BI": 13418,
+      "BJ": 24557,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12481149363",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:50:31.502Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 83.93,
+        "36 months": 69.26,
+        "60 months": 59.91,
+        "84 months": 52.64
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": false
+    }
+  },
+  {
+    "name": "Torae",
+    "platform": "ASCAP, Curve, SX",
+    "grossQuote": {
+      "AC": null,
+      "AD": null,
+      "AE": null,
+      "AF": null,
+      "AG": null,
+      "AH": null,
+      "AI": 10600,
+      "AJ": 19000,
+      "AK": null,
+      "AL": null
+    },
+    "initialQuote": {
+      "AP": null,
+      "AQ": null,
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": 10282,
+      "AW": 18430,
+      "AX": null,
+      "AY": null
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12481061960",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-08T17:52:42.288Z"
   }
 ]
