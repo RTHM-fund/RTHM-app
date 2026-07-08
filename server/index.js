@@ -2784,7 +2784,13 @@ app.listen(PORT, () => {
   // request doesn't pay the cold-cache XLSX-parse cost. Walks every deal
   // folder once on a 100ms delay and runs computeWorkbookSummary on each;
   // the cache (keyed by workbook mtime) is then hot for any subsequent call.
-  setTimeout(() => {
+  // The XLSX parse is synchronous, so we yield the event loop (setImmediate)
+  // after each folder — otherwise the whole walk blocks Node's single thread
+  // and no HTTP request is served until it finishes (the ~70s cold-start
+  // stall). Yielding keeps the API responsive (~1s) while the cache warms in
+  // the background; any folder not yet warmed is computed on demand by its
+  // first request (same mtime-keyed cache, so no double work once warmed).
+  setTimeout(async () => {
     try {
       const dir = path.join(DATA_ROOT, '1. Current')
       if (!fs.existsSync(dir)) return
@@ -2797,6 +2803,7 @@ app.listen(PORT, () => {
           const summary = computeWorkbookSummary(path.join(dir, e.name))
           if (summary) warmed += 1
         } catch {}
+        await new Promise(r => setImmediate(r)) // let queued HTTP requests run between parses
       }
       console.log(`[prewarm] data manager summary cache: ${warmed} folders in ${Date.now() - t0}ms`)
     } catch (err) {
