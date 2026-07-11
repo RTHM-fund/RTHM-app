@@ -2669,10 +2669,18 @@ function classifyRun(logFileName) {
       error = spawnErr ? spawnErr.replace('[spawn] error:', '').trim()
             : (lastMeaningfulLine(tail) || `run ended with exit code ${code}`)
     }
+  } else if (stage && stage.n && stage.i >= stage.n && outputExistsFor(meta.skill, folderPath)) {
+    // Completed, but the terminating `[spawn] exit code=` line was never written (the app was closed
+    // before the child's exit event fired). The run reached its FINAL stage marker AND its expected
+    // output exists — it genuinely succeeded, so resolve it as such. Without this, the PID probe below
+    // is fooled by PID reuse: a long-dead run's PID gets reassigned to an unrelated process (e.g.
+    // svchost), reads as "alive", and the run sticks on "running" forever.
+    state = 'succeeded'
+    finishedAt = st.mtime.toISOString()
   } else {
-    // No terminal marker yet. A run started on ANOTHER machine (logs/ syncs via Dropbox) can't have
-    // its PID probed against our process table, so only probe our OWN runs; an unfinished foreign run
-    // is shown as running on that machine rather than as a false failure.
+    // No terminal marker and no confirmed completion. A run started on ANOTHER machine (logs/ syncs
+    // via Dropbox) can't have its PID probed against our process table, so only probe our OWN runs;
+    // an unfinished foreign run is shown as running on that machine rather than as a false failure.
     const host = typeof sidecar.host === 'string' ? sidecar.host : null
     if (host && host !== os.hostname()) {
       state = 'running'
