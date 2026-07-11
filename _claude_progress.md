@@ -1,78 +1,86 @@
-# Claude Progress — Session Save (2026-06-29)
+# Claude Progress — Session Save (2026-07-08)
 
 ## ✅ Accomplished
 
-### Spec Kit walkthrough → Diligence Run Monitor (feature 001)
-Walked the full SDD cycle (constitution → specify → clarify → plan → tasks → analyze → implement).
-Artifacts in `<RTHM App root>/specs/001-diligence-run-monitor/` + ratified
-`<root>/.specify/memory/constitution.md` (v1.0.0). **These live at the RTHM App ROOT — Dropbox-synced,
-NOT in the App Files git repo.**
+### Startup performance fix — non-blocking prewarm (committed + pushed)
+Root-caused the "app takes forever to load" stall (~80s). The boot-time Data Manager
+summary prewarm (`server/index.js`, inside the `app.listen` callback) parsed every deal's
+diligence workbook **synchronously in one loop**, blocking Node's single event-loop thread —
+so **no API request was served until it finished** (~72s for 69 folders).
 
-**Diligence Run Monitor** (`DiligenceMonitor.jsx`/`.css`, `useSkillRuns.js`, `server/index.js`):
-- Persistent, draggable, always-on-top glass panel at the App root; survives page nav; bottom-anchored
-  (grows upward, never clips); soft-fade name truncation (app schema).
-- Honest **named-stage progress** (`[stage] i/n` markers added to diligence + catalog-extract SKILL.md —
-  logging only, in the Dropbox Data tree); **loud failures** with classified `failureKind`
-  (tooling_unavailable incl. 401/auth, rate_limit, process_error).
-- `GET /api/data/skill-runs` read-only ledger: `classifyRun` from logs (pid probe + markers),
-  `succeeded` gated on real output (no false completions), re-attach to detached in-flight runs.
-- **Adaptive per-account cap**: configurable ceiling `DILIGENCE_MAX_CONCURRENT` (default 2) + auto-backoff
-  on `rate_limit`, recover after 2 clean completions; trigger disabled at cap + 409 backstop.
-- **Host-tagging**: runs carry `os.hostname()`; a foreign (other-machine) in-flight run shows "running",
-  not a false "failed" (logs/ syncs via Dropbox).
+**Fix (Option A):** yield the loop with `await new Promise(r => setImmediate(r))` between
+folders. Total warm CPU is unchanged (~72s) but now off the critical path — the API responds
+in ~1s while the cache warms in the background. The mtime-keyed cache (`summaryCache`, keyed
+`wbPath → {mtimeMs, summary}`, with a fresh `fs.statSync` every request) means any on-demand
+compute isn't redone once warmed, and never serves stale data → **safe to leave the app up
+indefinitely.**
 
-### claude CLI auth fixed
-Diligence 401s were a stale OAuth token (`auth status` said logged-in but calls 401'd). Re-ran
-`claude auth login`; verified `AUTHOK` headless. `.claude-bin` cleared (self-heals to the Windows bundle).
+**Verified live** (temp `node server/index.js` audit, then stopped): during the full 72.6s
+background warm, `skill-runs` calls returned in 66–856ms (would've hung ~70s before).
+folders #1 mid-warm still parsed (~65s — that handler is synchronous); folders #2 warm = 176ms.
+**Sufficient for the complaint because the landing page is Deal Manager (`activePage='deals'`),
+not Data Manager** — folders is only fetched when the user opens Data Manager, by which time the
+background warm is done. **Cold-start-to-usable: ~80s → ~11s.**
 
-### Data Manager — Container Folders (`!`-folders)
-`!`-prefixed `1. Current/` folders = collections of catalogs. Purple clickable name (`!` dropped) →
-drills into its catalogs (`?path=` on `/api/data/folders`); back via the DATA MANAGER title / Backspace
-(drill state lifted to `App.jsx`, routed through `handleGoBack`); **pinned to top**; **X/N** done counts;
-**right-way rollup** (`computeContainerRollup` = virtual mega-catalog: combined top-80% / dollar-age /
-sparkline). `computeWorkbookSummary` math is UNTOUCHED — only `keys` + `trackInfos` appended to its return.
-X/N done counts render as plain ink table text (`--ink`, weight 500) — not the bold purple of the numeric
-columns (`complete`/green class removed).
+Residual (NOT fixed, optional): the ~11s to first-listen is Node module loading
+(googleapis/xlsx `require`s), separate from this fix. Option D (disk-persist the summary cache so
+cold restarts skip re-parsing) would also kill the "open app → immediately click Data Manager
+within ~72s" edge case — not needed for the stated problem.
 
-### Design system
-New schemas documented: Persistent Run Monitor, container rows, **Purple Clickable Text** (hover → new
-`--primary-hover` #4400B0 token; the only 2 instances are the container name + the DATA MANAGER back title).
+Commits on `master` (pushed to origin, in sync):
+- `5417af9` — Unblock event loop during Data Manager summary prewarm (`server/index.js`, +8/−1)
+- `0b72e8a` — Update Deal Manager data (`deals.json`, +815; app-usage change, 80 deals, valid
+  JSON — committed per "commit all", not this session's code work)
 
-### Sparkline / Lifetime "0" fix — per-platform rep/adj selection (real root cause)
-Kendall Deals rows showed 0 Lifetime + flat sparklines (State Of Mine, DJ TOPO, Lijpe) or a wildly-low value
-(OwnBoss $3,195 vs ~$548K). **Root cause: the rep-vs-adj line choice was GLOBAL, not per-platform.**
-`computeWorkbookSummaryInner` summed every platform's reported series into `repLine` and every platform's
-adjusted series into `adjLine`, then chose `adjMatchesRep ? repLine : adjLine`. A workbook with only "Rep"
-sheets (no "Adj" sheets) has an all-zero `adjLine` that still differs from rep → it picked the zero line
-(State Of Mine/DJ TOPO/Lijpe → 0). A MIXED workbook (some accounts have Adj sheets, some only Rep — e.g.
-OwnBoss) had its rep-only accounts dropped to zero in the global `adjLine` → $3,195. **Fix:** choose rep vs
-adj **per platform** (adj only when that platform has adjusted data that differs from reported, else rep), then
-combine — the same basis the track walk + Valuate page already use, so the line is now consistent with the
-per-track lifetimes. The earlier "cache guard" hypothesis was wrong (a fresh server still computed 0) and was
-reverted. **Verified live**: State Of Mine $1,606,924, DJ TOPO $2,378,354, Lijpe $1,312,348, OwnBoss $548,163
-(matches the ~$548K expectation). Tyga shows $19.7M but 0 tracks — its per-track parser still can't read its
-format (pre-existing "fails by design"), untouched by this fix.
+### /underwrite skill — fully ingested (integration PENDING — user will give instructions)
+Read the real skill end-to-end (not just the pasted brief):
+`…\1. RTHM Fund\1. Data\.claude\skills\underwrite\` → `SKILL.md`, `references/methodology.md`,
+`references/decay_playbook.md`, `scripts/build_underwrite.py`. **User said: ingest only, integration
+instructions coming next.**
+
+What it is: Phase 3 (commercial analysis) + Phase 4 (cash-flow / IRR-DCF) of catalog diligence.
+Runs AFTER `/diligence` (GREEN workbook). Claude sets per-track `d_near` + account `d_term` +
+cadence/lag + sync add-backs → writes a JSON spec of DECISIONS only → `build_underwrite.py` reads
+titles/ISRCs/history straight from the diligence tab by `src_row` (always ties back to diligence),
+builds a live **formula-linked** `<deal>\<DEAL> Quote.xlsx` (tabs: `Underwrite` valuation/advance,
+`Acquisition` cadence-placed cash, one `<AcctKey> - Forecast` per account). Two-stage decay:
+near-term months × per-track `$C{row}`, terminal months × account `$C${DTERM}`. Valuation
+`I5 = NPV(I2/12, first I4*12=72 months of row 12)` — uses the **interest** rate; advance `F12 = I5−I6`.
+
+Integration-relevant facts:
+- Emits `UNDERWRITE 1/6 … 6/6` progress markers to **stdout** — already formatted for the app's
+  Diligence Run Monitor (`i/6`), same as diligence/extract. Builder logs to stderr; builder stdout
+  = output path only.
+- Lives in the Data tree `.claude/skills/` — the same place the app already spawns skills from.
+- **Filename collision risk:** output `<DEAL> Quote.xlsx` may clash with the app's existing v2
+  quote-engine output (static-values `Quote.xlsx`). Confirm during integration. `/underwrite` ≠ `/quote`.
+- The pasted brief is **more current than `methodology.md`** in 3 spots (trust brief/code): (1)
+  default first payment = `EOMONTH(close,3)` ≈ 3mo, NOT "close+30d"; (2) `I5` uses interest (I2), not
+  discount rate; (3) account fields `last_actual_month` + `first_pay_month` exist in the builder +
+  brief schema but are absent from methodology §8.
 
 ## 🧭 Current state
-- App Files repo `master`: app/code changes committed + pushed. The per-platform rep/adj fix supersedes the
-  reverted cache guard (commit 946dbcb).
-- An earlier push also carried a pre-existing local commit **d4f829c** ("Fix Data Manager pivot parser drift +
-  add annual cadence support", Richard Kim 2026-06-28, penny-exact verified).
-- **Dev server is RUNNING** (background `npm run dev` from `App Files/`, ports 3001 + 5173) with the fix live;
-  Kendall Deals values verified via the API. The backend does NOT watch files — any further `server/index.js`
-  edit needs a manual restart (kill 3001 → `npm run dev`). Boot prewarm takes ~70s before the API responds.
-- **`data/deals.json` committed** per the user's "commit all" — a clean single-deal removal (Igor Mamet;
-  HEAD 66 -> 65 deals, valid JSON). A Deal Manager runtime change, not this session's code work.
-- Untracked junk, NOT committed: `node_modules (Yanel Fils-aime's conflicted copy 2026-06-11)/` (Dropbox
-  conflict copy) and `src/components/DataManagerPage.css.tmp.2076.823b6c07d983` (orphaned editor write-temp).
-  Both safe to delete.
-- Verified: `node --check server/index.js` clean; live API spot-check of all flagged deals.
+- App Files `master`: clean, in sync with origin (the two commits above pushed:
+  `df957cb..0b72e8a`).
+- **App is NOT running.** The mid-session "restart" never took (only Adobe Creative Cloud's node
+  was up); my temp audit server was stopped. Run `npm run dev` from `App Files/` (ports 3001 + 5173)
+  to use it — now ~11s to usable. Backend still doesn't watch files: any `server/index.js` edit
+  needs a manual restart.
+- Untracked junk left in place (NOT committed, safe to delete): `node_modules (RTHM Fund's
+  conflicted copy 2026-07-03)/` (Dropbox conflict copy).
+- Verified: `node --check server/index.js` clean; live API audit passed.
 
 ## ⏭️ Next / open tasks
-1. **Tyga (and Lil Sheik) still show 0 tracks** — per-track parser can't read their format ("fails by design").
-   Tyga now shows a $19.7M series total but no track breakdown; revisit if a real fix is wanted.
-2. Delete the two untracked junk files when convenient (Dropbox conflict-copy node_modules dir + a stray
-   `DataManagerPage.css.tmp`); left in place pending explicit confirmation.
-3. Spot-check a container's **Lifetime == Σ its catalogs' Lifetimes** (penny-exact) in the live UI.
-4. Diligence/extract stage bar only advances once the `[stage]` markers fire in a real run — confirm e2e.
-5. Pre-existing James Avex grand-total reconcile gap (orthogonal, flagged earlier sessions).
+1. **/underwrite integration** — user will give instructions. Skill fully ingested (see above).
+   Watch the `<DEAL> Quote.xlsx` filename collision with the v2 quote engine.
+2. Delete the conflict-copy `node_modules` junk dir when confirmed.
+3. (Optional) Startup: chase the residual ~11s module-load (lazy-require googleapis/xlsx) and/or
+   Option D disk-persist cache — neither needed for the now-resolved complaint.
+
+Carried over (still open from prior sessions):
+4. Tyga (and Lil Sheik) still show 0 tracks — per-track parser can't read their format ("fails by
+   design").
+5. Spot-check a container's Lifetime == Σ its catalogs' Lifetimes (penny-exact) in the live UI.
+6. Diligence/extract stage bar advances only once the `[stage]` markers fire in a real run —
+   confirm e2e.
+7. Pre-existing James Avex grand-total reconcile gap.
