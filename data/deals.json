@@ -4882,5 +4882,481 @@
         "createdAt": "2026-07-11T17:40:25.230Z"
       }
     ]
+  },
+  {
+    "name": "Milan Gavris",
+    "platform": "RouteNote, Synmphonic",
+    "grossQuote": {
+      "AC": 15100,
+      "AD": 17200,
+      "AE": 31600,
+      "AF": 42900,
+      "AG": 39000,
+      "AH": 60800,
+      "AI": 42300,
+      "AJ": 73400,
+      "AK": 45200,
+      "AL": 91900
+    },
+    "initialQuote": {
+      "AP": 14345,
+      "AQ": 16340,
+      "AR": 30020,
+      "AS": 40755,
+      "AT": 37050,
+      "AU": 57760,
+      "AV": 40185,
+      "AW": 69730,
+      "AX": 42940,
+      "AY": 87305
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12600223462",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-22T15:09:04.547Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 75.13,
+        "36 months": 63.04,
+        "60 months": 54.89,
+        "84 months": 49.32,
+        "144 months": 42.09
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Milan Gavris.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Milan Gavris.docx",
+        "createdAt": "2026-07-22T15:09:46.853Z"
+      }
+    ]
+  },
+  {
+    "name": "Lil Sheik",
+    "platform": "Empire Publishing",
+    "grossQuote": {
+      "AC": 23400,
+      "AD": 26400,
+      "AE": 41300,
+      "AF": 53800,
+      "AG": 48100,
+      "AH": 70500,
+      "AI": 51500,
+      "AJ": 83600,
+      "AK": 54800,
+      "AL": 105400
+    },
+    "initialQuote": {
+      "AP": 22230,
+      "AQ": 25080,
+      "AR": 39235,
+      "AS": 51110,
+      "AT": 45695,
+      "AU": 66975,
+      "AV": 48925,
+      "AW": 79420,
+      "AX": 52060,
+      "AY": 100130
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12600310645",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-22T15:12:03.455Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 75.85,
+        "36 months": 65.69,
+        "60 months": 58.39,
+        "84 months": 52.72,
+        "144 months": 44.49
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Lil Sheik.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lil Sheik.docx",
+        "createdAt": "2026-07-22T15:12:45.266Z"
+      }
+    ]
+  },
+  {
+    "name": "James Vickery",
+    "platform": "AWAL, Believe, PRS",
+    "grossQuote": {
+      "AC": 13900,
+      "AD": 16100,
+      "AE": 31200,
+      "AF": 43200,
+      "AG": 39900,
+      "AH": 64700,
+      "AI": 44400,
+      "AJ": 82100,
+      "AK": 49100,
+      "AL": 112800
+    },
+    "initialQuote": {
+      "AP": 13205,
+      "AQ": 15295,
+      "AR": 29640,
+      "AS": 41040,
+      "AT": 37905,
+      "AU": 61465,
+      "AV": 42180,
+      "AW": 77995,
+      "AX": 46645,
+      "AY": 107160
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12600334852",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-22T15:15:55.629Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 73.88,
+        "36 months": 61.81,
+        "60 months": 52.77,
+        "84 months": 46.28,
+        "144 months": 37.25
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_James Vickery.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_James Vickery.docx",
+        "createdAt": "2026-07-22T15:16:52.002Z"
+      }
+    ]
+  },
+  {
+    "name": "JayBenz",
+    "platform": "DistroKid",
+    "grossQuote": {
+      "AC": 71900,
+      "AD": 81400,
+      "AE": 149200,
+      "AF": 202300,
+      "AG": 187800,
+      "AH": 296700,
+      "AI": 207200,
+      "AJ": 371000,
+      "AK": 219400,
+      "AL": 494100
+    },
+    "initialQuote": {
+      "AP": 68305,
+      "AQ": 77330,
+      "AR": 141740,
+      "AS": 192185,
+      "AT": 178410,
+      "AU": 281865,
+      "AV": 196840,
+      "AW": 352450,
+      "AX": 208430,
+      "AY": 469395
+    },
+    "percent": 90,
+    "variableQuote": {
+      "BC": 64710,
+      "BD": 73260,
+      "BE": 134280,
+      "BF": 182070,
+      "BG": 169020,
+      "BH": 267030,
+      "BI": 186480,
+      "BJ": 333900,
+      "BK": 197460,
+      "BL": 444690
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12600379946",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-22T15:20:05.660Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 75.59,
+        "36 months": 63.11,
+        "60 months": 54.17,
+        "84 months": 47.79,
+        "144 months": 38
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_JayBenz.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_JayBenz.docx",
+        "createdAt": "2026-07-22T15:30:19.034Z"
+      }
+    ]
+  },
+  {
+    "name": "JayBenz",
+    "platform": "DistroKid",
+    "grossQuote": {
+      "AC": 71900,
+      "AD": 81400,
+      "AE": 149200,
+      "AF": 202300,
+      "AG": 187800,
+      "AH": 296700,
+      "AI": 207200,
+      "AJ": 371000,
+      "AK": 219400,
+      "AL": 494100
+    },
+    "initialQuote": {
+      "AP": 68305,
+      "AQ": 77330,
+      "AR": 141740,
+      "AS": 192185,
+      "AT": 178410,
+      "AU": 281865,
+      "AV": 196840,
+      "AW": 352450,
+      "AX": 208430,
+      "AY": 469395
+    },
+    "percent": 90,
+    "variableQuote": {
+      "BC": 64710,
+      "BD": 73260,
+      "BE": 134280,
+      "BF": 182070,
+      "BG": 169020,
+      "BH": 267030,
+      "BI": 186480,
+      "BJ": 333900,
+      "BK": 197460,
+      "BL": 444690
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12600522925",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-22T15:33:00.375Z"
+  },
+  {
+    "name": "Deyon Agoi",
+    "platform": "DistroKid",
+    "grossQuote": {
+      "AC": 3600,
+      "AD": 4200,
+      "AE": 6900,
+      "AF": 9400,
+      "AG": 8100,
+      "AH": 12200,
+      "AI": 8500,
+      "AJ": 13800,
+      "AK": 8600,
+      "AL": 15100
+    },
+    "initialQuote": {
+      "AP": 3420,
+      "AQ": 3990,
+      "AR": 6555,
+      "AS": 8930,
+      "AT": 7695,
+      "AU": 11590,
+      "AV": 8075,
+      "AW": 13110,
+      "AX": 8170,
+      "AY": 14345
+    },
+    "percent": 90,
+    "variableQuote": {
+      "BC": 3240,
+      "BD": 3780,
+      "BE": 6210,
+      "BF": 8460,
+      "BG": 7290,
+      "BH": 10980,
+      "BI": 7650,
+      "BJ": 12420,
+      "BK": 7740,
+      "BL": 13590
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12600535082",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-22T15:33:39.377Z"
+  },
+  {
+    "name": "MC Delux",
+    "platform": "oneRPM",
+    "grossQuote": {
+      "AC": 12800,
+      "AD": 14500,
+      "AE": 25300,
+      "AF": 33900,
+      "AG": 30200,
+      "AH": 45900,
+      "AI": 32200,
+      "AJ": 53300,
+      "AK": 33400,
+      "AL": 61600
+    },
+    "initialQuote": {
+      "AP": 12160,
+      "AQ": 13775,
+      "AR": 24035,
+      "AS": 32205,
+      "AT": 28690,
+      "AU": 43605,
+      "AV": 30590,
+      "AW": 50635,
+      "AX": 31730,
+      "AY": 58520
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12600562713",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-22T15:33:53.823Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 75.54,
+        "36 months": 63.87,
+        "60 months": 56.31,
+        "84 months": 51.7,
+        "144 months": 46.4
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_MC Delux.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_MC Delux.docx",
+        "createdAt": "2026-07-22T15:34:10.460Z"
+      }
+    ]
+  },
+  {
+    "name": "MC Delux",
+    "platform": "oneRPM",
+    "grossQuote": {
+      "AC": 12800,
+      "AD": 14500,
+      "AE": 25300,
+      "AF": 33900,
+      "AG": 30200,
+      "AH": 45900,
+      "AI": 32200,
+      "AJ": 53300,
+      "AK": 33400,
+      "AL": 61600
+    },
+    "initialQuote": {
+      "AP": 12160,
+      "AQ": 13775,
+      "AR": 24035,
+      "AS": 32205,
+      "AT": 28690,
+      "AU": 43605,
+      "AV": 30590,
+      "AW": 50635,
+      "AX": 31730,
+      "AY": 58520
+    },
+    "percent": null,
+    "variableQuote": {
+      "BC": null,
+      "BD": null,
+      "BE": null,
+      "BF": null,
+      "BG": null,
+      "BH": null,
+      "BI": null,
+      "BJ": null,
+      "BK": null,
+      "BL": null
+    },
+    "dealType": "B2B",
+    "royaltyType": "Distribution",
+    "commission": "4",
+    "mondayItemId": "12600563274",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-22T15:35:19.032Z"
   }
 ]
