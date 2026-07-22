@@ -13,7 +13,7 @@ const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL'
 // Auto-filled starting recoup: each term's Recoup Rate is solved so the RTHM Valuation MARGIN
 // defaults to exactly this fraction of that term's RAS advance. Fills blanks only; saved/tuned
 // rates always win.
-const MARGIN_PCT = 0.10
+const MARGIN_PCT = 0.11
 
 // Terms reversed for RTHM Valuation table (longest first)
 const TERMS_DESC = ['144 months', '84 months', '60 months', '36 months', '12 months']
@@ -121,7 +121,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     : { source: gq, pairs: GQ_PAIRS }
   // Net-of-3%-fee section in use → surface the 97% net multiplier next to the title
   // (same convention as the Variable Quote's percent). Gross fallback shows none.
-  const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS, percent: 97 } : { data: gq, pairs: GQ_PAIRS }
+  const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS, percent: 95 } : { data: gq, pairs: GQ_PAIRS }
 
   // Hydrate from the session cache when present, else the deal's own persisted
   // state. Without the deal fallback, the first open of a session saw null here,

@@ -57,7 +57,7 @@ const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY'
 const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
 // Auto-filled starting recoup: each term's Recoup Rate is solved so the RTHM Valuation MARGIN
 // defaults to exactly this fraction of that term's RAS advance. See effectiveRatesFor.
-const MARGIN_PCT = 0.10
+const MARGIN_PCT = 0.11
 
 function readDeals() {
   try { return JSON.parse(fs.readFileSync(DEALS_FILE)) } catch { return [] }
