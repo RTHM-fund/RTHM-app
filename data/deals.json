@@ -3567,7 +3567,7 @@
       },
       "commission": 4,
       "b2bMarginRate": 8,
-      "recoupLocked": true
+      "recoupLocked": false
     },
     "b2bPartner": "Skyline",
     "agreements": [
@@ -3594,6 +3594,18 @@
         "fileName": "B2B RPA_Landstrip Chip.docx",
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/B2B RPA_Landstrip Chip.docx",
         "createdAt": "2026-06-17T18:59:09.587Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_Landstrip Chip.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM x RAS RPA_Landstrip Chip.docx",
+        "createdAt": "2026-07-20T19:17:52.842Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_Landstrip Chip.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM RPA_Landstrip Chip.docx",
+        "createdAt": "2026-07-20T19:17:52.977Z"
       }
     ],
     "lockedDeal": {
@@ -4214,81 +4226,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Cicero.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Cicero.docx",
-        "createdAt": "2026-07-09T00:20:15.197Z"
-      }
-    ]
-  },
-  {
-    "name": "Cicero",
-    "platform": "Sony Pub",
-    "grossQuote": {
-      "AC": 26000,
-      "AD": 28500,
-      "AE": 53500,
-      "AF": 70000,
-      "AG": 67000,
-      "AH": 100500,
-      "AI": 73500,
-      "AJ": 125500,
-      "AK": 77500,
-      "AL": 170000
-    },
-    "initialQuote": {
-      "AP": 25220,
-      "AQ": 27645,
-      "AR": 51895,
-      "AS": 67900,
-      "AT": 64990,
-      "AU": 97485,
-      "AV": 71295,
-      "AW": 121735,
-      "AX": 75175,
-      "AY": 164900
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
-    },
-    "dealType": "B2B",
-    "royaltyType": "Publishing",
-    "commission": "4",
-    "mondayItemId": "12480921237",
-    "mondayBoardId": 18397562279,
-    "importedAt": "2026-07-08T17:35:19.080Z",
-    "valuationState": {
-      "rates": {
-        "12 months": "82.11",
-        "36 months": "68.79",
-        "60 months": "60",
-        "84 months": "52.71",
-        "144 months": "41.03"
-      },
-      "commission": 4,
-      "b2bMarginRate": 5,
-      "recoupLocked": true
-    },
-    "b2bPartner": "Earl Jam",
-    "agreements": [
-      {
-        "type": "Deal Sheet",
-        "fileName": "RTHM Deal Sheet_Cicero.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Cicero.docx",
-        "createdAt": "2026-07-09T00:31:36.432Z"
-      },
-      {
-        "type": "Earl Jam Deal Sheet",
-        "fileName": "Earl Jam Deal Sheet_Cicero.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Cicero.docx",
-        "createdAt": "2026-07-09T00:31:36.432Z"
+        "createdAt": "2026-07-11T18:06:23.297Z"
       }
     ]
   },
@@ -4355,7 +4293,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Ian Lewis pka Shife Karbeen.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Ian Lewis pka Shife Karbeen.docx",
-        "createdAt": "2026-07-09T00:19:37.329Z"
+        "createdAt": "2026-07-11T17:59:57.069Z"
       }
     ]
   },
@@ -4421,7 +4359,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Mik.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Mik.docx",
-        "createdAt": "2026-07-09T00:32:17.496Z"
+        "createdAt": "2026-07-11T17:56:08.044Z"
       }
     ]
   },
@@ -4473,14 +4411,14 @@
     "importedAt": "2026-07-08T17:47:58.008Z",
     "valuationState": {
       "rates": {
-        "12 months": "78.95",
-        "36 months": "61.88",
-        "60 months": "53.27",
-        "84 months": "47.14",
-        "144 months": "36"
+        "12 months": "73.08",
+        "36 months": "61.7",
+        "60 months": "53.75",
+        "84 months": "47.95",
+        "144 months": 39
       },
       "commission": 4,
-      "b2bMarginRate": 5,
+      "b2bMarginRate": 8,
       "recoupLocked": true
     },
     "b2bPartner": "Skyline",
@@ -4488,14 +4426,14 @@
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Edrick Miles.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Edrick Miles.docx",
-        "createdAt": "2026-07-09T00:33:11.678Z"
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Edrick Miles.docx",
+        "createdAt": "2026-07-16T15:52:16.067Z"
       },
       {
         "type": "Skyline Deal Sheet",
         "fileName": "Skyline Deal Sheet_Edrick Miles.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Edrick Miles.docx",
-        "createdAt": "2026-07-09T00:33:11.678Z"
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_Edrick Miles.docx",
+        "createdAt": "2026-07-16T15:52:16.067Z"
       }
     ]
   },
@@ -4563,13 +4501,13 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Sofiya Nzau.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Sofiya Nzau.docx",
-        "createdAt": "2026-07-09T00:18:41.683Z"
+        "createdAt": "2026-07-20T19:12:42.633Z"
       },
       {
         "type": "Skyline Deal Sheet",
         "fileName": "Skyline Deal Sheet_Sofiya Nzau.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Sofiya Nzau.docx",
-        "createdAt": "2026-07-09T00:18:41.683Z"
+        "createdAt": "2026-07-20T19:12:42.633Z"
       }
     ]
   },
@@ -4627,22 +4565,22 @@
         "84 months": "50.61"
       },
       "commission": 4,
-      "b2bMarginRate": 5,
+      "b2bMarginRate": 10,
       "recoupLocked": true
     },
-    "b2bPartner": "Earl Jam",
+    "b2bPartner": "TopValley",
     "agreements": [
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Courtney Morrison.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Courtney Morrison.docx",
-        "createdAt": "2026-07-09T00:30:49.917Z"
+        "createdAt": "2026-07-13T03:30:46.234Z"
       },
       {
         "type": "TopValley Deal Sheet",
         "fileName": "TopValley Deal Sheet_Courtney Morrison.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\TopValley Deal Sheet_Courtney Morrison.docx",
-        "createdAt": "2026-07-09T00:30:39.768Z"
+        "createdAt": "2026-07-13T03:30:46.234Z"
       },
       {
         "type": "Earl Jam Deal Sheet",
@@ -4715,7 +4653,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Cjota.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Cjota.docx",
-        "createdAt": "2026-07-09T00:17:31.127Z"
+        "createdAt": "2026-07-11T17:47:14.214Z"
       }
     ]
   },
@@ -4767,14 +4705,14 @@
     "importedAt": "2026-07-08T17:50:08.312Z",
     "valuationState": {
       "rates": {
-        "12 months": "79.84",
-        "36 months": "67.67",
-        "60 months": "58.65",
-        "84 months": "51.9",
+        "12 months": "75.17",
+        "36 months": "64.52",
+        "60 months": "57.39",
+        "84 months": "52.85",
         "144 months": "42.74"
       },
       "commission": 4,
-      "b2bMarginRate": 5,
+      "b2bMarginRate": 8,
       "recoupLocked": true
     },
     "b2bPartner": "Skyline",
@@ -4782,16 +4720,31 @@
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Paco Panama.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Paco Panama.docx",
-        "createdAt": "2026-07-09T00:11:49.933Z"
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Paco Panama.docx",
+        "createdAt": "2026-07-16T15:51:54.834Z"
       },
       {
         "type": "Skyline Deal Sheet",
         "fileName": "Skyline Deal Sheet_Paco Panama.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Paco Panama.docx",
-        "createdAt": "2026-07-09T00:11:49.933Z"
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_Paco Panama.docx",
+        "createdAt": "2026-07-16T15:51:54.834Z"
+      },
+      {
+        "type": "Skyline Offer Letter",
+        "fileName": "Skyline Offer Letter_Paco Panama.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Offer Letter_Paco Panama.docx",
+        "createdAt": "2026-07-20T18:54:49.641Z"
+      },
+      {
+        "type": "B2B RPA",
+        "fileName": "B2B RPA_Paco Panama.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/B2B RPA_Paco Panama.docx",
+        "createdAt": "2026-07-20T18:58:07.413Z"
       }
-    ]
+    ],
+    "lockedDeal": {
+      "transactionId": "RTHM-RPA-36"
+    }
   },
   {
     "name": "Yung Nation",
@@ -4841,13 +4794,14 @@
     "importedAt": "2026-07-08T17:50:31.502Z",
     "valuationState": {
       "rates": {
-        "12 months": "79.14",
-        "36 months": "65.04",
-        "60 months": "55.72",
-        "84 months": "49.15"
+        "12 months": "79.84",
+        "36 months": "67.67",
+        "60 months": "58.65",
+        "84 months": "51.9",
+        "144 months": "42.74"
       },
       "commission": 4,
-      "b2bMarginRate": 5,
+      "b2bMarginRate": 8,
       "recoupLocked": true
     },
     "b2bPartner": "Skyline",
@@ -4855,14 +4809,14 @@
       {
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Yung Nation.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Yung Nation.docx",
-        "createdAt": "2026-07-09T00:09:01.172Z"
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Yung Nation.docx",
+        "createdAt": "2026-07-16T15:50:57.868Z"
       },
       {
         "type": "Skyline Deal Sheet",
         "fileName": "Skyline Deal Sheet_Yung Nation.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Yung Nation.docx",
-        "createdAt": "2026-07-09T00:09:01.172Z"
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_Yung Nation.docx",
+        "createdAt": "2026-07-16T15:50:57.868Z"
       }
     ]
   },
@@ -4914,7 +4868,7 @@
     "importedAt": "2026-07-08T17:52:42.288Z",
     "valuationState": {
       "rates": {
-        "84 months": "48.28"
+        "84 months": "48.83"
       },
       "commission": 4,
       "b2bMarginRate": 5,
@@ -4925,7 +4879,7 @@
         "type": "Deal Sheet",
         "fileName": "RTHM Deal Sheet_Torae.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Torae.docx",
-        "createdAt": "2026-07-09T00:10:54.243Z"
+        "createdAt": "2026-07-11T17:40:25.230Z"
       }
     ]
   }
