@@ -10,12 +10,10 @@ const GQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ'], ['AK','AL'
 const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
 const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
 
-// Auto-filled starting recoup = the deal's own RAS rate minus a per-term offset (percentage points).
-// B2B offsets run 2pts tighter than Individual. Fills blanks only; saved/tuned rates always win.
-const OFFSETS = {
-  Individual: { '12 months': 6, '36 months': 5, '60 months': 4, '84 months': 4, '144 months': 3 },
-  B2B:        { '12 months': 4, '36 months': 3, '60 months': 2, '84 months': 2, '144 months': 1 }
-}
+// Auto-filled starting recoup: each term's Recoup Rate is solved so the RTHM Valuation MARGIN
+// defaults to exactly this fraction of that term's RAS advance. Fills blanks only; saved/tuned
+// rates always win.
+const MARGIN_PCT = 0.10
 
 // Terms reversed for RTHM Valuation table (longest first)
 const TERMS_DESC = ['144 months', '84 months', '60 months', '36 months', '12 months']
@@ -125,23 +123,32 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
   // (same convention as the Variable Quote's percent). Gross fallback shows none.
   const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS, percent: 97 } : { data: gq, pairs: GQ_PAIRS }
 
-  // Auto-filled starting recoup per term = RAS rate (advance ÷ recoup) − per-term offset, ≥ 0.
-  // Only terms with quote data get a default; saved rates win (fill-blanks-only).
-  const offsets = OFFSETS[dealType] || OFFSETS.Individual
-  const startDefaults = {}
-  TERMS.forEach(term => {
-    const [advCol, recoupCol] = pairs[TERMS.indexOf(term)]
-    const adv = parseFloat(source[advCol]), rec = parseFloat(source[recoupCol])
-    if (adv && rec) startDefaults[term] = Math.max(0, Math.round((adv / rec * 100 - offsets[term]) * 100) / 100)
-  })
-
   // Hydrate from the session cache when present, else the deal's own persisted
   // state. Without the deal fallback, the first open of a session saw null here,
   // initialized from defaults, and the auto-save effect below silently OVERWROTE
   // the saved tuned rates and unlocked the recoup toggle.
   const savedState = valuationState ?? deal?.valuationState ?? null
+  // One commission resolution, shared by the seed solve and the commission state init.
+  const seedCommission = (savedState?.commission ?? parseFloat(deal?.commission)) || 4
+
+  // Auto-filled starting recoup per term = the rate that makes Margin = MARGIN_PCT × RAS advance.
+  // Exact inverse of the Margin column (same solve as the Margin cell's onBlur):
+  //   B2B:        rthmAdvance = rasAdvance − m
+  //   Individual: rthmAdvance = (rasAdvance − m) / (1 + commission/100)
+  //   rate = rthmAdvance / rasRecoup × 100  (2 dp)
+  // Only terms with quote data get a default; saved rates win (fill-blanks-only).
+  const startDefaults = {}
+  TERMS.forEach(term => {
+    const [advCol, recoupCol] = pairs[TERMS.indexOf(term)]
+    const adv = parseFloat(source[advCol]), rec = parseFloat(source[recoupCol])
+    if (!adv || !rec) return
+    const m = adv * MARGIN_PCT
+    const rthmAdvance = dealType === 'B2B' ? adv - m : (adv - m) / (1 + seedCommission / 100)
+    startDefaults[term] = Math.max(0, Math.round(rthmAdvance / rec * 10000) / 100)
+  })
+
   const [rates, setRates] = useState({ ...startDefaults, ...(savedState?.rates || {}) })
-  const [commission, setCommission] = useState((savedState?.commission ?? parseFloat(deal?.commission)) || 4)
+  const [commission, setCommission] = useState(seedCommission)
   const [b2bMarginRate, setB2bMarginRate] = useState(savedState?.b2bMarginRate ?? 5)
   const [recoupLocked, setRecoupLocked] = useState(savedState?.recoupLocked || false)
   const [advanceDraft, setAdvanceDraft] = useState({})

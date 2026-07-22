@@ -55,12 +55,9 @@ const TERMS_ALL = ['12 months', '36 months', '60 months', '84 months', '144 mont
 const GQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ'], ['AK','AL']]
 const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
 const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
-// Auto-filled starting recoup = the deal's own RAS rate minus a per-term offset (percentage points).
-// B2B offsets run 2pts tighter than Individual. See effectiveRatesFor.
-const OFFSETS = {
-  Individual: { '12 months': 6, '36 months': 5, '60 months': 4, '84 months': 4, '144 months': 3 },
-  B2B:        { '12 months': 4, '36 months': 3, '60 months': 2, '84 months': 2, '144 months': 1 }
-}
+// Auto-filled starting recoup: each term's Recoup Rate is solved so the RTHM Valuation MARGIN
+// defaults to exactly this fraction of that term's RAS advance. See effectiveRatesFor.
+const MARGIN_PCT = 0.10
 
 function readDeals() {
   try { return JSON.parse(fs.readFileSync(DEALS_FILE)) } catch { return [] }
@@ -234,17 +231,21 @@ function resolveQuoteSource(deal) {
 }
 
 // Per-term effective recoup rate: the saved rate if present, else the auto-fill
-// (RAS rate − per-term offset, clamped ≥ 0). Mirrors ValuationPage so the exported
-// rate equals the on-screen rate. Fills blanks only.
-function effectiveRatesFor(source, pairs, savedRates, dealType) {
-  const offsets = OFFSETS[dealType] || OFFSETS.Individual
+// (the rate that makes Margin = MARGIN_PCT × RAS advance — the exact inverse of the
+// Margin column: B2B rthmAdvance = adv − m; Individual rthmAdvance = (adv − m)/(1 +
+// commission/100); rate = rthmAdvance/rec × 100, 2 dp, clamped ≥ 0). Mirrors
+// ValuationPage so the exported rate equals the on-screen rate. Fills blanks only.
+function effectiveRatesFor(source, pairs, savedRates, dealType, seedCommission) {
   const saved = savedRates || {}
   const out = {}
   TERMS_ALL.forEach(term => {
     if (saved[term] != null) { out[term] = saved[term]; return }
     const [advCol, recoupCol] = pairs[TERMS_ALL.indexOf(term)]
     const adv = parseFloat(source[advCol]), rec = parseFloat(source[recoupCol])
-    if (adv && rec) out[term] = Math.max(0, Math.round((adv / rec * 100 - offsets[term]) * 100) / 100)
+    if (!adv || !rec) return
+    const m = adv * MARGIN_PCT
+    const rthmAdvance = dealType === 'B2B' ? adv - m : (adv - m) / (1 + seedCommission / 100)
+    out[term] = Math.max(0, Math.round(rthmAdvance / rec * 10000) / 100)
   })
   return out
 }
@@ -777,7 +778,10 @@ app.get('/api/deals/:index/deal-sheet-tables', (req, res) => {
 
     const { source, pairs } = resolveQuoteSource(deal)
     const vs = deal.valuationState || {}
-    const effectiveRates = effectiveRatesFor(source, pairs, vs.rates, dealType)
+    // Same commission resolution as ValuationPage's seedCommission (server has no session
+    // cache, so the deal's persisted valuationState IS the savedState here).
+    const effectiveRates = effectiveRatesFor(source, pairs, vs.rates, dealType,
+      (vs.commission ?? parseFloat(deal.commission)) || 4)
 
     const structuredRows = []
     for (const term of ['144 months', '84 months', '60 months', '36 months', '12 months']) {
@@ -892,7 +896,10 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
     const showPR = deal.royaltyType !== 'Publishing'
 
     const { source, pairs } = resolveQuoteSource(deal)
-    const effectiveRates = effectiveRatesFor(source, pairs, rates, dealType)
+    // Same commission resolution as ValuationPage's seedCommission — the FE always sends a
+    // complete rates object, so this fallback only fires for terms it had no seed for either.
+    const effectiveRates = effectiveRatesFor(source, pairs, rates, dealType,
+      ((deal.valuationState?.commission) ?? parseFloat(deal.commission)) || 4)
 
     function fmtMoney(n) { return Math.round(n).toLocaleString('en-US') }  // no currency symbol (app-wide, incl. exports)
     function fmtPct(n) { return Number(n).toFixed(2) + '%' }  // percentages to 2 decimals (e.g. 40 → 40.00%)
