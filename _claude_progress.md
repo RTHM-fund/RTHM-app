@@ -46,6 +46,21 @@ partner-modal PUT — first real NSU deal exercises them.
 see memory). Verified live: Bobby Shmurda's unsaved 144mo seed 33.54→33.17 exactly as solved;
 Roykeisha saved rates untouched; margin Δ within 2dp bound. FE/BE constants audited IN SYNC.
 
+### RPA templates synced from ops (late evening — outside git, Templates dir)
+User designated `…\4. Operations\1. Templates\3. Agreements\` copies as canonical. Result:
+- **RTHM RPA_Template.docx** — app copy was ALREADY byte-identical (no action).
+- **RTHM x RAS RPA_Template.docx** — swapped in the ops version (same doc, 4 revisions newer).
+  ONLY difference: pagination cleanup (removed a page break after clause 40 — old p9 was mostly
+  empty; sections 8–10 now flow; signature block clean on p13). Legal text 100% identical —
+  verified per-part hash diff + 14-page render compare of both versions, reflowed pages eyeballed.
+- Verified: installed SHA == ops (both), app's docxtemplater renders both (server options), server
+  fields endpoint returns full sets incl. every RPAForm-hardcoded field, exactly one copy of each
+  RPA template in the app tree. **No restart needed** (field sets identical → cache fine;
+  generation reads the file fresh per request). Scratchpad backup deleted after confirmation
+  (Dropbox version history retains the old file). B2B RPA untouched.
+- Note: there is NO 12-year/144-specific RPA template (user asked; verified inside all 3 RPAs —
+  term is a generic {{Estimated Term}} field; the only "twelve" is a statements-lookback clause).
+
 ### Google Sheets "disconnect" — false alarm (diagnosed)
 Token + refresh flow healthy (forced a live refresh — OK; scope spreadsheets.readonly). The
 "disconnected" UI was just the backend being down (dev stack orphans). Restarted → connected=true.
