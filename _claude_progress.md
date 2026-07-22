@@ -1,86 +1,75 @@
-# Claude Progress — Session Save (2026-07-08)
+# Claude Progress — Session Save (2026-07-22)
 
 ## ✅ Accomplished
 
-### Startup performance fix — non-blocking prewarm (committed + pushed)
-Root-caused the "app takes forever to load" stall (~80s). The boot-time Data Manager
-summary prewarm (`server/index.js`, inside the `app.listen` callback) parsed every deal's
-diligence workbook **synchronously in one loop**, blocking Node's single event-loop thread —
-so **no API request was served until it finished** (~72s for 69 folders).
+### Valuation page — NEW auto-set rule: margin-based seeding (committed this session)
+Replaced the starting-Recoup-Rate rule in `src/components/ValuationPage.jsx`. **Old:** RAS rate −
+per-term point offsets (`OFFSETS`, Individual 6/5/4/4/3, B2B 2pts tighter). **New (user-specified):**
+each term's seed is the rate that makes the RTHM Valuation **MARGIN = exactly 10% of that term's
+RAS advance** (`MARGIN_PCT = 0.10`) — the exact inverse of the Margin column, mirroring the Margin
+cell's manual onBlur solve:
+- B2B: `rthmAdvance = adv − 0.10·adv` → rate = rthmAdvance/rec × 100 (2 dp)
+- Individual: `rthmAdvance = (adv − 0.10·adv) / (1 + commission/100)` (commission resolved once as
+  `seedCommission` = savedState → deal → 4, shared with the commission state init; `savedState`
+  hoisted above the seed — hydration behavior unchanged, overwrite-bug comment preserved)
+- Fill-blanks-only unchanged: only terms with both adv+rec seed; **saved/tuned rates always win**.
+- `Math.max(0,…)` kept (guards negative quote cells).
 
-**Fix (Option A):** yield the loop with `await new Promise(r => setImmediate(r))` between
-folders. Total warm CPU is unchanged (~72s) but now off the critical path — the API responds
-in ~1s while the cache warms in the background. The mtime-keyed cache (`summaryCache`, keyed
-`wbPath → {mtimeMs, summary}`, with a fresh `fs.statSync` every request) means any on-demand
-compute isn't redone once warmed, and never serves stale data → **safe to leave the app up
-indefinitely.**
+### Audit catch — server-side mirror was stale (fixed, same session)
+`server/index.js` had a DUPLICATE of the old offset rule: `OFFSETS` + `effectiveRatesFor` ("Mirrors
+ValuationPage so the exported rate equals the on-screen rate"), used by
+`GET /api/deals/:index/deal-sheet-tables` (~line 725→780) and `POST …/create-agreement` (~880→895)
+for any term WITHOUT a saved rate. Left as-was, deal-sheet reads/exports would have diverged from
+the UI. Fixed to the identical margin-based inverse with the same seedCommission resolution
+(server-side: `vs.commission ?? parseFloat(deal.commission) || 4` — no session cache on the server).
+**`OFFSETS` deleted from both files; codebase-wide grep = zero references.**
+⚠️ STANDING TRAP (memory written): the FE seed (`ValuationPage.jsx` startDefaults) and server
+`effectiveRatesFor` implement THE SAME rule in two places — any future change must edit BOTH.
 
-**Verified live** (temp `node server/index.js` audit, then stopped): during the full 72.6s
-background warm, `skill-runs` calls returned in 66–856ms (would've hung ~70s before).
-folders #1 mid-warm still parsed (~65s — that handler is synchronous); folders #2 warm = 176ms.
-**Sufficient for the complaint because the landing page is Deal Manager (`activePage='deals'`),
-not Data Manager** — folders is only fetched when the user opens Data Manager, by which time the
-background warm is done. **Cold-start-to-usable: ~80s → ~11s.**
+### Verification / audit evidence (max-effort pass)
+- Hand-math exact: adv 100k / rec 125k → B2B 72.00% & margin 10,000; IND@4% 69.23% & margin 10,000.
+- FE live regression (Roykeisha Rockette): saved 74.61/62.10/52.95/46.15 rendered exactly; cross-tied
+  internally at its 6% commission.
+- API regression (idx 49): deal-sheet-tables returns saved rates exactly (fallback untriggered).
+- **API live proof of new rule** (Bobby Shmurda idx 32, 144mo never saved): returns **33.54** — the
+  predicted new seed to the digit; implied margin Δ −$14 on a $995K recoup (within bound).
+- Rounding bound (honest): 2 dp rate storage ⇒ margin within ±0.005% of RAS recoup of exact 10%
+  (+$0.50 display). Worst real case: Victor Thell 84mo ($3.77M recoup) → ±$208 ≈ 0.1% of its target
+  margin. Same convention as manually typing a margin.
+- **Impact on existing data:** 77/79 quote-bearing deals unchanged (full saved rates win). Exactly 2
+  deals gain a seed, both on never-saved 144mo terms only: Bobby Shmurda → 33.54, Lambo4oe (#52) →
+  42.63. New rule otherwise manifests on future deals.
+- Accepted by design: commission-at-open seeding (margin drifts if commission edited later); B2B
+  margin has no commission term so its seed = 0.9 × RAS rate exactly.
 
-Residual (NOT fixed, optional): the ~11s to first-listen is Node module loading
-(googleapis/xlsx `require`s), separate from this fix. Option D (disk-persist the summary cache so
-cold restarts skip re-parsing) would also kill the "open app → immediately click Data Manager
-within ~72s" edge case — not needed for the stated problem.
-
-Commits on `master` (pushed to origin, in sync):
-- `5417af9` — Unblock event loop during Data Manager summary prewarm (`server/index.js`, +8/−1)
-- `0b72e8a` — Update Deal Manager data (`deals.json`, +815; app-usage change, 80 deals, valid
-  JSON — committed per "commit all", not this session's code work)
-
-### /underwrite skill — fully ingested (integration PENDING — user will give instructions)
-Read the real skill end-to-end (not just the pasted brief):
-`…\1. RTHM Fund\1. Data\.claude\skills\underwrite\` → `SKILL.md`, `references/methodology.md`,
-`references/decay_playbook.md`, `scripts/build_underwrite.py`. **User said: ingest only, integration
-instructions coming next.**
-
-What it is: Phase 3 (commercial analysis) + Phase 4 (cash-flow / IRR-DCF) of catalog diligence.
-Runs AFTER `/diligence` (GREEN workbook). Claude sets per-track `d_near` + account `d_term` +
-cadence/lag + sync add-backs → writes a JSON spec of DECISIONS only → `build_underwrite.py` reads
-titles/ISRCs/history straight from the diligence tab by `src_row` (always ties back to diligence),
-builds a live **formula-linked** `<deal>\<DEAL> Quote.xlsx` (tabs: `Underwrite` valuation/advance,
-`Acquisition` cadence-placed cash, one `<AcctKey> - Forecast` per account). Two-stage decay:
-near-term months × per-track `$C{row}`, terminal months × account `$C${DTERM}`. Valuation
-`I5 = NPV(I2/12, first I4*12=72 months of row 12)` — uses the **interest** rate; advance `F12 = I5−I6`.
-
-Integration-relevant facts:
-- Emits `UNDERWRITE 1/6 … 6/6` progress markers to **stdout** — already formatted for the app's
-  Diligence Run Monitor (`i/6`), same as diligence/extract. Builder logs to stderr; builder stdout
-  = output path only.
-- Lives in the Data tree `.claude/skills/` — the same place the app already spawns skills from.
-- **Filename collision risk:** output `<DEAL> Quote.xlsx` may clash with the app's existing v2
-  quote-engine output (static-values `Quote.xlsx`). Confirm during integration. `/underwrite` ≠ `/quote`.
-- The pasted brief is **more current than `methodology.md`** in 3 spots (trust brief/code): (1)
-  default first payment = `EOMONTH(close,3)` ≈ 3mo, NOT "close+30d"; (2) `I5` uses interest (I2), not
-  discount rate; (3) account fields `last_actual_month` + `first_pay_month` exist in the builder +
-  brief schema but are absent from methodology §8.
+### Preview/dev-server via harness launch config (NEW, this session)
+`<RTHM App root>/.claude/launch.json` (OUTSIDE the App Files git repo; Dropbox-synced) now has a
+**Windows** entry `rthm-app-win`: `cmd /c npm run dev --prefix "App Files"`, port 5173 — plain
+`npm`/absolute paths break on Windows spawn quoting ("C:\Program" error). The pre-existing
+`rthm-app` entry is the **Mac** one (`/usr/local/bin/npm`) — left untouched. Watch for
+harness-orphaned dev-stack processes holding 3001/5173 after a preview stop: kill PIDs with
+`*App Files*` in the command line, then preview_start again.
 
 ## 🧭 Current state
-- App Files `master`: clean, in sync with origin (the two commits above pushed:
-  `df957cb..0b72e8a`).
-- **App is NOT running.** The mid-session "restart" never took (only Adobe Creative Cloud's node
-  was up); my temp audit server was stopped. Run `npm run dev` from `App Files/` (ports 3001 + 5173)
-  to use it — now ~11s to usable. Backend still doesn't watch files: any `server/index.js` edit
-  needs a manual restart.
-- Untracked junk left in place (NOT committed, safe to delete): `node_modules (RTHM Fund's
-  conflicted copy 2026-07-03)/` (Dropbox conflict copy).
-- Verified: `node --check server/index.js` clean; live API audit passed.
+- App Files `master`: this session's commits pushed; in sync with origin (verify with git status).
+- **App is RUNNING** under the harness preview (`rthm-app-win`, backend 3001 + Vite 5173) with all
+  changes live. Backend still needs a manual restart after any `server/index.js` edit.
+- deals.json: 79 deals (one removed via normal app usage during the July gap), valid JSON, committed.
+- Untracked junk still present (NOT committed, safe to delete on confirmation):
+  `node_modules (RTHM Fund's conflicted copy 2026-07-03)/`.
+- Earlier this session (already committed + pushed previously): startup prewarm event-loop fix
+  (`5417af9`), stuck-diligence-run PID-reuse classifier fix (`3ca3571`).
 
 ## ⏭️ Next / open tasks
-1. **/underwrite integration** — user will give instructions. Skill fully ingested (see above).
-   Watch the `<DEAL> Quote.xlsx` filename collision with the v2 quote engine.
+1. **/underwrite integration** — skill fully ingested (Data tree `.claude/skills/underwrite/`:
+   SKILL.md + methodology.md + decay_playbook.md + build_underwrite.py). User will give integration
+   instructions. Notes: emits `UNDERWRITE i/6` stdout markers (run-monitor-ready); output
+   `<DEAL> Quote.xlsx` may collide with the v2 quote-engine filename; brief > methodology.md where
+   they disagree (first payment = EOMONTH(close,3); I5 uses interest rate; last_actual_month /
+   first_pay_month exist in builder schema).
 2. Delete the conflict-copy `node_modules` junk dir when confirmed.
-3. (Optional) Startup: chase the residual ~11s module-load (lazy-require googleapis/xlsx) and/or
-   Option D disk-persist cache — neither needed for the now-resolved complaint.
+3. (Optional) startup residual: ~11s Node module-load before listen; Option D disk-persist summary
+   cache — neither needed for the resolved complaint.
 
-Carried over (still open from prior sessions):
-4. Tyga (and Lil Sheik) still show 0 tracks — per-track parser can't read their format ("fails by
-   design").
-5. Spot-check a container's Lifetime == Σ its catalogs' Lifetimes (penny-exact) in the live UI.
-6. Diligence/extract stage bar advances only once the `[stage]` markers fire in a real run —
-   confirm e2e.
-7. Pre-existing James Avex grand-total reconcile gap.
+Carried over: Tyga/Lil Sheik 0-track parser ("fails by design"); container Lifetime == Σ catalogs
+spot-check; diligence/extract stage-marker e2e confirm; James Avex grand-total reconcile gap.
