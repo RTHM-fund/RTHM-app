@@ -413,7 +413,9 @@ export default function App() {
   }
 
   function handleNavigateToRPA(deal, dealIndex, type) {
-    const filename = type === 'B2B RPA' ? 'B2B RPA_Template.docx' : 'RTHM RPA_Template.docx'
+    // 12-year deals (offer-letter row locked at 144 months) use the 12-year RPA templates.
+    const suffix = parseInt(deal?.lockedDeal?.term) === 144 ? ' (12-year)' : ''
+    const filename = `${type === 'B2B RPA' ? 'B2B RPA' : 'RTHM RPA'}${suffix}_Template.docx`
     setPrefillData({ dealIndex, dealName: deal.name })
     setSelectedTemplate({
       category: 'Royalty Purchase Agreements',
@@ -424,11 +426,14 @@ export default function App() {
   }
 
   function handleNavigateToRAS(data) {
+    // The RAS leg inherits 12-year-ness from the RTHM leg that hands off to it,
+    // so the "save both RPAs" pair is always term-consistent.
+    const suffix = data?.is12 ? ' (12-year)' : ''
     setPrefillData(data)
     setSelectedTemplate({
       category: 'Royalty Purchase Agreements',
-      filename: 'RTHM x RAS RPA_Template.docx',
-      name: 'RTHM x RAS RPA_Template'
+      filename: `RTHM x RAS RPA${suffix}_Template.docx`,
+      name: `RTHM x RAS RPA${suffix}_Template`
     })
     navigateTo('template')
   }

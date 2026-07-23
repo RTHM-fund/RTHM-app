@@ -54,6 +54,11 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
   const [error, setError] = useState(null)
   const [autoFilledFields, setAutoFilledFields] = useState(new Set())
 
+  // 12-year template variants behave exactly like their base templates — every
+  // filename-keyed behavior in this form compares against the base name. The actual
+  // template.filename still drives field fetching + document generation.
+  const baseFilename = template.filename.replace(' (12-year)', '')
+
   useEffect(() => {
     fetch('/api/deals/saved')
       .then(r => r.json())
@@ -76,7 +81,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
       .then(data => {
         if (data.error) throw new Error(data.error)
         const orderedFields = data.fields
-        if (template.filename === 'B2B RPA_Template.docx') {
+        if (baseFilename === 'B2B RPA_Template.docx') {
           const front = ['Recoup Amount', 'B2B Partner', 'B2B Entity']
           front.reverse().forEach(f => {
             const idx = orderedFields.indexOf(f)
@@ -92,7 +97,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
         data.fields.forEach(f => {
           if (prefillData?.values?.[f]) {
             init[f] = prefillData.values[f]
-          } else if (f === 'RAS Advance' && prefillData?.rasAdvance && template.filename === 'RTHM x RAS RPA_Template.docx') {
+          } else if (f === 'RAS Advance' && prefillData?.rasAdvance && baseFilename === 'RTHM x RAS RPA_Template.docx') {
             init[f] = 'USD ' + Math.round(prefillData.rasAdvance).toLocaleString('en-US')
           } else if (f.toLowerCase().includes('date')) {
             init[f] = todayFormatted
@@ -115,8 +120,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
     const deal = deals[idx]
     let platform = deal?.platform || ''
     if (platform) {
-      const hasVQ = deal?.variableQuote && Object.values(deal.variableQuote).some(v => v != null)
-      if (hasVQ) platform += ', RTHM'
+      if ((parseFloat(deal?.rthmDistroFee) || 0) > 0) platform += ', RTHM'
       setValues(prev => ({ ...prev, 'Platform(s)': platform }))
     }
     const locked = deal?.lockedDeal
@@ -142,7 +146,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
       setValues(prev => ({ ...prev, ...lockedUpdates }))
       filled.push(...Object.keys(lockedUpdates))
     }
-    if (deal?.b2bPartner && template.filename === 'RTHM RPA_Template.docx') {
+    if (deal?.b2bPartner && baseFilename === 'RTHM RPA_Template.docx') {
       fetch(`/api/b2b-partners/${encodeURIComponent(deal.b2bPartner)}`)
         .then(r => r.json())
         .then(pd => {
@@ -196,7 +200,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
   }
 
   useEffect(() => {
-    if (selectedDealIdx === null || !deals.length || template.filename === 'RTHM x RAS RPA_Template.docx') return
+    if (selectedDealIdx === null || !deals.length || baseFilename === 'RTHM x RAS RPA_Template.docx') return
     const deal = deals[selectedDealIdx]
     if (!deal) return
     // Clear previous auto-fills before applying new ones
@@ -210,8 +214,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
     const locked = deal.lockedDeal
     let platform = deal.platform || ''
     if (platform) {
-      const hasVQ = deal.variableQuote && Object.values(deal.variableQuote).some(v => v != null)
-      if (hasVQ) platform += ', RTHM'
+      if ((parseFloat(deal.rthmDistroFee) || 0) > 0) platform += ', RTHM'
     }
     const updates = {}
     if (platform) updates['Platform(s)'] = platform
@@ -231,7 +234,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
         ...(locked.transactionId ? { 'Transaction ID': locked.transactionId.replace(/[^0-9]/g, '') } : {}),
       }))
     }
-    if (deal.b2bPartner && template.filename === 'RTHM RPA_Template.docx') {
+    if (deal.b2bPartner && baseFilename === 'RTHM RPA_Template.docx') {
       fetch(`/api/b2b-partners/${encodeURIComponent(deal.b2bPartner)}`)
         .then(r => r.json())
         .then(partnerData => {
@@ -264,7 +267,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
   }, [deals, selectedDealIdx, fields])
 
   useEffect(() => {
-    if (template.filename !== 'B2B RPA_Template.docx' || selectedDealIdx === null || !deals.length) return
+    if (baseFilename !== 'B2B RPA_Template.docx' || selectedDealIdx === null || !deals.length) return
     const deal = deals[selectedDealIdx]
     if (!deal?.b2bPartner) return
     fetch(`/api/b2b-partners/${encodeURIComponent(deal.b2bPartner)}`)
@@ -288,7 +291,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
   }, [deals, selectedDealIdx, fields])
 
   useEffect(() => {
-    if (template.filename === 'RTHM x RAS RPA_Template.docx') {
+    if (baseFilename === 'RTHM x RAS RPA_Template.docx') {
       const rasAdvance = parseFloat((values['RAS Advance'] || '').replace(/[^0-9.-]/g, ''))
       const advanceAmount = parseFloat((prefillData?.advanceAmount || '').replace(/[^0-9.-]/g, ''))
 
@@ -309,7 +312,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
   }, [values['RAS Advance'], prefillData?.advanceAmount, template.filename])
 
   useEffect(() => {
-    if (template.filename === 'RTHM x RAS RPA_Template.docx') {
+    if (baseFilename === 'RTHM x RAS RPA_Template.docx') {
       const raw = rawAmounts['RAS ID'] || ''
       if (!raw) return
       const prefix = buildRasPrefix(values['Date'])
@@ -336,7 +339,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
             fileName: fileName.trim(),
             fields: values,
             dealIndex,
-            typeLabel: getTypeLabel(template.filename)
+            typeLabel: getTypeLabel(baseFilename)
           })
         }),
         fetch('/api/save/rpa', {
@@ -382,7 +385,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
           fileName: fileName.trim(),
           fields: values,
           dealIndex: selectedDealIdx,
-          typeLabel: getTypeLabel(template.filename)
+          typeLabel: getTypeLabel(baseFilename)
         })
       })
       const data = await res.json()
@@ -391,7 +394,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
       const dealForLock = selectedDealIdx != null ? deals[selectedDealIdx] : null
       const formAdvance = Math.round(parseFloat(rawAmounts['Advance Amount']))
       const advanceChanged = dealForLock?.lockedDeal && !isNaN(formAdvance) && formAdvance !== dealForLock.lockedDeal.advanceAmount
-      const txIdChange = template.filename === 'B2B RPA_Template.docx' && values['Transaction ID']
+      const txIdChange = baseFilename === 'B2B RPA_Template.docx' && values['Transaction ID']
 
       if (selectedDealIdx != null && (advanceChanged || txIdChange)) {
         const lockUpdate = { ...(dealForLock?.lockedDeal || {}) }
@@ -411,8 +414,8 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
     }
   }
 
-  const isRAS = template.filename === 'RTHM x RAS RPA_Template.docx'
-  const isRTHM = template.filename === 'RTHM RPA_Template.docx'
+  const isRAS = baseFilename === 'RTHM x RAS RPA_Template.docx'
+  const isRTHM = baseFilename === 'RTHM RPA_Template.docx'
 
   return (
     <div className="rpa-form">
@@ -463,7 +466,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
               const isAmount = isAmountField(field)
               const isAutoCalc = isRAS && (field === 'Net Amount' || field === 'Margin Fee')
               const dealLocked = selectedDealIdx !== null && !!deals[selectedDealIdx]?.lockedDeal
-              const isB2B = template.filename === 'B2B RPA_Template.docx'
+              const isB2B = baseFilename === 'B2B RPA_Template.docx'
               const isAutoFill = (isRAS && ['Recoup Amount', 'Estimated Term', 'Artist Name', 'Platform(s)'].includes(field) && !!prefillData?.values?.[field])
                 || (isRAS && field === 'RAS Advance' && !!prefillData?.rasAdvance)
                 || (field === 'Platform(s)' && selectedDealIdx !== null && !!deals[selectedDealIdx]?.platform)
@@ -526,7 +529,7 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
                 <div className="rpa-error">{error}</div>
               )}
               <div style={{display:'flex', gap:12, flexWrap:'wrap'}}>
-                {template.filename === 'RTHM RPA_Template.docx' && (
+                {baseFilename === 'RTHM RPA_Template.docx' && (
                   <button
                     className={`export-btn ${!allFilled ? 'disabled' : ''}`}
                     style={{background: allFilled ? 'var(--primary-mid)' : undefined}}
@@ -541,13 +544,14 @@ export default function RPAForm({ template, prefillData, onBack, onNavigateToRAS
                       advanceAmount: values['Advance Amount'] || '',
                       rasAdvance: deals[selectedDealIdx]?.lockedDeal?.rasAdvance || null,
                       rawDates,
+                      is12: template.filename !== baseFilename,
                       rpaExportData: {
                         category: template.category,
                         filename: template.filename,
                         fileName,
                         fields: values,
                         dealIndex: selectedDealIdx,
-                        typeLabel: getTypeLabel(template.filename)
+                        typeLabel: getTypeLabel(baseFilename)
                       }
                     })}
                     disabled={!allFilled}
