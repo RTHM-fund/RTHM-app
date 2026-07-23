@@ -963,7 +963,9 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
       sheetsToCreate.push({
         templateFile: path.join(TEMPLATES_DIR, 'Deal Sheets', 'RTHM Deal Sheet_Template.docx'),
         fields,
-        fileName: `RTHM Deal Sheet_${deal.name}.docx`,
+        fileName: dealType === 'B2B'
+          ? `RTHM Deal Sheet (B2B)_${deal.name}.docx`
+          : `RTHM Deal Sheet_${deal.name}.docx`,
         typeLabel: 'Deal Sheet',
       })
     }

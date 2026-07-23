@@ -475,7 +475,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                   className="combobox--form"
                   value={b2bTemplate}
                   placeholder="select template"
-                  options={b2bTemplates.map(t => ({ value: t.filename, label: t.name.replace(/_?Template$/i, '').trim() }))}
+                  options={b2bTemplates.map(t => ({ value: t.filename, label: t.name.replace(/_?Template$/i, '').replace(/\s*Deal Sheet$/i, '').trim() }))}
                   onChange={e => setB2bTemplate(e.target.value)}
                 />
               </div>
