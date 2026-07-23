@@ -20,6 +20,11 @@ B2B deals now emit `RTHM Deal Sheet (B2B)_<name>.docx`; Individual path unchange
 - Multiple same-name B2Bs share one `(B2B)` file — fine: the RTHM sheet uses base `fields`
   only (margin/partner feed ONLY `b2bFields` → the partner sheet), so those are byte-identical.
 
+**Scope decision (settled):** Offer Letters + RPAs evaluated and deliberately left unchanged —
+they don't silently auto-collide. Individual makes "RTHM Offer Letter_" vs B2B's distinct prefix;
+the RPA filename is a user-editable field (defaults to deal name but changeable). The auto-derived
+Deal Sheet name was the ONLY guaranteed silent clash. Do not re-raise.
+
 **Live proof (non-destructive, snapshot/restore):** B2B deal "Otega" (already had an
 Individual-named sheet on disk) generated `RTHM Deal Sheet (B2B)_Otega.docx`; the
 `RTHM Deal Sheet_Otega.docx` file was byte-identical before/after (10,415,934 bytes, same
@@ -39,11 +44,7 @@ fixed identically; confirmed those are the only two.
   `*App Files*` node PIDs and `preview_start rthm-app-win`.
 
 ## ⏭️ Next / open
-1. **Broader same-name collision (NOT yet fixed):** Offer Letters and RPAs are ALSO named by
-   `deal.name` only (`/api/save/rpa`, docName `${prefix}${fileName}.docx`). Two same-name
-   instances still overwrite each other's full doc set. User scoped only the RTHM Deal Sheet
-   for now ("first the RTHM Deal Sheet ... we will be fixing and updating this") — expect a
-   follow-up to extend the disambiguation to the rest.
-2. /underwrite integration — task #4, awaiting user instructions (skill fully ingested).
-3. Carried: first real 12-year RPA gen + first fee-bearing deal-sheet export; Tyga/Lil Sheik
+Nothing left from this session — deal-sheet fix is done, committed, pushed. Standing backlog only:
+1. /underwrite integration — task #4, awaiting user instructions (skill fully ingested).
+2. Carried: first real 12-year RPA gen + first fee-bearing deal-sheet export; Tyga/Lil Sheik
    parser; container Lifetime spot-check; diligence stage-marker e2e; James Avex reconcile.
