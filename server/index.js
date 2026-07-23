@@ -49,12 +49,11 @@ const HOSTNAME = os.hostname().replace(/[^a-zA-Z0-9-]/g, '-')
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const TERMS_ALL = ['12 months', '36 months', '60 months', '84 months', '144 months']
-// Quote sources, by sheet section. Each pair = [advance col, RAS recoup col], indexed by TERMS_ALL.
-// NOTE: the code's `initialQuote` (IQ) is the sheet's "Initial quotes, net of 3% fee" section;
-// `grossQuote` (GQ) is the sheet's plain "Initial quotes" section (fallback when IQ is empty).
-const GQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ'], ['AK','AL']]
-const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
-const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
+// Quote sources, by tracker band. Each pair = [advance col, RAS recoup col], indexed by TERMS_ALL.
+// `initialQuote` = the tracker's "Initial quotes" band (K–T); `postFees` = the "RTHM net offer,
+// before arbitrage" band (AR–BA) — the working numbers. Keys are sheet column letters (provenance).
+const INITIAL_PAIRS = [['K','L'], ['M','N'], ['O','P'], ['Q','R'], ['S','T']]
+const POST_PAIRS = [['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY'], ['AZ','BA']]
 // Auto-filled starting recoup: each term's Recoup Rate is solved so the RTHM Valuation MARGIN
 // defaults to exactly this fraction of that term's RAS advance. See effectiveRatesFor.
 const MARGIN_PCT = 0.11
@@ -174,11 +173,11 @@ function resolveAgreementPath(ag) {
   return null
 }
 
-const WANTED_COLS = ['A','C','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','BA','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL']
+// A = deal, C = distributor/PRO, F = RTHM Admin Fee %, G = RTHM Distro fee (go-forward) %.
+const WANTED_COLS = ['A','C','F','G','K','L','M','N','O','P','Q','R','S','T','AR','AS','AT','AU','AV','AW','AX','AY','AZ','BA']
 
-const GQ_COLS = ['AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL']
-const IQ_COLS = ['AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY']
-const VQ_COLS = ['BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL']
+const INITIAL_COLS = INITIAL_PAIRS.flat()
+const POST_COLS = POST_PAIRS.flat()
 
 function buildDealData(rows) {
   const groups = {}
@@ -195,15 +194,20 @@ function buildDealData(rows) {
       const nums = groupRows.map(r => parseFloat((r[col] || '').replace(/[^0-9.-]/g, ''))).filter(n => !isNaN(n))
       return nums.length > 0 ? nums.reduce((a, b) => a + b, 0) : null
     }
-    const grossQuote = {}
-    GQ_COLS.forEach(col => { grossQuote[col] = sumCol(col) })
     const initialQuote = {}
-    IQ_COLS.forEach(col => { initialQuote[col] = sumCol(col) })
-    const percentRaw = groupRows.find(r => r['BA'])?.['BA'] || ''
-    const percent = parseFloat(percentRaw.replace(/[^0-9.-]/g, '')) || null
-    const variableQuote = {}
-    VQ_COLS.forEach(col => { variableQuote[col] = sumCol(col) })
-    return { name, platform, grossQuote, initialQuote, percent, variableQuote }
+    INITIAL_COLS.forEach(col => { initialQuote[col] = sumCol(col) })
+    const postFees = {}
+    POST_COLS.forEach(col => { postFees[col] = sumCol(col) })
+    // Deal-level fee %s: MAX across the deal's account rows (a deal is RTHM-distro if ANY
+    // account is). Mixed values across rows are legal but worth a loud note in the log.
+    const feeOf = col => {
+      const vals = groupRows.map(r => parseFloat((r[col] || '').replace(/[^0-9.-]/g, ''))).filter(n => !isNaN(n))
+      if (new Set(vals).size > 1) console.warn(`[import] ${name}: mixed ${col === 'F' ? 'admin' : 'distro'} fees across rows: ${[...new Set(vals)].join('/')} — using max`)
+      return vals.length ? Math.max(...vals) : null
+    }
+    const adminFee = feeOf('F')
+    const rthmDistroFee = feeOf('G')
+    return { name, platform, initialQuote, postFees, adminFee, rthmDistroFee }
   })
 }
 
@@ -218,16 +222,14 @@ function pairsHaveData(obj, prs) {
   return prs.some(([a, b]) => obj?.[a] || obj?.[b])
 }
 
-// Resolve which quote block to use for a deal, by priority:
-// variable (if present) → net-of-3% initial (if present) → plain initial (grossQuote).
-// Returns { source, pairs }, both indexed by TERMS_ALL.
+// Resolve the WORKING quote block for a deal: postFees (the RTHM net offer — should always
+// be populated), falling back to initialQuote. Returns { source, pairs }, indexed by TERMS_ALL.
+// PR math deliberately does NOT use this — it anchors to initialQuote (user decision).
 function resolveQuoteSource(deal) {
-  const gq = deal.grossQuote || {}
-  const iq = deal.initialQuote || {}
-  const vq = deal.variableQuote || {}
-  if (pairsHaveData(vq, VQ_PAIRS)) return { source: vq, pairs: VQ_PAIRS }
-  if (pairsHaveData(iq, IQ_PAIRS)) return { source: iq, pairs: IQ_PAIRS }
-  return { source: gq, pairs: GQ_PAIRS }
+  const post = deal.postFees || {}
+  const initial = deal.initialQuote || {}
+  if (pairsHaveData(post, POST_PAIRS)) return { source: post, pairs: POST_PAIRS }
+  return { source: initial, pairs: INITIAL_PAIRS }
 }
 
 // Per-term effective recoup rate: the saved rate if present, else the auto-fill
@@ -783,6 +785,7 @@ app.get('/api/deals/:index/deal-sheet-tables', (req, res) => {
     const effectiveRates = effectiveRatesFor(source, pairs, vs.rates, dealType,
       (vs.commission ?? parseFloat(deal.commission)) || 4)
 
+    const initial = deal.initialQuote || {}
     const structuredRows = []
     for (const term of ['144 months', '84 months', '60 months', '36 months', '12 months']) {
       const termIdx = TERMS_ALL.indexOf(term)
@@ -793,9 +796,16 @@ app.get('/api/deals/:index/deal-sheet-tables', (req, res) => {
       if (term === '144 months' && !rasAdvance && !rasRecoup) continue
       const rate = parseFloat(effectiveRates[term]) || 0
       const rthmAdvance = Math.round(rasRecoup * (rate / 100))
-      const marketingBudget = Math.ceil((rasAdvance * 0.2 * 0.67) * 2.5 / 1000) * 1000
 
-      const prAdvance = Math.round(rthmAdvance * 0.8)
+      // PR math anchors to the INITIAL QUOTE band (user decision — mirrors the Valuation
+      // page's PR UPLIFT); the working fields above come from the postFees resolution.
+      const [initAdvCol, initRecCol] = INITIAL_PAIRS[termIdx]
+      const initAdvance = parseFloat(initial[initAdvCol]) || 0
+      const initRecoup = parseFloat(initial[initRecCol]) || 0
+      const prRthmAdvance = Math.round(initRecoup * (rate / 100))
+      const marketingBudget = Math.ceil((initAdvance * 0.2 * 0.67) * 2.5 / 1000) * 1000
+
+      const prAdvance = Math.round(prRthmAdvance * 0.8)
 
       structuredRows.push({
         advanceAmount: rthmAdvance,
@@ -803,6 +813,8 @@ app.get('/api/deals/:index/deal-sheet-tables', (req, res) => {
         term,
         recoupAmount: rasRecoup,
         rasAdvance,
+        prRasAdvance: initAdvance,
+        prRthmAdvance,
         marketingBudget: marketingBudget > 0 ? marketingBudget : 0,
         prAdvance,
         prTotal: prAdvance + (marketingBudget > 0 ? marketingBudget : 0),
@@ -924,9 +936,14 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
       fields[`RTHM Advance ${key}`] = fmtMoney(rthmAdvance)
       fields[`Recoup ${key}`] = fmtPct(rate)
 
-      const marketingBudgetRaw = (rasAdvance * 0.2 * 0.67) * 2.5
+      // PR fields anchor to the INITIAL QUOTE band (user decision — mirrors PR UPLIFT).
+      const [initAdvCol, initRecCol] = INITIAL_PAIRS[termIdx]
+      const initAdvance = parseFloat((deal.initialQuote || {})[initAdvCol]) || 0
+      const initRecoup = parseFloat((deal.initialQuote || {})[initRecCol]) || 0
+      const prRthmAdvance = Math.round(initRecoup * (rate / 100))
+      const marketingBudgetRaw = (initAdvance * 0.2 * 0.67) * 2.5
       const marketingBudget = Math.ceil(marketingBudgetRaw / 1000) * 1000
-      const advanceAmount = Math.round(rthmAdvance * 0.8)
+      const advanceAmount = Math.round(prRthmAdvance * 0.8)
       fields[`PR Total ${key}`] = fmtMoney(advanceAmount + marketingBudget)
       fields[`PR Advance ${key}`] = fmtMoney(advanceAmount)
       fields[`Marketing ${key}`] = fmtMoney(marketingBudget)

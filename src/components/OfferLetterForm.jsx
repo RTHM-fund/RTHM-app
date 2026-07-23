@@ -675,10 +675,13 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
                   <tbody>
                     {prRows.map((row, rIdx) => {
                       const fmtV = n => Math.round(n).toLocaleString('en-US')
+                      // PR math anchors to the INITIAL QUOTE band — tooltips read the
+                      // pr* fields the server computes from it, not the working numbers.
                       const totalTip = `${fmtV(row.prAdvance)} + ${fmtV(row.marketingBudget)}`
-                      const prAdvTip = `${fmtV(row.advanceAmount)} × 80%`
-                      const mktRaw = row.rasAdvance * 0.2 * 0.67 * 2.5
-                      const mktTip = `${fmtV(row.rasAdvance)} × 20% × 67% × 2.5 = ${fmtV(Math.round(mktRaw))} → round up to ${fmtV(row.marketingBudget)}`
+                      const prAdvTip = `${fmtV(row.prRthmAdvance ?? row.advanceAmount)} × 80%`
+                      const prRas = row.prRasAdvance ?? row.rasAdvance
+                      const mktRaw = prRas * 0.2 * 0.67 * 2.5
+                      const mktTip = `${fmtV(prRas)} × 20% × 67% × 2.5 = ${fmtV(Math.round(mktRaw))} → round up to ${fmtV(row.marketingBudget)}`
                       return (
                       <tr
                         key={'pr-' + rIdx}

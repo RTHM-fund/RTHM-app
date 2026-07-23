@@ -2,25 +2,16 @@
   {
     "name": "Luh Loaded Rerun",
     "initialQuote": {
-      "AP": 3880,
-      "AQ": 4600,
-      "AR": 8633,
-      "AS": 12400,
-      "AT": 11446,
-      "AU": 19500,
-      "AV": 12998,
-      "AW": 26000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 3880,
+      "L": 4600,
+      "M": 8633,
+      "N": 12400,
+      "O": 11446,
+      "P": 19500,
+      "Q": 12998,
+      "R": 26000,
+      "S": null,
+      "T": null
     },
     "commission": "4",
     "mondayItemId": "11663353876",
@@ -77,30 +68,35 @@
       "prTotal": 13736,
       "legalName": "Collier Starks"
     },
-    "folderPath": "1. RTHM Fund\\3. Deal Materials\\2. Closed\\Luh Loaded"
+    "folderPath": "1. RTHM Fund\\3. Deal Materials\\2. Closed\\Luh Loaded",
+    "postFees": {
+      "AR": 3880,
+      "AS": 4600,
+      "AT": 8633,
+      "AU": 12400,
+      "AV": 11446,
+      "AW": 19500,
+      "AX": 12998,
+      "AY": 26000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 10
   },
   {
     "name": "SuperFriendz",
     "initialQuote": {
-      "AP": 100880,
-      "AQ": 116000,
-      "AR": 203700,
-      "AS": 281000,
-      "AT": 159080,
-      "AU": 411000,
-      "AV": 284210,
-      "AW": 521000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 100880,
+      "L": 116000,
+      "M": 203700,
+      "N": 281000,
+      "O": 159080,
+      "P": 411000,
+      "Q": 284210,
+      "R": 521000,
+      "S": null,
+      "T": null
     },
     "commission": "4",
     "mondayItemId": "11664679121",
@@ -127,30 +123,35 @@
     ],
     "platform": "Kobalt",
     "royaltyType": "Publishing",
-    "dealType": "Individual"
+    "dealType": "Individual",
+    "postFees": {
+      "AR": 100880,
+      "AS": 116000,
+      "AT": 203700,
+      "AU": 281000,
+      "AV": 159080,
+      "AW": 411000,
+      "AX": 284210,
+      "AY": 521000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Sada Baby",
     "initialQuote": {
-      "AP": 4171,
-      "AQ": 4900,
-      "AR": 8730,
-      "AS": 12400,
-      "AT": 11058,
-      "AU": 18200,
-      "AV": 12125,
-      "AW": 23000
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 3754,
-      "BD": 4410,
-      "BE": 7857,
-      "BF": 11160,
-      "BG": 9952,
-      "BH": 16380,
-      "BI": 10913,
-      "BJ": 20700
+      "K": 4171,
+      "L": 4900,
+      "M": 8730,
+      "N": 12400,
+      "O": 11058,
+      "P": 18200,
+      "Q": 12125,
+      "R": 23000,
+      "S": null,
+      "T": null
     },
     "commission": "4",
     "mondayItemId": "11664733663",
@@ -187,30 +188,35 @@
       "marketingBudget": 3000,
       "prAdvance": 5714,
       "prTotal": 8714
-    }
+    },
+    "postFees": {
+      "AR": 3754,
+      "AS": 4410,
+      "AT": 7857,
+      "AU": 11160,
+      "AV": 9952,
+      "AW": 16380,
+      "AX": 10913,
+      "AY": 20700,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Swag surfin",
     "initialQuote": {
-      "AP": 34532,
-      "AQ": 42000,
-      "AR": 84390,
-      "AS": 125000,
-      "AT": 114460,
-      "AU": 200000,
-      "AV": 131920,
-      "AW": 268000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 34532,
+      "L": 42000,
+      "M": 84390,
+      "N": 125000,
+      "O": 114460,
+      "P": 200000,
+      "Q": 131920,
+      "R": 268000,
+      "S": null,
+      "T": null
     },
     "commission": "6",
     "mondayItemId": "11664774454",
@@ -237,30 +243,35 @@
     ],
     "platform": "UMG",
     "royaltyType": "Publishing",
-    "dealType": "Individual"
+    "dealType": "Individual",
+    "postFees": {
+      "AR": 34532,
+      "AS": 42000,
+      "AT": 84390,
+      "AU": 125000,
+      "AV": 114460,
+      "AW": 200000,
+      "AX": 131920,
+      "AY": 268000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Otega",
     "initialQuote": {
-      "AP": 15811,
-      "AQ": 18500,
-      "AR": 28518,
-      "AS": 40100,
-      "AT": 34338,
-      "AU": 55600,
-      "AV": 24250,
-      "AW": 48000
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 14230,
-      "BD": 16650,
-      "BE": 25666,
-      "BF": 36090,
-      "BG": 30904,
-      "BH": 50040,
-      "BI": 21825,
-      "BJ": 43200
+      "K": 15811,
+      "L": 18500,
+      "M": 28518,
+      "N": 40100,
+      "O": 34338,
+      "P": 55600,
+      "Q": 24250,
+      "R": 48000,
+      "S": null,
+      "T": null
     },
     "commission": "4",
     "mondayItemId": "11664776750",
@@ -308,30 +319,35 @@
       "rasAdvance": 25000,
       "marketingBudget": 9000
     },
-    "b2bPartner": "Skyline"
+    "b2bPartner": "Skyline",
+    "postFees": {
+      "AR": 14230,
+      "AS": 16650,
+      "AT": 25666,
+      "AU": 36090,
+      "AV": 30904,
+      "AW": 50040,
+      "AX": 21825,
+      "AY": 43200,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "The Sauce Familia Label",
     "initialQuote": {
-      "AP": 42098,
-      "AQ": 49400,
-      "AR": 83808,
-      "AS": 117100,
-      "AT": 106215,
-      "AU": 174100,
-      "AV": 118437,
-      "AW": 225000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 42098,
+      "L": 49400,
+      "M": 83808,
+      "N": 117100,
+      "O": 106215,
+      "P": 174100,
+      "Q": 118437,
+      "R": 225000,
+      "S": null,
+      "T": null
     },
     "commission": "4",
     "mondayItemId": "11664860594",
@@ -365,30 +381,35 @@
     "platform": "Create Music Group",
     "royaltyType": "Distribution",
     "dealType": "B2B",
-    "b2bPartner": "Skyline"
+    "b2bPartner": "Skyline",
+    "postFees": {
+      "AR": 42098,
+      "AS": 49400,
+      "AT": 83808,
+      "AU": 117100,
+      "AV": 106215,
+      "AW": 174100,
+      "AX": 118437,
+      "AY": 225000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Sauce Walka",
     "initialQuote": {
-      "AP": 52186,
-      "AQ": 61500,
-      "AR": 116400,
-      "AS": 166000,
-      "AT": 151320,
-      "AU": 255000,
-      "AV": 169750,
-      "AW": 331000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 52186,
+      "L": 61500,
+      "M": 116400,
+      "N": 166000,
+      "O": 151320,
+      "P": 255000,
+      "Q": 169750,
+      "R": 331000,
+      "S": null,
+      "T": null
     },
     "commission": "4",
     "mondayItemId": "11664853720",
@@ -428,30 +449,35 @@
     "platform": "Create Music Group",
     "royaltyType": "Distribution",
     "dealType": "B2B",
-    "b2bPartner": "Skyline"
+    "b2bPartner": "Skyline",
+    "postFees": {
+      "AR": 52186,
+      "AS": 61500,
+      "AT": 116400,
+      "AU": 166000,
+      "AV": 151320,
+      "AW": 255000,
+      "AX": 169750,
+      "AY": 331000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Wande Coal",
     "initialQuote": {
-      "AP": 12319,
-      "AQ": 14600,
-      "AR": 28421,
-      "AS": 40800,
-      "AT": 37345,
-      "AU": 63500,
-      "AV": 41710,
-      "AW": 84000
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 11087,
-      "BD": 13140,
-      "BE": 25579,
-      "BF": 36720,
-      "BG": 33611,
-      "BH": 57150,
-      "BI": 37539,
-      "BJ": 75600
+      "K": 12319,
+      "L": 14600,
+      "M": 28421,
+      "N": 40800,
+      "O": 37345,
+      "P": 63500,
+      "Q": 41710,
+      "R": 84000,
+      "S": null,
+      "T": null
     },
     "commission": "4",
     "mondayItemId": "11664952476",
@@ -479,31 +505,36 @@
     "platform": "DistroKid",
     "royaltyType": "Distribution",
     "dealType": "Individual",
-    "folderPath": null
+    "folderPath": null,
+    "postFees": {
+      "AR": 11087,
+      "AS": 13140,
+      "AT": 25579,
+      "AU": 36720,
+      "AV": 33611,
+      "AW": 57150,
+      "AX": 37539,
+      "AY": 75600,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Nate B",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 34726,
-      "AQ": 40100,
-      "AR": 80219,
-      "AS": 112800,
-      "AT": 106118,
-      "AU": 177400,
-      "AV": 120959,
-      "AW": 235300
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 34726,
+      "L": 40100,
+      "M": 80219,
+      "N": 112800,
+      "O": 106118,
+      "P": 177400,
+      "Q": 120959,
+      "R": 235300,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Both",
@@ -536,31 +567,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Nate B.docx",
         "createdAt": "2026-04-08T20:16:22.168Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 34726,
+      "AS": 40100,
+      "AT": 80219,
+      "AU": 112800,
+      "AV": 106118,
+      "AW": 177400,
+      "AX": 120959,
+      "AY": 235300,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Foti Massimiliano",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 44329,
-      "AQ": 51300,
-      "AR": 101074,
-      "AS": 142200,
-      "AT": 132502,
-      "AU": 220900,
-      "AV": 151029,
-      "AW": 293300
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 44329,
+      "L": 51300,
+      "M": 101074,
+      "N": 142200,
+      "O": 132502,
+      "P": 220900,
+      "Q": 151029,
+      "R": 293300,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -586,31 +622,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Foti Massimiliano.docx",
         "createdAt": "2026-04-08T01:04:51.138Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 44329,
+      "AS": 51300,
+      "AT": 101074,
+      "AU": 142200,
+      "AV": 132502,
+      "AW": 220900,
+      "AX": 151029,
+      "AY": 293300,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Luuh Jam",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 8342,
-      "AQ": 9800,
-      "AR": 17654,
-      "AS": 25000,
-      "AT": 22601,
-      "AU": 37600,
-      "AV": 25220,
-      "AW": 48200
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 7508,
-      "BD": 8820,
-      "BE": 15889,
-      "BF": 22500,
-      "BG": 20341,
-      "BH": 33840,
-      "BI": 22698,
-      "BJ": 43380
+      "K": 8342,
+      "L": 9800,
+      "M": 17654,
+      "N": 25000,
+      "O": 22601,
+      "P": 37600,
+      "Q": 25220,
+      "R": 48200,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -643,31 +684,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Luuh Jam.docx",
         "createdAt": "2026-04-08T03:06:26.962Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 7508,
+      "AS": 8820,
+      "AT": 15889,
+      "AU": 22500,
+      "AV": 20341,
+      "AW": 33840,
+      "AX": 22698,
+      "AY": 43380,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Sky High",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 15520,
-      "AQ": 18300,
-      "AR": 33950,
-      "AS": 48000,
-      "AT": 43456,
-      "AU": 72200,
-      "AV": 48403,
-      "AW": 92100
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 13968,
-      "BD": 16470,
-      "BE": 30555,
-      "BF": 43200,
-      "BG": 39110,
-      "BH": 64980,
-      "BI": 43563,
-      "BJ": 82890
+      "K": 15520,
+      "L": 18300,
+      "M": 33950,
+      "N": 48000,
+      "O": 43456,
+      "P": 72200,
+      "Q": 48403,
+      "R": 92100,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -700,31 +746,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Sky High.docx",
         "createdAt": "2026-04-08T03:09:17.216Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 13968,
+      "AS": 16470,
+      "AT": 30555,
+      "AU": 43200,
+      "AV": 39110,
+      "AW": 64980,
+      "AX": 43563,
+      "AY": 82890,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "CALMWAVES",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 224361,
-      "AQ": 261400,
-      "AR": 492760,
-      "AS": 695000,
-      "AT": 643595,
-      "AU": 1076300,
-      "AV": 727500,
-      "AW": 1415000
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 201925,
-      "BD": 235260,
-      "BE": 443484,
-      "BF": 625500,
-      "BG": 579236,
-      "BH": 968670,
-      "BI": 654750,
-      "BJ": 1273500
+      "K": 224361,
+      "L": 261400,
+      "M": 492760,
+      "N": 695000,
+      "O": 643595,
+      "P": 1076300,
+      "Q": 727500,
+      "R": 1415000,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -757,31 +808,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_CALMWAVES.docx",
         "createdAt": "2026-04-08T03:10:32.496Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 201925,
+      "AS": 235260,
+      "AT": 443484,
+      "AU": 625500,
+      "AV": 579236,
+      "AW": 968670,
+      "AX": 654750,
+      "AY": 1273500,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "$K (Family First Records)",
     "platform": "Orchard",
     "initialQuote": {
-      "AP": 4462,
-      "AQ": 5400,
-      "AR": 9797,
-      "AS": 14400,
-      "AT": 12416,
-      "AU": 21800,
-      "AV": 13774,
-      "AW": 27900
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 4462,
+      "L": 5400,
+      "M": 9797,
+      "N": 14400,
+      "O": 12416,
+      "P": 21800,
+      "Q": 13774,
+      "R": 27900,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -814,31 +870,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_$K (Family First Records).docx",
         "createdAt": "2026-04-08T03:12:00.027Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 4462,
+      "AS": 5400,
+      "AT": 9797,
+      "AU": 14400,
+      "AV": 12416,
+      "AW": 21800,
+      "AX": 13774,
+      "AY": 27900,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Awakeafterdark",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 8536,
-      "AQ": 10000,
-      "AR": 15811,
-      "AS": 22500,
-      "AT": 19303,
-      "AU": 32200,
-      "AV": 21049,
-      "AW": 39900
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 7682,
-      "BD": 9000,
-      "BE": 14230,
-      "BF": 20250,
-      "BG": 17373,
-      "BH": 28980,
-      "BI": 18944,
-      "BJ": 35910
+      "K": 8536,
+      "L": 10000,
+      "M": 15811,
+      "N": 22500,
+      "O": 19303,
+      "P": 32200,
+      "Q": 21049,
+      "R": 39900,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -871,31 +932,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Awakeafterdark.docx",
         "createdAt": "2026-04-08T03:14:59.894Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 7682,
+      "AS": 9000,
+      "AT": 14230,
+      "AU": 20250,
+      "AV": 17373,
+      "AW": 28980,
+      "AX": 18944,
+      "AY": 35910,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "GENT!",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 15811,
-      "AQ": 18200,
-      "AR": 28324,
-      "AS": 37900,
-      "AT": 34920,
-      "AU": 54400,
-      "AV": 38509,
-      "AW": 68400
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 15811,
+      "L": 18200,
+      "M": 28324,
+      "N": 37900,
+      "O": 34920,
+      "P": 54400,
+      "Q": 38509,
+      "R": 68400,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -921,31 +987,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_GENT!.docx",
         "createdAt": "2026-04-13T16:05:34.917Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 15811,
+      "AS": 18200,
+      "AT": 28324,
+      "AU": 37900,
+      "AV": 34920,
+      "AW": 54400,
+      "AX": 38509,
+      "AY": 68400,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Jungeli",
     "platform": "Universal (masters)",
     "initialQuote": {
-      "AP": 189538,
-      "AQ": 221500,
-      "AR": 438537,
-      "AS": 620100,
-      "AT": 582000,
-      "AU": 973400,
-      "AV": 664741,
-      "AW": 1286800
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 189538,
+      "L": 221500,
+      "M": 438537,
+      "N": 620100,
+      "O": 582000,
+      "P": 973400,
+      "Q": 664741,
+      "R": 1286800,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -971,31 +1042,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Jungeli.docx",
         "createdAt": "2026-04-13T16:11:43.409Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 189538,
+      "AS": 221500,
+      "AT": 438537,
+      "AU": 620100,
+      "AV": 582000,
+      "AW": 973400,
+      "AX": 664741,
+      "AY": 1286800,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Mr.rp10",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 8633,
-      "AQ": 10200,
-      "AR": 18430,
-      "AS": 26000,
-      "AT": 23571,
-      "AU": 39200,
-      "AV": 26384,
-      "AW": 50200
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 7770,
-      "BD": 9180,
-      "BE": 16587,
-      "BF": 23400,
-      "BG": 21214,
-      "BH": 35280,
-      "BI": 23746,
-      "BJ": 45180
+      "K": 8633,
+      "L": 10200,
+      "M": 18430,
+      "N": 26000,
+      "O": 23571,
+      "P": 39200,
+      "Q": 26384,
+      "R": 50200,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -1028,31 +1104,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Mr.rp10.docx",
         "createdAt": "2026-04-13T16:51:37.778Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 7770,
+      "AS": 9180,
+      "AT": 16587,
+      "AU": 23400,
+      "AV": 21214,
+      "AW": 35280,
+      "AX": 23746,
+      "AY": 45180,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Fetch Publishing",
     "platform": "MLC",
     "initialQuote": {
-      "AP": 81092,
-      "AQ": 94400,
-      "AR": 164221,
-      "AS": 228700,
-      "AT": 206028,
-      "AU": 334100,
-      "AV": 226980,
-      "AW": 416800
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 81092,
+      "L": 94400,
+      "M": 164221,
+      "N": 228700,
+      "O": 206028,
+      "P": 334100,
+      "Q": 226980,
+      "R": 416800,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1085,31 +1166,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Fetch Publishing.docx",
         "createdAt": "2026-04-13T16:19:39.700Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 81092,
+      "AS": 94400,
+      "AT": 164221,
+      "AU": 228700,
+      "AV": 206028,
+      "AW": 334100,
+      "AX": 226980,
+      "AY": 416800,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "LeTreez",
     "platform": "SOCAN",
     "initialQuote": {
-      "AP": 18915,
-      "AQ": 21500,
-      "AR": 35890,
-      "AS": 48900,
-      "AT": 44232,
-      "AU": 68800,
-      "AV": 48500,
-      "AW": 84000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 18915,
+      "L": 21500,
+      "M": 35890,
+      "N": 48900,
+      "O": 44232,
+      "P": 68800,
+      "Q": 48500,
+      "R": 84000,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1165,31 +1251,36 @@
       "prTotal": 47240,
       "legalName": "Louis Lépine"
     },
-    "folderPath": "1. RTHM Fund\\3. Deal Materials\\3. Dead\\LeTreez"
+    "folderPath": "1. RTHM Fund\\3. Deal Materials\\3. Dead\\LeTreez",
+    "postFees": {
+      "AR": 18915,
+      "AS": 21500,
+      "AT": 35890,
+      "AU": 48900,
+      "AV": 44232,
+      "AW": 68800,
+      "AX": 48500,
+      "AY": 84000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Fatt Macc",
     "platform": "DistroKid, Organic, Gyro Stream",
     "initialQuote": {
-      "AP": 94090,
-      "AQ": 117000,
-      "AR": 161990,
-      "AS": 239000,
-      "AT": 186240,
-      "AU": 311000,
-      "AV": 199820,
-      "AW": 369000
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 48015,
-      "BD": 59400,
-      "BE": 79443,
-      "BF": 115200,
-      "BG": 89046,
-      "BH": 143100,
-      "BI": 96030,
-      "BJ": 169200
+      "K": 94090,
+      "L": 117000,
+      "M": 161990,
+      "N": 239000,
+      "O": 186240,
+      "P": 311000,
+      "Q": 199820,
+      "R": 369000,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -1215,31 +1306,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Fatt Macc.docx",
         "createdAt": "2026-04-24T20:32:07.568Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 48015,
+      "AS": 59400,
+      "AT": 79443,
+      "AU": 115200,
+      "AV": 89046,
+      "AW": 143100,
+      "AX": 96030,
+      "AY": 169200,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Eclipse Entertainment",
     "platform": "Hapilos Digital, ONErpm",
     "initialQuote": {
-      "AP": 51895,
-      "AQ": 60400,
-      "AR": 98358,
-      "AS": 136500,
-      "AT": 116691,
-      "AU": 184900,
-      "AV": 123966,
-      "AW": 219100
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 51895,
+      "L": 60400,
+      "M": 98358,
+      "N": 136500,
+      "O": 116691,
+      "P": 184900,
+      "Q": 123966,
+      "R": 219100,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -1276,31 +1372,36 @@
       "prAdvance": 87640,
       "prTotal": 130640,
       "legalName": "Tyrique Reid"
-    }
+    },
+    "postFees": {
+      "AR": 51895,
+      "AS": 60400,
+      "AT": 98358,
+      "AU": 136500,
+      "AV": 116691,
+      "AW": 184900,
+      "AX": 123966,
+      "AY": 219100,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Victor Thell",
     "platform": "STIM, Sony Publishing",
     "initialQuote": {
-      "AP": 787756,
-      "AQ": 862000,
-      "AR": 1612315,
-      "AS": 2050150,
-      "AT": 2012440,
-      "AU": 3089300,
-      "AV": 2234405,
-      "AW": 3769950
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 787756,
+      "L": 862000,
+      "M": 1612315,
+      "N": 2050150,
+      "O": 2012440,
+      "P": 3089300,
+      "Q": 2234405,
+      "R": 3769950,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1326,31 +1427,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Victor Thell.docx",
         "createdAt": "2026-05-04T23:54:27.340Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 787756,
+      "AS": 862000,
+      "AT": 1612315,
+      "AU": 2050150,
+      "AV": 2012440,
+      "AW": 3089300,
+      "AX": 2234405,
+      "AY": 3769950,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Ali Gatie",
     "platform": "SOCAN, Warner Chappell",
     "initialQuote": {
-      "AP": 221160,
-      "AQ": 250000,
-      "AR": 487910,
-      "AS": 663000,
-      "AT": 627590,
-      "AU": 1002000,
-      "AV": 706160,
-      "AW": 1305000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 221160,
+      "L": 250000,
+      "M": 487910,
+      "N": 663000,
+      "O": 627590,
+      "P": 1002000,
+      "Q": 706160,
+      "R": 1305000,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Publishing",
@@ -1383,31 +1489,36 @@
         "createdAt": "2026-04-29T14:44:06.511Z"
       }
     ],
-    "b2bPartner": "Earl Jam"
+    "b2bPartner": "Earl Jam",
+    "postFees": {
+      "AR": 221160,
+      "AS": 250000,
+      "AT": 487910,
+      "AU": 663000,
+      "AV": 627590,
+      "AW": 1002000,
+      "AX": 706160,
+      "AY": 1305000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "YourStepDad",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 6790,
-      "AQ": 8000,
-      "AR": 12610,
-      "AS": 17500,
-      "AT": 15132,
-      "AU": 23100,
-      "AV": 16296,
-      "AW": 28500
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 6111,
-      "BD": 7200,
-      "BE": 11349,
-      "BF": 15750,
-      "BG": 13619,
-      "BH": 20790,
-      "BI": 14666,
-      "BJ": 25650
+      "K": 6790,
+      "L": 8000,
+      "M": 12610,
+      "N": 17500,
+      "O": 15132,
+      "P": 23100,
+      "Q": 16296,
+      "R": 28500,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -1440,31 +1551,36 @@
         "createdAt": "2026-04-29T18:53:19.804Z"
       }
     ],
-    "b2bPartner": "Earl Jam"
+    "b2bPartner": "Earl Jam",
+    "postFees": {
+      "AR": 6111,
+      "AS": 7200,
+      "AT": 11349,
+      "AU": 15750,
+      "AV": 13619,
+      "AW": 20790,
+      "AX": 14666,
+      "AY": 25650,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Lomeli",
     "platform": "TuneCore",
     "initialQuote": {
-      "AP": 59946,
-      "AQ": 70000,
-      "AR": 124063,
-      "AS": 171000,
-      "AT": 155200,
-      "AU": 250000,
-      "AV": 171690,
-      "AW": 315000
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 53951,
-      "BD": 63000,
-      "BE": 111657,
-      "BF": 153900,
-      "BG": 139680,
-      "BH": 225000,
-      "BI": 154521,
-      "BJ": 283500
+      "K": 59946,
+      "L": 70000,
+      "M": 124063,
+      "N": 171000,
+      "O": 155200,
+      "P": 250000,
+      "Q": 171690,
+      "R": 315000,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -1519,31 +1635,36 @@
       "prAdvance": 98000,
       "prTotal": 152000,
       "legalName": "Isaac Joseph Lomeli"
-    }
+    },
+    "postFees": {
+      "AR": 53951,
+      "AS": 63000,
+      "AT": 111657,
+      "AU": 153900,
+      "AV": 139680,
+      "AW": 225000,
+      "AX": 154521,
+      "AY": 283500,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Khalil Publishing",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 7760,
-      "AQ": 8900,
-      "AR": 17169,
-      "AS": 23700,
-      "AT": 21825,
-      "AU": 35300,
-      "AV": 24250,
-      "AW": 45000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 7760,
+      "L": 8900,
+      "M": 17169,
+      "N": 23700,
+      "O": 21825,
+      "P": 35300,
+      "Q": 24250,
+      "R": 45000,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Publishing",
@@ -1576,31 +1697,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Khalil Publishing.docx",
         "createdAt": "2026-04-29T14:50:17.686Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 7760,
+      "AS": 8900,
+      "AT": 17169,
+      "AU": 23700,
+      "AV": 21825,
+      "AW": 35300,
+      "AX": 24250,
+      "AY": 45000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "RG",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 4462,
-      "AQ": 5300,
-      "AR": 7760,
-      "AS": 10300,
-      "AT": 8827,
-      "AU": 13000,
-      "AV": 9215,
-      "AW": 14500
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 4016,
-      "BD": 4770,
-      "BE": 6984,
-      "BF": 9270,
-      "BG": 7944,
-      "BH": 11700,
-      "BI": 8294,
-      "BJ": 13050
+      "K": 4462,
+      "L": 5300,
+      "M": 7760,
+      "N": 10300,
+      "O": 8827,
+      "P": 13000,
+      "Q": 9215,
+      "R": 14500,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -1626,31 +1752,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_RG.docx",
         "createdAt": "2026-04-29T15:31:37.692Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 4016,
+      "AS": 4770,
+      "AT": 6984,
+      "AU": 9270,
+      "AV": 7944,
+      "AW": 11700,
+      "AX": 8294,
+      "AY": 13050,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Wallie the Sensei",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 6305,
-      "AQ": 7300,
-      "AR": 12998,
-      "AS": 17900,
-      "AT": 16587,
-      "AU": 27000,
-      "AV": 18818,
-      "AW": 35500
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 6305,
+      "L": 7300,
+      "M": 12998,
+      "N": 17900,
+      "O": 16587,
+      "P": 27000,
+      "Q": 18818,
+      "R": 35500,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1676,31 +1807,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Wallie the Sensei.docx",
         "createdAt": "2026-04-29T15:03:29.080Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 6305,
+      "AS": 7300,
+      "AT": 12998,
+      "AU": 17900,
+      "AV": 16587,
+      "AW": 27000,
+      "AX": 18818,
+      "AY": 35500,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Austin Wake",
     "platform": "DistroKid, Organic",
     "initialQuote": {
-      "AP": 6693,
-      "AQ": 8300,
-      "AR": 11931,
-      "AS": 17100,
-      "AT": 13289,
-      "AU": 20900,
-      "AV": 13580,
-      "AW": 22600
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 2968,
-      "BD": 3690,
-      "BE": 5500,
-      "BF": 7920,
-      "BG": 6198,
-      "BH": 9990,
-      "BI": 6373,
-      "BJ": 10980
+      "K": 6693,
+      "L": 8300,
+      "M": 11931,
+      "N": 17100,
+      "O": 13289,
+      "P": 20900,
+      "Q": 13580,
+      "R": 22600,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -1726,31 +1862,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Austin Wake.docx",
         "createdAt": "2026-04-29T15:30:36.476Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 2968,
+      "AS": 3690,
+      "AT": 5500,
+      "AU": 7920,
+      "AV": 6198,
+      "AW": 9990,
+      "AX": 6373,
+      "AY": 10980,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "4Keus Gang",
     "platform": "Modulor Music",
     "initialQuote": {
-      "AP": 26093,
-      "AQ": 30000,
-      "AR": 53544,
-      "AS": 72700,
-      "AT": 67318,
-      "AU": 106100,
-      "AV": 71780,
-      "AW": 136400
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 26093,
+      "L": 30000,
+      "M": 53544,
+      "N": 72700,
+      "O": 67318,
+      "P": 106100,
+      "Q": 71780,
+      "R": 136400,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -1776,31 +1917,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_4Keus Gang.docx",
         "createdAt": "2026-04-29T15:28:48.660Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 26093,
+      "AS": 30000,
+      "AT": 53544,
+      "AU": 72700,
+      "AV": 67318,
+      "AW": 106100,
+      "AX": 71780,
+      "AY": 136400,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Kasper & Anders",
     "platform": "Empire Pub",
     "initialQuote": {
-      "AP": 12707,
-      "AQ": 15100,
-      "AR": 26481,
-      "AS": 37400,
-      "AT": 33562,
-      "AU": 55500,
-      "AV": 37539,
-      "AW": 71600
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 12707,
+      "L": 15100,
+      "M": 26481,
+      "N": 37400,
+      "O": 33562,
+      "P": 55500,
+      "Q": 37539,
+      "R": 71600,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1826,35 +1972,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Kasper & Anders.docx",
         "createdAt": "2026-04-29T15:25:14.193Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 12707,
+      "AS": 15100,
+      "AT": 26481,
+      "AU": 37400,
+      "AV": 33562,
+      "AW": 55500,
+      "AX": 37539,
+      "AY": 71600,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Bobby Shmurda",
     "platform": "ASCAP and Kobalt",
     "initialQuote": {
-      "AP": 89143,
-      "AQ": 102200,
-      "AR": 211654,
-      "AS": 294500,
-      "AT": 285180,
-      "AU": 472000,
-      "AV": 310400,
-      "AW": 636000,
-      "AX": 385769,
-      "AY": 995385
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 89143,
+      "L": 102200,
+      "M": 211654,
+      "N": 294500,
+      "O": 285180,
+      "P": 472000,
+      "Q": 310400,
+      "R": 636000,
+      "S": 385769,
+      "T": 995385
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1881,42 +2028,35 @@
         "createdAt": "2026-04-29T15:34:02.298Z"
       }
     ],
-    "grossQuote": {
-      "AC": 91900,
-      "AD": 102200,
-      "AE": 218200,
-      "AF": 294500,
-      "AG": 294000,
-      "AH": 472000,
-      "AI": 320000,
-      "AJ": 636000,
-      "AK": 397700,
-      "AL": 995385
-    }
+    "postFees": {
+      "AR": 89143,
+      "AS": 102200,
+      "AT": 211654,
+      "AU": 294500,
+      "AV": 285180,
+      "AW": 472000,
+      "AX": 310400,
+      "AY": 636000,
+      "AZ": 385769,
+      "BA": 995385
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Urban and Lazar",
     "platform": "Kobalt",
     "initialQuote": {
-      "AP": 275480,
-      "AQ": 320000,
-      "AR": 630500,
-      "AS": 889000,
-      "AT": 822560,
-      "AU": 1367000,
-      "AV": 919560,
-      "AW": 1745000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 275480,
+      "L": 320000,
+      "M": 630500,
+      "N": 889000,
+      "O": 822560,
+      "P": 1367000,
+      "Q": 919560,
+      "R": 1745000,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1942,31 +2082,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Urban and Lazar.docx",
         "createdAt": "2026-05-05T17:51:43.332Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 275480,
+      "AS": 320000,
+      "AT": 630500,
+      "AU": 889000,
+      "AV": 822560,
+      "AW": 1367000,
+      "AX": 919560,
+      "AY": 1745000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Archer",
     "platform": "Sony Publishing, BMI",
     "initialQuote": {
-      "AP": 306035,
-      "AQ": 362300,
-      "AR": 679970,
-      "AS": 973900,
-      "AT": 876880,
-      "AU": 1479500,
-      "AV": 983677,
-      "AW": 1904100
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 306035,
+      "L": 362300,
+      "M": 679970,
+      "N": 973900,
+      "O": 876880,
+      "P": 1479500,
+      "Q": 983677,
+      "R": 1904100,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -1992,31 +2137,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Archer.docx",
         "createdAt": "2026-05-05T17:54:27.024Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 306035,
+      "AS": 362300,
+      "AT": 679970,
+      "AU": 973900,
+      "AV": 876880,
+      "AW": 1479500,
+      "AX": 983677,
+      "AY": 1904100,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Hoolibaby Neeno",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 14647,
-      "AQ": 16900,
-      "AR": 27160,
-      "AS": 37000,
-      "AT": 33853,
-      "AU": 53700,
-      "AV": 37345,
-      "AW": 67700
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 13182,
-      "BD": 15210,
-      "BE": 24444,
-      "BF": 33300,
-      "BG": 30468,
-      "BH": 48330,
-      "BI": 33611,
-      "BJ": 60930
+      "K": 14647,
+      "L": 16900,
+      "M": 27160,
+      "N": 37000,
+      "O": 33853,
+      "P": 53700,
+      "Q": 37345,
+      "R": 67700,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2042,31 +2192,36 @@
         "filePath": "/Users/slif/Dropbox/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Hoolibaby Neeno.docx",
         "createdAt": "2026-05-09T00:12:43.703Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 13182,
+      "AS": 15210,
+      "AT": 24444,
+      "AU": 33300,
+      "AV": 30468,
+      "AW": 48330,
+      "AX": 33611,
+      "AY": 60930,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Eric Lee Hudson",
     "platform": "Sound Exchange",
     "initialQuote": {
-      "AP": 6887,
-      "AQ": 8300,
-      "AR": 14065,
-      "AS": 20000,
-      "AT": 17460,
-      "AU": 29000,
-      "AV": 19400,
-      "AW": 37000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 6887,
+      "L": 8300,
+      "M": 14065,
+      "N": 20000,
+      "O": 17460,
+      "P": 29000,
+      "Q": 19400,
+      "R": 37000,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -2122,31 +2277,36 @@
       "prTotal": 21001,
       "legalName": "Eric Lee Hudson"
     },
-    "folderPath": "1. RTHM Fund\\3. Deal Materials\\2. Closed\\Eric Hudson"
+    "folderPath": "1. RTHM Fund\\3. Deal Materials\\2. Closed\\Eric Hudson",
+    "postFees": {
+      "AR": 6887,
+      "AS": 8300,
+      "AT": 14065,
+      "AU": 20000,
+      "AV": 17460,
+      "AW": 29000,
+      "AX": 19400,
+      "AY": 37000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "SJ Made IT",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 4171,
-      "AQ": 5000,
-      "AR": 7372,
-      "AS": 10000,
-      "AT": 8730,
-      "AU": 13300,
-      "AV": 9312,
-      "AW": 15900
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 3754,
-      "BD": 4500,
-      "BE": 6635,
-      "BF": 9000,
-      "BG": 7857,
-      "BH": 11970,
-      "BI": 8381,
-      "BJ": 14310
+      "K": 4171,
+      "L": 5000,
+      "M": 7372,
+      "N": 10000,
+      "O": 8730,
+      "P": 13300,
+      "Q": 9312,
+      "R": 15900,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -2179,31 +2339,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_SJ Made IT.docx",
         "createdAt": "2026-05-14T20:50:46.778Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 3754,
+      "AS": 4500,
+      "AT": 6635,
+      "AU": 9000,
+      "AV": 7857,
+      "AW": 11970,
+      "AX": 8381,
+      "AY": 14310,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "London Jay",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 53641,
-      "AQ": 63700,
-      "AR": 97582,
-      "AS": 135700,
-      "AT": 115430,
-      "AU": 181300,
-      "AV": 122899,
-      "AW": 211300
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 53641,
+      "L": 63700,
+      "M": 97582,
+      "N": 135700,
+      "O": 115430,
+      "P": 181300,
+      "Q": 122899,
+      "R": 211300,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -2229,31 +2394,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_London Jay.docx",
         "createdAt": "2026-05-12T17:40:07.198Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 53641,
+      "AS": 63700,
+      "AT": 97582,
+      "AU": 135700,
+      "AV": 115430,
+      "AW": 181300,
+      "AX": 122899,
+      "AY": 211300,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Gerson Ruffino (EUROS)",
     "platform": "Believe",
     "initialQuote": {
-      "AP": 94672,
-      "AQ": 113200,
-      "AR": 196037,
-      "AS": 279800,
-      "AT": 239105,
-      "AU": 390000,
-      "AV": 257341,
-      "AW": 463200
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 94672,
+      "L": 113200,
+      "M": 196037,
+      "N": 279800,
+      "O": 239105,
+      "P": 390000,
+      "Q": 257341,
+      "R": 463200,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2279,31 +2449,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Gerson Ruffino (EUROS).docx",
         "createdAt": "2026-05-19T17:14:47.287Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 94672,
+      "AS": 113200,
+      "AT": 196037,
+      "AU": 279800,
+      "AV": 239105,
+      "AW": 390000,
+      "AX": 257341,
+      "AY": 463200,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Dwayne White",
     "platform": "UMG, BMI Writer, BMI Publisher",
     "initialQuote": {
-      "AP": 21243,
-      "AQ": 25600,
-      "AR": 45105,
-      "AS": 64900,
-      "AT": 56357,
-      "AU": 94400,
-      "AV": 62371,
-      "AW": 117600
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 21243,
+      "L": 25600,
+      "M": 45105,
+      "N": 64900,
+      "O": 56357,
+      "P": 94400,
+      "Q": 62371,
+      "R": 117600,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Publishing",
@@ -2336,31 +2511,36 @@
         "createdAt": "2026-05-22T01:37:35.066Z"
       }
     ],
-    "b2bPartner": "Earl Jam"
+    "b2bPartner": "Earl Jam",
+    "postFees": {
+      "AR": 21243,
+      "AS": 25600,
+      "AT": 45105,
+      "AU": 64900,
+      "AV": 56357,
+      "AW": 94400,
+      "AX": 62371,
+      "AY": 117600,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Mist (New Energy Ent.)",
     "platform": "Warner Music",
     "initialQuote": {
-      "AP": 28324,
-      "AQ": 33300,
-      "AR": 62856,
-      "AS": 88800,
-      "AT": 80122,
-      "AU": 132500,
-      "AV": 88852,
-      "AW": 166800
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 28324,
+      "L": 33300,
+      "M": 62856,
+      "N": 88800,
+      "O": 80122,
+      "P": 132500,
+      "Q": 88852,
+      "R": 166800,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -2386,31 +2566,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Mist (New Energy Ent.).docx",
         "createdAt": "2026-05-16T00:55:29.932Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 28324,
+      "AS": 33300,
+      "AT": 62856,
+      "AU": 88800,
+      "AV": 80122,
+      "AW": 132500,
+      "AX": 88852,
+      "AY": 166800,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Richie Rozay",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 15908,
-      "AQ": 18700,
-      "AR": 36181,
-      "AS": 51800,
-      "AT": 47724,
-      "AU": 81100,
-      "AV": 54223,
-      "AW": 107000
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 14317,
-      "BD": 16830,
-      "BE": 32563,
-      "BF": 46620,
-      "BG": 42952,
-      "BH": 72990,
-      "BI": 48801,
-      "BJ": 96300
+      "K": 15908,
+      "L": 18700,
+      "M": 36181,
+      "N": 51800,
+      "O": 47724,
+      "P": 81100,
+      "Q": 54223,
+      "R": 107000,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -2458,31 +2643,36 @@
     ],
     "lockedDeal": {
       "transactionId": "RTHM-RPA-35"
-    }
+    },
+    "postFees": {
+      "AR": 14317,
+      "AS": 16830,
+      "AT": 32563,
+      "AU": 46620,
+      "AV": 42952,
+      "AW": 72990,
+      "AX": 48801,
+      "AY": 96300,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 3,
+    "rthmDistroFee": 10
   },
   {
     "name": "Chris Flame",
     "platform": "Sony Pub, ASCAP (Domestic)",
     "initialQuote": {
-      "AP": 11834,
-      "AQ": 14200,
-      "AR": 25123,
-      "AS": 36100,
-      "AT": 31525,
-      "AU": 52500,
-      "AV": 34726,
-      "AW": 65400
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 11834,
+      "L": 14200,
+      "M": 25123,
+      "N": 36100,
+      "O": 31525,
+      "P": 52500,
+      "Q": 34726,
+      "R": 65400,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -2526,31 +2716,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM RPA_Chris Flame.docx",
         "createdAt": "2026-05-20T18:38:18.962Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 11834,
+      "AS": 14200,
+      "AT": 25123,
+      "AU": 36100,
+      "AV": 31525,
+      "AW": 52500,
+      "AX": 34726,
+      "AY": 65400,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Amselcom",
     "platform": "Symphonic, Orchard, Songtrust, Bandcamp",
     "initialQuote": {
-      "AP": 61304,
-      "AQ": 71400,
-      "AR": 132114,
-      "AS": 185700,
-      "AT": 167810,
-      "AU": 275300,
-      "AV": 185561,
-      "AW": 345050
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 61304,
+      "L": 71400,
+      "M": 132114,
+      "N": 185700,
+      "O": 167810,
+      "P": 275300,
+      "Q": 185561,
+      "R": 345050,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2576,31 +2771,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Amselcom.docx",
         "createdAt": "2026-05-22T01:33:10.436Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 61304,
+      "AS": 71400,
+      "AT": 132114,
+      "AU": 185700,
+      "AV": 167810,
+      "AW": 275300,
+      "AX": 185561,
+      "AY": 345050,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Shay Nicole",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 3492,
-      "AQ": 4100,
-      "AR": 6014,
-      "AS": 8700,
-      "AT": 7275,
-      "AU": 12100,
-      "AV": 7760,
-      "AW": 14900
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 3143,
-      "BD": 3690,
-      "BE": 5413,
-      "BF": 7830,
-      "BG": 6548,
-      "BH": 10890,
-      "BI": 6984,
-      "BJ": 13410
+      "K": 3492,
+      "L": 4100,
+      "M": 6014,
+      "N": 8700,
+      "O": 7275,
+      "P": 12100,
+      "Q": 7760,
+      "R": 14900,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2626,31 +2826,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Shay Nicole.docx",
         "createdAt": "2026-05-27T10:44:21.127Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 3143,
+      "AS": 3690,
+      "AT": 5413,
+      "AU": 7830,
+      "AV": 6548,
+      "AW": 10890,
+      "AX": 6984,
+      "AY": 13410,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Ernso Fable (ABV)",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 1358,
-      "AQ": 1700,
-      "AR": 2910,
-      "AS": 4500,
-      "AT": 3880,
-      "AU": 7000,
-      "AV": null,
-      "AW": null
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 1358,
+      "L": 1700,
+      "M": 2910,
+      "N": 4500,
+      "O": 3880,
+      "P": 7000,
+      "Q": null,
+      "R": null,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Publishing",
@@ -2683,31 +2888,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Ernso Fable (ABV).docx",
         "createdAt": "2026-05-22T01:41:58.954Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 1358,
+      "AS": 1700,
+      "AT": 2910,
+      "AU": 4500,
+      "AV": 3880,
+      "AW": 7000,
+      "AX": null,
+      "AY": null,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Courtney Morrison",
     "platform": "Empire",
     "initialQuote": {
-      "AP": 19691,
-      "AQ": 22800,
-      "AR": 41128,
-      "AS": 57000,
-      "AT": 51895,
-      "AU": 84000,
-      "AV": 57327,
-      "AW": 105100
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 19691,
+      "L": 22800,
+      "M": 41128,
+      "N": 57000,
+      "O": 51895,
+      "P": 84000,
+      "Q": 57327,
+      "R": 105100,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -2740,31 +2950,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Courtney Morrison.docx",
         "createdAt": "2026-05-22T01:44:20.574Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 19691,
+      "AS": 22800,
+      "AT": 41128,
+      "AU": 57000,
+      "AV": 51895,
+      "AW": 84000,
+      "AX": 57327,
+      "AY": 105100,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Shaun Milli",
     "platform": "ONErpm, DistroKid",
     "initialQuote": {
-      "AP": 92829,
-      "AQ": 108200,
-      "AR": 171399,
-      "AS": 233050,
-      "AT": 197977,
-      "AU": 301800,
-      "AV": 209035,
-      "AW": 345300
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 960,
-      "BD": 1260,
-      "BE": 1659,
-      "BF": 2205,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 92829,
+      "L": 108200,
+      "M": 171399,
+      "N": 233050,
+      "O": 197977,
+      "P": 301800,
+      "Q": 209035,
+      "R": 345300,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2790,31 +3005,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Shaun Milli.docx",
         "createdAt": "2026-05-27T18:29:20.859Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 960,
+      "AS": 1260,
+      "AT": 1659,
+      "AU": 2205,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Roykeisha Rockette",
     "platform": "BMI, Sony Score",
     "initialQuote": {
-      "AP": 43165,
-      "AQ": 51200,
-      "AR": 94090,
-      "AS": 134100,
-      "AT": 120183,
-      "AU": 200900,
-      "AV": 134539,
-      "AW": 258000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 43165,
+      "L": 51200,
+      "M": 94090,
+      "N": 134100,
+      "O": 120183,
+      "P": 200900,
+      "Q": 134539,
+      "R": 258000,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -2840,31 +3060,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Roykeisha Rockette.docx",
         "createdAt": "2026-05-29T03:09:36.945Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 43165,
+      "AS": 51200,
+      "AT": 94090,
+      "AU": 134100,
+      "AV": 120183,
+      "AW": 200900,
+      "AX": 134539,
+      "AY": 258000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "22gfay",
     "platform": "Foundation Media",
     "initialQuote": {
-      "AP": 44038,
-      "AQ": 51455,
-      "AR": 90113,
-      "AS": 125700,
-      "AT": 112520,
-      "AU": 182100,
-      "AV": 123772,
-      "AW": 226000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 44038,
+      "L": 51455,
+      "M": 90113,
+      "N": 125700,
+      "O": 112520,
+      "P": 182100,
+      "Q": 123772,
+      "R": 226000,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2890,31 +3115,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_22gfay.docx",
         "createdAt": "2026-05-27T18:40:27.720Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 44038,
+      "AS": 51455,
+      "AT": 90113,
+      "AU": 125700,
+      "AV": 112520,
+      "AW": 182100,
+      "AX": 123772,
+      "AY": 226000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Lil Candy Paint",
     "platform": "DistroKid",
     "initialQuote": {
-      "AP": 2619,
-      "AQ": 3100,
-      "AR": 3686,
-      "AS": 4700,
-      "AT": null,
-      "AU": null,
-      "AV": null,
-      "AW": null
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 2357,
-      "BD": 2790,
-      "BE": 3317,
-      "BF": 4230,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 2619,
+      "L": 3100,
+      "M": 3686,
+      "N": 4700,
+      "O": null,
+      "P": null,
+      "Q": null,
+      "R": null,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2940,35 +3170,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lil Candy Paint.docx",
         "createdAt": "2026-05-27T18:42:24.014Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 2357,
+      "AS": 2790,
+      "AT": 3317,
+      "AU": 4230,
+      "AV": null,
+      "AW": null,
+      "AX": null,
+      "AY": null,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Lambo4oe",
     "platform": "APG",
     "initialQuote": {
-      "AP": 32980,
-      "AQ": 38400,
-      "AR": 67027,
-      "AS": 92800,
-      "AT": 81286,
-      "AU": 128500,
-      "AV": 88173,
-      "AW": 155600,
-      "AX": 98824,
-      "AY": 200600
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 32980,
+      "L": 38400,
+      "M": 67027,
+      "N": 92800,
+      "O": 81286,
+      "P": 128500,
+      "Q": 88173,
+      "R": 155600,
+      "S": 98824,
+      "T": 200600
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -2995,42 +3226,35 @@
         "createdAt": "2026-05-28T04:54:30.445Z"
       }
     ],
-    "grossQuote": {
-      "AC": 34000,
-      "AD": 38400,
-      "AE": 69100,
-      "AF": 92800,
-      "AG": 83800,
-      "AH": 128500,
-      "AI": 90900,
-      "AJ": 155600,
-      "AK": 101880,
-      "AL": 200600
-    }
+    "postFees": {
+      "AR": 32980,
+      "AS": 38400,
+      "AT": 67027,
+      "AU": 92800,
+      "AV": 81286,
+      "AW": 128500,
+      "AX": 88173,
+      "AY": 155600,
+      "AZ": 98824,
+      "BA": 200600
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Starz Lil D",
     "platform": "Empire",
     "initialQuote": {
-      "AP": 3298,
-      "AQ": 3900,
-      "AR": 4850,
-      "AS": 6100,
-      "AT": 5044,
-      "AU": 6800,
-      "AV": null,
-      "AW": null
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 3298,
+      "L": 3900,
+      "M": 4850,
+      "N": 6100,
+      "O": 5044,
+      "P": 6800,
+      "Q": null,
+      "R": null,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -3063,31 +3287,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Starz Lil D.docx",
         "createdAt": "2026-05-27T18:46:38.127Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 3298,
+      "AS": 3900,
+      "AT": 4850,
+      "AU": 6100,
+      "AV": 5044,
+      "AW": 6800,
+      "AX": null,
+      "AY": null,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Heavyweight Hank",
     "platform": "Empire",
     "initialQuote": {
-      "AP": 5820,
-      "AQ": 6800,
-      "AR": 11737,
-      "AS": 16400,
-      "AT": 14065,
-      "AU": 22200,
-      "AV": 15035,
-      "AW": 26000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 5820,
+      "L": 6800,
+      "M": 11737,
+      "N": 16400,
+      "O": 14065,
+      "P": 22200,
+      "Q": 15035,
+      "R": 26000,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -3113,35 +3342,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Heavyweight Hank.docx",
         "createdAt": "2026-05-27T19:53:27.792Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 5820,
+      "AS": 6800,
+      "AT": 11737,
+      "AU": 16400,
+      "AV": 14065,
+      "AW": 22200,
+      "AX": 15035,
+      "AY": 26000,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Eric Hudson",
     "platform": "BMG",
     "initialQuote": {
-      "AP": 100298,
-      "AQ": 117700,
-      "AR": 189441,
-      "AS": 262000,
-      "AT": 233285,
-      "AU": 374000,
-      "AV": 257244,
-      "AW": 470000,
-      "AX": 291679,
-      "AY": 652000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 100298,
+      "L": 117700,
+      "M": 189441,
+      "N": 262000,
+      "O": 233285,
+      "P": 374000,
+      "Q": 257244,
+      "R": 470000,
+      "S": 291679,
+      "T": 652000
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -3198,42 +3428,35 @@
       "prTotal": 275000,
       "legalName": "Eric Lee Hudson"
     },
-    "grossQuote": {
-      "AC": 103400,
-      "AD": 117700,
-      "AE": 195300,
-      "AF": 262000,
-      "AG": 240500,
-      "AH": 374000,
-      "AI": 265200,
-      "AJ": 470000,
-      "AK": 300700,
-      "AL": 652000
-    }
+    "postFees": {
+      "AR": 100298,
+      "AS": 117700,
+      "AT": 189441,
+      "AU": 262000,
+      "AV": 233285,
+      "AW": 374000,
+      "AX": 257244,
+      "AY": 470000,
+      "AZ": 291679,
+      "BA": 652000
+    },
+    "adminFee": 3,
+    "rthmDistroFee": 0
   },
   {
     "name": "GT Digital",
     "platform": "Ingrooves",
     "initialQuote": {
-      "AP": 66930,
-      "AQ": 78300,
-      "AR": 136964,
-      "AS": 190800,
-      "AT": 170914,
-      "AU": 276400,
-      "AV": 187889,
-      "AW": 343800
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 66930,
+      "L": 78300,
+      "M": 136964,
+      "N": 190800,
+      "O": 170914,
+      "P": 276400,
+      "Q": 187889,
+      "R": 343800,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -3259,31 +3482,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_GT Digital.docx",
         "createdAt": "2026-06-02T01:14:21.049Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 66930,
+      "AS": 78300,
+      "AT": 136964,
+      "AU": 190800,
+      "AV": 170914,
+      "AW": 276400,
+      "AX": 187889,
+      "AY": 343800,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Landstrip Chip",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 7566,
-      "AQ": 9200,
-      "AR": 16102,
-      "AS": 23300,
-      "AT": 19982,
-      "AU": 33300,
-      "AV": 21728,
-      "AW": 40400
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null
+      "K": 7566,
+      "L": 9200,
+      "M": 16102,
+      "N": 23300,
+      "O": 19982,
+      "P": 33300,
+      "Q": 21728,
+      "R": 40400,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -3309,35 +3537,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Landstrip Chip.docx",
         "createdAt": "2026-06-05T16:34:23.937Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 7566,
+      "AS": 9200,
+      "AT": 16102,
+      "AU": 23300,
+      "AV": 19982,
+      "AW": 33300,
+      "AX": 21728,
+      "AY": 40400,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Lambo4oe",
     "platform": "APG",
     "initialQuote": {
-      "AP": null,
-      "AQ": null,
-      "AR": null,
-      "AS": null,
-      "AT": null,
-      "AU": null,
-      "AV": null,
-      "AW": null,
-      "AX": null,
-      "AY": null
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 34000,
+      "L": 38400,
+      "M": 69100,
+      "N": 92800,
+      "O": 83800,
+      "P": 128500,
+      "Q": 90900,
+      "R": 155600,
+      "S": 101880,
+      "T": 200600
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -3365,46 +3594,35 @@
         "createdAt": "2026-06-02T22:17:01.045Z"
       }
     ],
-    "grossQuote": {
-      "AC": 34000,
-      "AD": 38400,
-      "AE": 69100,
-      "AF": 92800,
-      "AG": 83800,
-      "AH": 128500,
-      "AI": 90900,
-      "AJ": 155600,
-      "AK": 101880,
-      "AL": 200600
-    }
+    "postFees": {
+      "AR": 34000,
+      "AS": 38400,
+      "AT": 69100,
+      "AU": 92800,
+      "AV": 83800,
+      "AW": 128500,
+      "AX": 90900,
+      "AY": 155600,
+      "AZ": 101880,
+      "BA": 200600
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Thraxx",
     "platform": "BMI",
     "initialQuote": {
-      "AP": 4171,
-      "AQ": 5100,
-      "AR": 8827,
-      "AS": 12900,
-      "AT": 11349,
-      "AU": 19500,
-      "AV": 12707,
-      "AW": 25100,
-      "AX": 15995,
-      "AY": 37000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 4171,
+      "L": 5100,
+      "M": 8827,
+      "N": 12900,
+      "O": 11349,
+      "P": 19500,
+      "Q": 12707,
+      "R": 25100,
+      "S": 15995,
+      "T": 37000
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -3432,46 +3650,35 @@
         "createdAt": "2026-06-02T22:17:42.344Z"
       }
     ],
-    "grossQuote": {
-      "AC": 4300,
-      "AD": 5100,
-      "AE": 9100,
-      "AF": 12900,
-      "AG": 11700,
-      "AH": 19500,
-      "AI": 13100,
-      "AJ": 25100,
-      "AK": 16490,
-      "AL": 37000
-    }
+    "postFees": {
+      "AR": 4171,
+      "AS": 5100,
+      "AT": 8827,
+      "AU": 12900,
+      "AV": 11349,
+      "AW": 19500,
+      "AX": 12707,
+      "AY": 25100,
+      "AZ": 15995,
+      "BA": 37000
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Super Miles",
     "platform": "Concord, BMI",
     "initialQuote": {
-      "AP": 12901,
-      "AQ": 14900,
-      "AR": 25899,
-      "AS": 35350,
-      "AT": 31913,
-      "AU": 50400,
-      "AV": 35017,
-      "AW": 61900,
-      "AX": 38800,
-      "AY": 81000
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 12901,
+      "L": 14900,
+      "M": 25899,
+      "N": 35350,
+      "O": 31913,
+      "P": 50400,
+      "Q": 35017,
+      "R": 61900,
+      "S": 38800,
+      "T": 81000
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -3499,58 +3706,35 @@
         "createdAt": "2026-06-04T00:09:56.778Z"
       }
     ],
-    "grossQuote": {
-      "AC": 13300,
-      "AD": 14900,
-      "AE": 26700,
-      "AF": 35350,
-      "AG": 32900,
-      "AH": 50400,
-      "AI": 36100,
-      "AJ": 61900,
-      "AK": 40000,
-      "AL": 81000
-    }
+    "postFees": {
+      "AR": 12901,
+      "AS": 14900,
+      "AT": 25899,
+      "AU": 35350,
+      "AV": 31913,
+      "AW": 50400,
+      "AX": 35017,
+      "AY": 61900,
+      "AZ": 38800,
+      "BA": 81000
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Landstrip Chip",
     "platform": "BMI",
-    "grossQuote": {
-      "AC": 7800,
-      "AD": 9200,
-      "AE": 16600,
-      "AF": 23300,
-      "AG": 20600,
-      "AH": 33300,
-      "AI": 22400,
-      "AJ": 40400,
-      "AK": null,
-      "AL": null
-    },
     "initialQuote": {
-      "AP": 7566,
-      "AQ": 9200,
-      "AR": 16102,
-      "AS": 23300,
-      "AT": 19982,
-      "AU": 33300,
-      "AV": 21728,
-      "AW": 40400,
-      "AX": null,
-      "AY": null
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 7566,
+      "L": 9200,
+      "M": 16102,
+      "N": 23300,
+      "O": 19982,
+      "P": 33300,
+      "Q": 21728,
+      "R": 40400,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Publishing",
@@ -3619,47 +3803,36 @@
       "prTotal": 17980,
       "legalName": "Jordan Holt-May ",
       "transactionId": "RTHM-RPA-34"
-    }
+    },
+    "postFees": {
+      "AR": 7566,
+      "AS": 9200,
+      "AT": 16102,
+      "AU": 23300,
+      "AV": 19982,
+      "AW": 33300,
+      "AX": 21728,
+      "AY": 40400,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Yung Dee",
     "platform": "BMI",
-    "grossQuote": {
-      "AC": 13600,
-      "AD": 15700,
-      "AE": 28700,
-      "AF": 39400,
-      "AG": 36300,
-      "AH": 57900,
-      "AI": 40300,
-      "AJ": 73600,
-      "AK": null,
-      "AL": null
-    },
     "initialQuote": {
-      "AP": 13192,
-      "AQ": 15229,
-      "AR": 27839,
-      "AS": 38218,
-      "AT": 35211,
-      "AU": 56163,
-      "AV": 39091,
-      "AW": 71392,
-      "AX": null,
-      "AY": null
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 13192,
+      "L": 15229,
+      "M": 27839,
+      "N": 38218,
+      "O": 35211,
+      "P": 56163,
+      "Q": 39091,
+      "R": 71392,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -3685,47 +3858,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Yung Dee.docx",
         "createdAt": "2026-06-10T20:57:18.488Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 13192,
+      "AS": 15229,
+      "AT": 27839,
+      "AU": 38218,
+      "AV": 35211,
+      "AW": 56163,
+      "AX": 39091,
+      "AY": 71392,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Jay Lewis",
     "platform": "Create",
-    "grossQuote": {
-      "AC": 20800,
-      "AD": 23500,
-      "AE": 40200,
-      "AF": 53800,
-      "AG": 49800,
-      "AH": 77400,
-      "AI": 54700,
-      "AJ": 96000,
-      "AK": 63050,
-      "AL": 126800
-    },
     "initialQuote": {
-      "AP": 20176,
-      "AQ": 22795,
-      "AR": 38994,
-      "AS": 52186,
-      "AT": 48306,
-      "AU": 75078,
-      "AV": 53059,
-      "AW": 93120,
-      "AX": 61159,
-      "AY": 122996
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 20176,
+      "L": 22795,
+      "M": 38994,
+      "N": 52186,
+      "O": 48306,
+      "P": 75078,
+      "Q": 53059,
+      "R": 93120,
+      "S": 61159,
+      "T": 122996
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -3770,47 +3932,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM RPA_Jay Lewis.docx",
         "createdAt": "2026-06-11T22:19:14.432Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 20176,
+      "AS": 22795,
+      "AT": 38994,
+      "AU": 52186,
+      "AV": 48306,
+      "AW": 75078,
+      "AX": 53059,
+      "AY": 93120,
+      "AZ": 61159,
+      "BA": 122996
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "AJ McQueen",
     "platform": "United Masters",
-    "grossQuote": {
-      "AC": 39000,
-      "AD": 44500,
-      "AE": 73000,
-      "AF": 98000,
-      "AG": 86000,
-      "AH": 135000,
-      "AI": 93000,
-      "AJ": 162000,
-      "AK": 100395,
-      "AL": 200000
-    },
     "initialQuote": {
-      "AP": 37830,
-      "AQ": 43165,
-      "AR": 70810,
-      "AS": 95060,
-      "AT": 83420,
-      "AU": 130950,
-      "AV": 90210,
-      "AW": 157140,
-      "AX": 97383,
-      "AY": 194000
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 34047,
-      "BD": 38849,
-      "BE": 63729,
-      "BF": 85554,
-      "BG": 75078,
-      "BH": 117855,
-      "BI": 81189,
-      "BJ": 141426,
-      "BK": 87645,
-      "BL": 174600
+      "K": 37830,
+      "L": 43165,
+      "M": 70810,
+      "N": 95060,
+      "O": 83420,
+      "P": 130950,
+      "Q": 90210,
+      "R": 157140,
+      "S": 97383,
+      "T": 194000
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -3886,47 +4037,36 @@
       "prTotal": 94504,
       "legalName": "Albert Jermain McQueen",
       "transactionId": "RTHM-RPA-33"
-    }
+    },
+    "postFees": {
+      "AR": 34047,
+      "AS": 38849,
+      "AT": 63729,
+      "AU": 85554,
+      "AV": 75078,
+      "AW": 117855,
+      "AX": 81189,
+      "AY": 141426,
+      "AZ": 87645,
+      "BA": 174600
+    },
+    "adminFee": 3,
+    "rthmDistroFee": 10
   },
   {
     "name": "Eddie Palmeri (Full)",
     "platform": "BMI, BMG, SX, Concord",
-    "grossQuote": {
-      "AC": 43200,
-      "AD": 49400,
-      "AE": 100100,
-      "AF": 139600,
-      "AG": 132700,
-      "AH": 220300,
-      "AI": 151600,
-      "AJ": 293700,
-      "AK": 180420,
-      "AL": 451532
-    },
     "initialQuote": {
-      "AP": 41904,
-      "AQ": 47918,
-      "AR": 97097,
-      "AS": 135412,
-      "AT": 128719,
-      "AU": 213691,
-      "AV": 147052,
-      "AW": 284889,
-      "AX": 175007,
-      "AY": 437986
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 41904,
+      "L": 47918,
+      "M": 97097,
+      "N": 135412,
+      "O": 128719,
+      "P": 213691,
+      "Q": 147052,
+      "R": 284889,
+      "S": 175007,
+      "T": 437986
     },
     "dealType": "B2B",
     "royaltyType": "Both",
@@ -3960,47 +4100,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_Eddie Palmeri (Full).docx",
         "createdAt": "2026-07-01T16:51:34.461Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 41904,
+      "AS": 47918,
+      "AT": 97097,
+      "AU": 135412,
+      "AV": 128719,
+      "AW": 213691,
+      "AX": 147052,
+      "AY": 284889,
+      "AZ": 175007,
+      "BA": 437986
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "2Rare",
     "platform": "DistroKid",
-    "grossQuote": {
-      "AC": 5900,
-      "AD": 6800,
-      "AE": 11200,
-      "AF": 15000,
-      "AG": 13300,
-      "AH": 20100,
-      "AI": 14200,
-      "AJ": 23300,
-      "AK": 0,
-      "AL": 0
-    },
     "initialQuote": {
-      "AP": 5723,
-      "AQ": 6596,
-      "AR": 10864,
-      "AS": 14550,
-      "AT": 12901,
-      "AU": 19497,
-      "AV": 13774,
-      "AW": 22601,
-      "AX": null,
-      "AY": null
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 5151,
-      "BD": 5936,
-      "BE": 9778,
-      "BF": 13095,
-      "BG": 11611,
-      "BH": 17547,
-      "BI": 12397,
-      "BJ": 20341,
-      "BK": null,
-      "BL": null
+      "K": 5723,
+      "L": 6596,
+      "M": 10864,
+      "N": 14550,
+      "O": 12901,
+      "P": 19497,
+      "Q": 13774,
+      "R": 22601,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -4027,47 +4156,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_2Rare.docx",
         "createdAt": "2026-07-01T17:28:30.010Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 5151,
+      "AS": 5936,
+      "AT": 9778,
+      "AU": 13095,
+      "AV": 11611,
+      "AW": 17547,
+      "AX": 12397,
+      "AY": 20341,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Igor Mamet",
     "platform": "BMI, Downtown, WMG",
-    "grossQuote": {
-      "AC": 41400,
-      "AD": 47800,
-      "AE": 83900,
-      "AF": 114800,
-      "AG": 103600,
-      "AH": 163700,
-      "AI": 114200,
-      "AJ": 205100,
-      "AK": 126000,
-      "AL": 290000
-    },
     "initialQuote": {
-      "AP": 40158,
-      "AQ": 46366,
-      "AR": 81383,
-      "AS": 111356,
-      "AT": 100492,
-      "AU": 158789,
-      "AV": 110774,
-      "AW": 198947,
-      "AX": 122220,
-      "AY": 281300
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 40158,
+      "L": 46366,
+      "M": 81383,
+      "N": 111356,
+      "O": 100492,
+      "P": 158789,
+      "Q": 110774,
+      "R": 198947,
+      "S": 122220,
+      "T": 281300
     },
     "dealType": "Individual",
     "royaltyType": "Both",
@@ -4094,47 +4212,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_Igor Mamet.docx",
         "createdAt": "2026-07-01T17:32:20.692Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 40158,
+      "AS": 46366,
+      "AT": 81383,
+      "AU": 111356,
+      "AV": 100492,
+      "AW": 158789,
+      "AX": 110774,
+      "AY": 198947,
+      "AZ": 122220,
+      "BA": 281300
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "BPG Records",
     "platform": "Sony Masters",
-    "grossQuote": {
-      "AC": 250000,
-      "AD": 282000,
-      "AE": 510000,
-      "AF": 685000,
-      "AG": 628000,
-      "AH": 969000,
-      "AI": 688000,
-      "AJ": 1196000,
-      "AK": 737000,
-      "AL": 1595000
-    },
     "initialQuote": {
-      "AP": 242500,
-      "AQ": 273540,
-      "AR": 494700,
-      "AS": 664450,
-      "AT": 609160,
-      "AU": 939930,
-      "AV": 667360,
-      "AW": 1160120,
-      "AX": 714890,
-      "AY": 1547150
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 242500,
+      "L": 273540,
+      "M": 494700,
+      "N": 664450,
+      "O": 609160,
+      "P": 939930,
+      "Q": 667360,
+      "R": 1160120,
+      "S": 714890,
+      "T": 1547150
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -4161,47 +4268,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM Deal Sheet_BPG Records.docx",
         "createdAt": "2026-07-01T17:41:36.035Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 242500,
+      "AS": 273540,
+      "AT": 494700,
+      "AU": 664450,
+      "AV": 609160,
+      "AW": 939930,
+      "AX": 667360,
+      "AY": 1160120,
+      "AZ": 714890,
+      "BA": 1547150
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Cicero",
     "platform": "Sony Pub",
-    "grossQuote": {
-      "AC": 26000,
-      "AD": 28500,
-      "AE": 53500,
-      "AF": 70000,
-      "AG": 67000,
-      "AH": 100500,
-      "AI": 73500,
-      "AJ": 125500,
-      "AK": 77500,
-      "AL": 170000
-    },
     "initialQuote": {
-      "AP": 25220,
-      "AQ": 27645,
-      "AR": 51895,
-      "AS": 67900,
-      "AT": 64990,
-      "AU": 97485,
-      "AV": 71295,
-      "AW": 121735,
-      "AX": 75175,
-      "AY": 164900
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 25220,
+      "L": 27645,
+      "M": 51895,
+      "N": 67900,
+      "O": 64990,
+      "P": 97485,
+      "Q": 71295,
+      "R": 121735,
+      "S": 75175,
+      "T": 164900
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -4228,47 +4324,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Cicero.docx",
         "createdAt": "2026-07-11T18:06:23.297Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 25220,
+      "AS": 27645,
+      "AT": 51895,
+      "AU": 67900,
+      "AV": 64990,
+      "AW": 97485,
+      "AX": 71295,
+      "AY": 121735,
+      "AZ": 75175,
+      "BA": 164900
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Ian Lewis pka Shife Karbeen",
     "platform": "Warner",
-    "grossQuote": {
-      "AC": 29000,
-      "AD": 33000,
-      "AE": 61500,
-      "AF": 82000,
-      "AG": 77500,
-      "AH": 121000,
-      "AI": 86500,
-      "AJ": 154000,
-      "AK": 95000,
-      "AL": 221000
-    },
     "initialQuote": {
-      "AP": 28130,
-      "AQ": 32010,
-      "AR": 59655,
-      "AS": 79540,
-      "AT": 75175,
-      "AU": 117370,
-      "AV": 83905,
-      "AW": 149380,
-      "AX": 92150,
-      "AY": 214370
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 28130,
+      "L": 32010,
+      "M": 59655,
+      "N": 79540,
+      "O": 75175,
+      "P": 117370,
+      "Q": 83905,
+      "R": 149380,
+      "S": 92150,
+      "T": 214370
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -4295,47 +4380,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Ian Lewis pka Shife Karbeen.docx",
         "createdAt": "2026-07-11T17:59:57.069Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 28130,
+      "AS": 32010,
+      "AT": 59655,
+      "AU": 79540,
+      "AV": 75175,
+      "AW": 117370,
+      "AX": 83905,
+      "AY": 149380,
+      "AZ": 92150,
+      "BA": 214370
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Mik",
     "platform": "DistroKid",
-    "grossQuote": {
-      "AC": 7300,
-      "AD": 8500,
-      "AE": 14500,
-      "AF": 20000,
-      "AG": 18000,
-      "AH": 28500,
-      "AI": 20000,
-      "AJ": 35500,
-      "AK": null,
-      "AL": null
-    },
     "initialQuote": {
-      "AP": 7081,
-      "AQ": 8245,
-      "AR": 14065,
-      "AS": 19400,
-      "AT": 17460,
-      "AU": 27645,
-      "AV": 19400,
-      "AW": 34435,
-      "AX": null,
-      "AY": null
-    },
-    "percent": 87,
-    "variableQuote": {
-      "BC": 6160,
-      "BD": 7173,
-      "BE": 12237,
-      "BF": 16878,
-      "BG": 15190,
-      "BH": 24051,
-      "BI": 16878,
-      "BJ": 29958,
-      "BK": null,
-      "BL": null
+      "K": 7081,
+      "L": 8245,
+      "M": 14065,
+      "N": 19400,
+      "O": 17460,
+      "P": 27645,
+      "Q": 19400,
+      "R": 34435,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -4361,47 +4435,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Mik.docx",
         "createdAt": "2026-07-11T17:56:08.044Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 6160,
+      "AS": 7173,
+      "AT": 12237,
+      "AU": 16878,
+      "AV": 15190,
+      "AW": 24051,
+      "AX": 16878,
+      "AY": 29958,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Edrick Miles",
     "platform": "BMI",
-    "grossQuote": {
-      "AC": 5000,
-      "AD": 5700,
-      "AE": 11000,
-      "AF": 16000,
-      "AG": 14500,
-      "AH": 24500,
-      "AI": 16500,
-      "AJ": 31500,
-      "AK": 18000,
-      "AL": 45000
-    },
     "initialQuote": {
-      "AP": 4850,
-      "AQ": 5529,
-      "AR": 10670,
-      "AS": 15520,
-      "AT": 14065,
-      "AU": 23765,
-      "AV": 16005,
-      "AW": 30555,
-      "AX": 17460,
-      "AY": 43650
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 4850,
+      "L": 5529,
+      "M": 10670,
+      "N": 15520,
+      "O": 14065,
+      "P": 23765,
+      "Q": 16005,
+      "R": 30555,
+      "S": 17460,
+      "T": 43650
     },
     "dealType": "B2B",
     "royaltyType": "Publishing",
@@ -4435,121 +4498,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_Edrick Miles.docx",
         "createdAt": "2026-07-16T15:52:16.067Z"
       }
-    ]
-  },
-  {
-    "name": "Sofiya Nzau",
-    "platform": "Sony Music",
-    "grossQuote": {
-      "AC": 30000,
-      "AD": 33000,
-      "AE": 64000,
-      "AF": 84000,
-      "AG": 82000,
-      "AH": 126000,
-      "AI": 92000,
-      "AJ": 162000,
-      "AK": 98500,
-      "AL": 238500
+    ],
+    "postFees": {
+      "AR": 4850,
+      "AS": 5529,
+      "AT": 10670,
+      "AU": 15520,
+      "AV": 14065,
+      "AW": 23765,
+      "AX": 16005,
+      "AY": 30555,
+      "AZ": 17460,
+      "BA": 43650
     },
-    "initialQuote": {
-      "AP": 29100,
-      "AQ": 32010,
-      "AR": 62080,
-      "AS": 81480,
-      "AT": 79540,
-      "AU": 122220,
-      "AV": 89240,
-      "AW": 157140,
-      "AX": 95545,
-      "AY": 231345
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
-    },
-    "dealType": "B2B",
-    "royaltyType": "Distribution",
-    "commission": "4",
-    "mondayItemId": "12481019604",
-    "mondayBoardId": 18397562279,
-    "importedAt": "2026-07-08T17:48:14.460Z",
-    "valuationState": {
-      "rates": {
-        "12 months": "81.82",
-        "36 months": "68.57",
-        "60 months": "58.57",
-        "84 months": "51.11",
-        "144 months": "37.17"
-      },
-      "commission": 4,
-      "b2bMarginRate": 5,
-      "recoupLocked": true
-    },
-    "b2bPartner": "Skyline",
-    "agreements": [
-      {
-        "type": "Deal Sheet",
-        "fileName": "RTHM Deal Sheet_Sofiya Nzau.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Sofiya Nzau.docx",
-        "createdAt": "2026-07-20T19:12:42.633Z"
-      },
-      {
-        "type": "Skyline Deal Sheet",
-        "fileName": "Skyline Deal Sheet_Sofiya Nzau.docx",
-        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Skyline Deal Sheet_Sofiya Nzau.docx",
-        "createdAt": "2026-07-20T19:12:42.633Z"
-      }
-    ]
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Courtney Morrison",
     "platform": "Empire",
-    "grossQuote": {
-      "AC": 20300,
-      "AD": 22800,
-      "AE": 42400,
-      "AF": 57000,
-      "AG": 53500,
-      "AH": 84000,
-      "AI": 59100,
-      "AJ": 105100,
-      "AK": null,
-      "AL": null
-    },
     "initialQuote": {
-      "AP": 19691,
-      "AQ": 22116,
-      "AR": 41128,
-      "AS": 55290,
-      "AT": 51895,
-      "AU": 81480,
-      "AV": 57327,
-      "AW": 101947,
-      "AX": null,
-      "AY": null
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 19691,
+      "L": 22116,
+      "M": 41128,
+      "N": 55290,
+      "O": 51895,
+      "P": 81480,
+      "Q": 57327,
+      "R": 101947,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -4588,47 +4566,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\Earl Jam Deal Sheet_Courtney Morrison.docx",
         "createdAt": "2026-07-09T00:30:49.917Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 19691,
+      "AS": 22116,
+      "AT": 41128,
+      "AU": 55290,
+      "AV": 51895,
+      "AW": 81480,
+      "AX": 57327,
+      "AY": 101947,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Cjota",
     "platform": "ONErpm",
-    "grossQuote": {
-      "AC": 65000,
-      "AD": 74000,
-      "AE": 121000,
-      "AF": 160500,
-      "AG": 142500,
-      "AH": 212500,
-      "AI": 151000,
-      "AJ": 244500,
-      "AK": 155000,
-      "AL": 281000
-    },
     "initialQuote": {
-      "AP": 63050,
-      "AQ": 71780,
-      "AR": 117370,
-      "AS": 155685,
-      "AT": 138225,
-      "AU": 206125,
-      "AV": 146470,
-      "AW": 237165,
-      "AX": 150350,
-      "AY": 272570
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 63050,
+      "L": 71780,
+      "M": 117370,
+      "N": 155685,
+      "O": 138225,
+      "P": 206125,
+      "Q": 146470,
+      "R": 237165,
+      "S": 150350,
+      "T": 272570
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -4655,47 +4622,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Cjota.docx",
         "createdAt": "2026-07-11T17:47:14.214Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 63050,
+      "AS": 71780,
+      "AT": 117370,
+      "AU": 155685,
+      "AV": 138225,
+      "AW": 206125,
+      "AX": 146470,
+      "AY": 237165,
+      "AZ": 150350,
+      "BA": 272570
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Paco Panama",
     "platform": "CodeSwitch",
-    "grossQuote": {
-      "AC": 15700,
-      "AD": 17700,
-      "AE": 29700,
-      "AF": 39500,
-      "AG": 36300,
-      "AH": 55700,
-      "AI": 39500,
-      "AJ": 68500,
-      "AK": 42500,
-      "AL": 89500
-    },
     "initialQuote": {
-      "AP": 15229,
-      "AQ": 17169,
-      "AR": 28809,
-      "AS": 38315,
-      "AT": 35211,
-      "AU": 54029,
-      "AV": 38315,
-      "AW": 66445,
-      "AX": 41225,
-      "AY": 86815
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 15229,
+      "L": 17169,
+      "M": 28809,
+      "N": 38315,
+      "O": 35211,
+      "P": 54029,
+      "Q": 38315,
+      "R": 66445,
+      "S": 41225,
+      "T": 86815
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -4744,47 +4700,36 @@
     ],
     "lockedDeal": {
       "transactionId": "RTHM-RPA-36"
-    }
+    },
+    "postFees": {
+      "AR": 15229,
+      "AS": 17169,
+      "AT": 28809,
+      "AU": 38315,
+      "AV": 35211,
+      "AW": 54029,
+      "AX": 38315,
+      "AY": 66445,
+      "AZ": 41225,
+      "BA": 86815
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Yung Nation",
     "platform": "TuneCore",
-    "grossQuote": {
-      "AC": 5100,
-      "AD": 5800,
-      "AE": 11200,
-      "AF": 15500,
-      "AG": 14300,
-      "AH": 23100,
-      "AI": 15900,
-      "AJ": 29100,
-      "AK": null,
-      "AL": null
-    },
     "initialQuote": {
-      "AP": 4947,
-      "AQ": 5626,
-      "AR": 10864,
-      "AS": 15035,
-      "AT": 13871,
-      "AU": 22407,
-      "AV": 15423,
-      "AW": 28227,
-      "AX": null,
-      "AY": null
-    },
-    "percent": 87,
-    "variableQuote": {
-      "BC": 4304,
-      "BD": 4895,
-      "BE": 9452,
-      "BF": 13080,
-      "BG": 12068,
-      "BH": 19494,
-      "BI": 13418,
-      "BJ": 24557,
-      "BK": null,
-      "BL": null
+      "K": 4947,
+      "L": 5626,
+      "M": 10864,
+      "N": 15035,
+      "O": 13871,
+      "P": 22407,
+      "Q": 15423,
+      "R": 28227,
+      "S": null,
+      "T": null
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
@@ -4818,47 +4763,36 @@
         "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/Skyline Deal Sheet_Yung Nation.docx",
         "createdAt": "2026-07-16T15:50:57.868Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 4304,
+      "AS": 4895,
+      "AT": 9452,
+      "AU": 13080,
+      "AV": 12068,
+      "AW": 19494,
+      "AX": 13418,
+      "AY": 24557,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Torae",
     "platform": "ASCAP, Curve, SX",
-    "grossQuote": {
-      "AC": null,
-      "AD": null,
-      "AE": null,
-      "AF": null,
-      "AG": null,
-      "AH": null,
-      "AI": 10600,
-      "AJ": 19000,
-      "AK": null,
-      "AL": null
-    },
     "initialQuote": {
-      "AP": null,
-      "AQ": null,
-      "AR": null,
-      "AS": null,
-      "AT": null,
-      "AU": null,
-      "AV": 10282,
-      "AW": 18430,
-      "AX": null,
-      "AY": null
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": null,
+      "L": null,
+      "M": null,
+      "N": null,
+      "O": null,
+      "P": null,
+      "Q": 10282,
+      "R": 18430,
+      "S": null,
+      "T": null
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -4881,47 +4815,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Torae.docx",
         "createdAt": "2026-07-11T17:40:25.230Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": null,
+      "AS": null,
+      "AT": null,
+      "AU": null,
+      "AV": null,
+      "AW": null,
+      "AX": 10282,
+      "AY": 18430,
+      "AZ": null,
+      "BA": null
+    },
+    "adminFee": 0,
+    "rthmDistroFee": 0
   },
   {
     "name": "Milan Gavris",
     "platform": "RouteNote, Synmphonic",
-    "grossQuote": {
-      "AC": 15100,
-      "AD": 17200,
-      "AE": 31600,
-      "AF": 42900,
-      "AG": 39000,
-      "AH": 60800,
-      "AI": 42300,
-      "AJ": 73400,
-      "AK": 45200,
-      "AL": 91900
-    },
     "initialQuote": {
-      "AP": 14345,
-      "AQ": 16340,
-      "AR": 30020,
-      "AS": 40755,
-      "AT": 37050,
-      "AU": 57760,
-      "AV": 40185,
-      "AW": 69730,
-      "AX": 42940,
-      "AY": 87305
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 14345,
+      "L": 16340,
+      "M": 30020,
+      "N": 40755,
+      "O": 37050,
+      "P": 57760,
+      "Q": 40185,
+      "R": 69730,
+      "S": 42940,
+      "T": 87305
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -4948,47 +4871,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Milan Gavris.docx",
         "createdAt": "2026-07-22T15:09:46.853Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 14345,
+      "AS": 16340,
+      "AT": 30020,
+      "AU": 40755,
+      "AV": 37050,
+      "AW": 57760,
+      "AX": 40185,
+      "AY": 69730,
+      "AZ": 42940,
+      "BA": 87305
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 0
   },
   {
     "name": "Lil Sheik",
     "platform": "Empire Publishing",
-    "grossQuote": {
-      "AC": 23400,
-      "AD": 26400,
-      "AE": 41300,
-      "AF": 53800,
-      "AG": 48100,
-      "AH": 70500,
-      "AI": 51500,
-      "AJ": 83600,
-      "AK": 54800,
-      "AL": 105400
-    },
     "initialQuote": {
-      "AP": 22230,
-      "AQ": 25080,
-      "AR": 39235,
-      "AS": 51110,
-      "AT": 45695,
-      "AU": 66975,
-      "AV": 48925,
-      "AW": 79420,
-      "AX": 52060,
-      "AY": 100130
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 22230,
+      "L": 25080,
+      "M": 39235,
+      "N": 51110,
+      "O": 45695,
+      "P": 66975,
+      "Q": 48925,
+      "R": 79420,
+      "S": 52060,
+      "T": 100130
     },
     "dealType": "Individual",
     "royaltyType": "Publishing",
@@ -5015,47 +4927,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lil Sheik.docx",
         "createdAt": "2026-07-22T15:12:45.266Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 22230,
+      "AS": 25080,
+      "AT": 39235,
+      "AU": 51110,
+      "AV": 45695,
+      "AW": 66975,
+      "AX": 48925,
+      "AY": 79420,
+      "AZ": 52060,
+      "BA": 100130
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 0
   },
   {
     "name": "James Vickery",
     "platform": "AWAL, Believe, PRS",
-    "grossQuote": {
-      "AC": 13900,
-      "AD": 16100,
-      "AE": 31200,
-      "AF": 43200,
-      "AG": 39900,
-      "AH": 64700,
-      "AI": 44400,
-      "AJ": 82100,
-      "AK": 49100,
-      "AL": 112800
-    },
     "initialQuote": {
-      "AP": 13205,
-      "AQ": 15295,
-      "AR": 29640,
-      "AS": 41040,
-      "AT": 37905,
-      "AU": 61465,
-      "AV": 42180,
-      "AW": 77995,
-      "AX": 46645,
-      "AY": 107160
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 13205,
+      "L": 15295,
+      "M": 29640,
+      "N": 41040,
+      "O": 37905,
+      "P": 61465,
+      "Q": 42180,
+      "R": 77995,
+      "S": 46645,
+      "T": 107160
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -5082,47 +4983,36 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_James Vickery.docx",
         "createdAt": "2026-07-22T15:16:52.002Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 13205,
+      "AS": 15295,
+      "AT": 29640,
+      "AU": 41040,
+      "AV": 37905,
+      "AW": 61465,
+      "AX": 42180,
+      "AY": 77995,
+      "AZ": 46645,
+      "BA": 107160
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 0
   },
   {
     "name": "JayBenz",
     "platform": "DistroKid",
-    "grossQuote": {
-      "AC": 71900,
-      "AD": 81400,
-      "AE": 149200,
-      "AF": 202300,
-      "AG": 187800,
-      "AH": 296700,
-      "AI": 207200,
-      "AJ": 371000,
-      "AK": 219400,
-      "AL": 494100
-    },
     "initialQuote": {
-      "AP": 68305,
-      "AQ": 77330,
-      "AR": 141740,
-      "AS": 192185,
-      "AT": 178410,
-      "AU": 281865,
-      "AV": 196840,
-      "AW": 352450,
-      "AX": 208430,
-      "AY": 469395
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 64710,
-      "BD": 73260,
-      "BE": 134280,
-      "BF": 182070,
-      "BG": 169020,
-      "BH": 267030,
-      "BI": 186480,
-      "BJ": 333900,
-      "BK": 197460,
-      "BL": 444690
+      "K": 68305,
+      "L": 77330,
+      "M": 141740,
+      "N": 192185,
+      "O": 178410,
+      "P": 281865,
+      "Q": 196840,
+      "R": 352450,
+      "S": 208430,
+      "T": 469395
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -5149,141 +5039,162 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_JayBenz.docx",
         "createdAt": "2026-07-22T15:30:19.034Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 64710,
+      "AS": 73260,
+      "AT": 134280,
+      "AU": 182070,
+      "AV": 169020,
+      "AW": 267030,
+      "AX": 186480,
+      "AY": 333900,
+      "AZ": 197460,
+      "BA": 444690
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 10
   },
   {
     "name": "JayBenz",
     "platform": "DistroKid",
-    "grossQuote": {
-      "AC": 71900,
-      "AD": 81400,
-      "AE": 149200,
-      "AF": 202300,
-      "AG": 187800,
-      "AH": 296700,
-      "AI": 207200,
-      "AJ": 371000,
-      "AK": 219400,
-      "AL": 494100
-    },
     "initialQuote": {
-      "AP": 68305,
-      "AQ": 77330,
-      "AR": 141740,
-      "AS": 192185,
-      "AT": 178410,
-      "AU": 281865,
-      "AV": 196840,
-      "AW": 352450,
-      "AX": 208430,
-      "AY": 469395
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 64710,
-      "BD": 73260,
-      "BE": 134280,
-      "BF": 182070,
-      "BG": 169020,
-      "BH": 267030,
-      "BI": 186480,
-      "BJ": 333900,
-      "BK": 197460,
-      "BL": 444690
+      "K": 68305,
+      "L": 77330,
+      "M": 141740,
+      "N": 192185,
+      "O": 178410,
+      "P": 281865,
+      "Q": 196840,
+      "R": 352450,
+      "S": 208430,
+      "T": 469395
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
     "commission": "4",
     "mondayItemId": "12600522925",
     "mondayBoardId": 18397562279,
-    "importedAt": "2026-07-22T15:33:00.375Z"
+    "importedAt": "2026-07-22T15:33:00.375Z",
+    "postFees": {
+      "AR": 64710,
+      "AS": 73260,
+      "AT": 134280,
+      "AU": 182070,
+      "AV": 169020,
+      "AW": 267030,
+      "AX": 186480,
+      "AY": 333900,
+      "AZ": 197460,
+      "BA": 444690
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 10,
+    "valuationState": {
+      "rates": {
+        "12 months": 78.61,
+        "36 months": 65.64,
+        "60 months": 56.33,
+        "84 months": 49.71,
+        "144 months": 39.52
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "NSU Global",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_JayBenz.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_JayBenz.docx",
+        "createdAt": "2026-07-23T16:32:36.131Z"
+      },
+      {
+        "type": "NSU Global Deal Sheet",
+        "fileName": "NSU Global Deal Sheet_JayBenz.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\NSU Global Deal Sheet_JayBenz.docx",
+        "createdAt": "2026-07-23T16:32:36.131Z"
+      }
+    ]
   },
   {
     "name": "Deyon Agoi",
     "platform": "DistroKid",
-    "grossQuote": {
-      "AC": 3600,
-      "AD": 4200,
-      "AE": 6900,
-      "AF": 9400,
-      "AG": 8100,
-      "AH": 12200,
-      "AI": 8500,
-      "AJ": 13800,
-      "AK": 8600,
-      "AL": 15100
-    },
     "initialQuote": {
-      "AP": 3420,
-      "AQ": 3990,
-      "AR": 6555,
-      "AS": 8930,
-      "AT": 7695,
-      "AU": 11590,
-      "AV": 8075,
-      "AW": 13110,
-      "AX": 8170,
-      "AY": 14345
-    },
-    "percent": 90,
-    "variableQuote": {
-      "BC": 3240,
-      "BD": 3780,
-      "BE": 6210,
-      "BF": 8460,
-      "BG": 7290,
-      "BH": 10980,
-      "BI": 7650,
-      "BJ": 12420,
-      "BK": 7740,
-      "BL": 13590
+      "K": 3420,
+      "L": 3990,
+      "M": 6555,
+      "N": 8930,
+      "O": 7695,
+      "P": 11590,
+      "Q": 8075,
+      "R": 13110,
+      "S": 8170,
+      "T": 14345
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
     "commission": "4",
     "mondayItemId": "12600535082",
     "mondayBoardId": 18397562279,
-    "importedAt": "2026-07-22T15:33:39.377Z"
+    "importedAt": "2026-07-22T15:33:39.377Z",
+    "postFees": {
+      "AR": 3240,
+      "AS": 3780,
+      "AT": 6210,
+      "AU": 8460,
+      "AV": 7290,
+      "AW": 10980,
+      "AX": 7650,
+      "AY": 12420,
+      "AZ": 7740,
+      "BA": 13590
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 10,
+    "valuationState": {
+      "rates": {
+        "12 months": 76.29,
+        "36 months": 65.33,
+        "60 months": 59.09,
+        "84 months": 54.82,
+        "144 months": 50.69
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "NSU Global",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Deyon Agoi.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Deyon Agoi.docx",
+        "createdAt": "2026-07-23T16:32:54.445Z"
+      },
+      {
+        "type": "NSU Global Deal Sheet",
+        "fileName": "NSU Global Deal Sheet_Deyon Agoi.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\NSU Global Deal Sheet_Deyon Agoi.docx",
+        "createdAt": "2026-07-23T16:32:54.445Z"
+      }
+    ]
   },
   {
     "name": "MC Delux",
     "platform": "oneRPM",
-    "grossQuote": {
-      "AC": 12800,
-      "AD": 14500,
-      "AE": 25300,
-      "AF": 33900,
-      "AG": 30200,
-      "AH": 45900,
-      "AI": 32200,
-      "AJ": 53300,
-      "AK": 33400,
-      "AL": 61600
-    },
     "initialQuote": {
-      "AP": 12160,
-      "AQ": 13775,
-      "AR": 24035,
-      "AS": 32205,
-      "AT": 28690,
-      "AU": 43605,
-      "AV": 30590,
-      "AW": 50635,
-      "AX": 31730,
-      "AY": 58520
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 12160,
+      "L": 13775,
+      "M": 24035,
+      "N": 32205,
+      "O": 28690,
+      "P": 43605,
+      "Q": 30590,
+      "R": 50635,
+      "S": 31730,
+      "T": 58520
     },
     "dealType": "Individual",
     "royaltyType": "Distribution",
@@ -5310,53 +5221,83 @@
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_MC Delux.docx",
         "createdAt": "2026-07-22T15:34:10.460Z"
       }
-    ]
+    ],
+    "postFees": {
+      "AR": 12160,
+      "AS": 13775,
+      "AT": 24035,
+      "AU": 32205,
+      "AV": 28690,
+      "AW": 43605,
+      "AX": 30590,
+      "AY": 50635,
+      "AZ": 31730,
+      "BA": 58520
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 0
   },
   {
     "name": "MC Delux",
     "platform": "oneRPM",
-    "grossQuote": {
-      "AC": 12800,
-      "AD": 14500,
-      "AE": 25300,
-      "AF": 33900,
-      "AG": 30200,
-      "AH": 45900,
-      "AI": 32200,
-      "AJ": 53300,
-      "AK": 33400,
-      "AL": 61600
-    },
     "initialQuote": {
-      "AP": 12160,
-      "AQ": 13775,
-      "AR": 24035,
-      "AS": 32205,
-      "AT": 28690,
-      "AU": 43605,
-      "AV": 30590,
-      "AW": 50635,
-      "AX": 31730,
-      "AY": 58520
-    },
-    "percent": null,
-    "variableQuote": {
-      "BC": null,
-      "BD": null,
-      "BE": null,
-      "BF": null,
-      "BG": null,
-      "BH": null,
-      "BI": null,
-      "BJ": null,
-      "BK": null,
-      "BL": null
+      "K": 12160,
+      "L": 13775,
+      "M": 24035,
+      "N": 32205,
+      "O": 28690,
+      "P": 43605,
+      "Q": 30590,
+      "R": 50635,
+      "S": 31730,
+      "T": 58520
     },
     "dealType": "B2B",
     "royaltyType": "Distribution",
     "commission": "4",
     "mondayItemId": "12600563274",
     "mondayBoardId": 18397562279,
-    "importedAt": "2026-07-22T15:35:19.032Z"
+    "importedAt": "2026-07-22T15:35:19.032Z",
+    "postFees": {
+      "AR": 12160,
+      "AS": 13775,
+      "AT": 24035,
+      "AU": 32205,
+      "AV": 28690,
+      "AW": 43605,
+      "AX": 30590,
+      "AY": 50635,
+      "AZ": 31730,
+      "BA": 58520
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 0,
+    "valuationState": {
+      "rates": {
+        "12 months": 78.57,
+        "36 months": 66.42,
+        "60 months": 58.56,
+        "84 months": 53.77,
+        "144 months": 48.26
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "b2bPartner": "NSU Global",
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_MC Delux.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_MC Delux.docx",
+        "createdAt": "2026-07-23T16:33:10.142Z"
+      },
+      {
+        "type": "NSU Global Deal Sheet",
+        "fileName": "NSU Global Deal Sheet_MC Delux.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\NSU Global Deal Sheet_MC Delux.docx",
+        "createdAt": "2026-07-23T16:33:10.142Z"
+      }
+    ]
   }
 ]

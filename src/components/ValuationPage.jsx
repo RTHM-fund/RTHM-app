@@ -4,11 +4,11 @@ import { formatPct } from '../utils.js'
 import './ValuationPage.css'
 
 const TERMS = ['12 months', '36 months', '60 months', '84 months', '144 months']
-// Each pair = [advance col, RAS recoup col], indexed by TERMS.
-// GQ = sheet's plain "Initial quotes"; IQ = "Initial quotes, net of 3% fee"; VQ = "Variable quotes".
-const GQ_PAIRS = [['AC','AD'], ['AE','AF'], ['AG','AH'], ['AI','AJ'], ['AK','AL']]
-const IQ_PAIRS = [['AP','AQ'], ['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY']]
-const VQ_PAIRS = [['BC','BD'], ['BE','BF'], ['BG','BH'], ['BI','BJ'], ['BK','BL']]
+// Each pair = [advance col, RAS recoup col], indexed by TERMS — tracker column letters.
+// initialQuote = the tracker's "Initial quotes" band; postFees = "RTHM net offer, before
+// arbitrage" (the working numbers). Mirrors the server's INITIAL_PAIRS / POST_PAIRS.
+const INITIAL_PAIRS = [['K','L'], ['M','N'], ['O','P'], ['Q','R'], ['S','T']]
+const POST_PAIRS = [['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY'], ['AZ','BA']]
 
 // Auto-filled starting recoup: each term's Recoup Rate is solved so the RTHM Valuation MARGIN
 // defaults to exactly this fraction of that term's RAS advance. Fills blanks only; saved/tuned
@@ -72,12 +72,14 @@ function RateInput({ label, value, onChange, disabled }) {
   )
 }
 
-function QuoteTable({ title, percent, pairs, data }) {
+function QuoteTable({ title, badges, pairs, data }) {
   return (
     <div className="valuation-section">
       <div className="valuation-section-header">
         <h3 className="valuation-section-title">{title}</h3>
-        {percent != null && <span className="valuation-percent">{formatPct(percent)}%</span>}
+        {badges?.map(b => (
+          <span key={b.label} className="valuation-percent">{b.label} {formatPct(b.value)}%</span>
+        ))}
       </div>
       <table className="valuation-table">
         <thead>
@@ -109,19 +111,21 @@ function QuoteTable({ title, percent, pairs, data }) {
 export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreements, valuationState, onUpdateValuationState }) {
   const dealType = deal?.dealType || 'Individual'
 
-  // Resolved quote source (variable → net-of-3% initial → plain initial) + the initial-only
-  // source for the INITIAL QUOTE table / PR Uplift. Hoisted above useState so the auto-filled
-  // starting recoup can be computed at init; depends only on the deal prop.
-  const gq = deal?.grossQuote || {}
-  const iq = deal?.initialQuote || {}
-  const vq = deal?.variableQuote || {}
-  const showVariable = hasValues(vq, VQ_PAIRS)
-  const { source, pairs } = showVariable ? { source: vq, pairs: VQ_PAIRS }
-    : hasValues(iq, IQ_PAIRS) ? { source: iq, pairs: IQ_PAIRS }
-    : { source: gq, pairs: GQ_PAIRS }
-  // Net-of-3%-fee section in use → surface the 97% net multiplier next to the title
-  // (same convention as the Variable Quote's percent). Gross fallback shows none.
-  const resolvedInitial = hasValues(iq, IQ_PAIRS) ? { data: iq, pairs: IQ_PAIRS, percent: 95 } : { data: gq, pairs: GQ_PAIRS }
+  // Quote data = the tracker's two bands. postFees (RTHM net offer) is the WORKING source
+  // for the RTHM Valuation table + margin seeds, falling back to initialQuote only when
+  // postFees is empty (shouldn't happen — post fees is always populated). PR Uplift and the
+  // INITIAL QUOTE table anchor to the initial band (user decision). Hoisted above useState
+  // so the auto-filled starting recoup can be computed at init; depends only on the deal.
+  const initial = deal?.initialQuote || {}
+  const post = deal?.postFees || {}
+  const { source, pairs } = hasValues(post, POST_PAIRS)
+    ? { source: post, pairs: POST_PAIRS }
+    : { source: initial, pairs: INITIAL_PAIRS }
+  const resolvedInitial = { data: initial, pairs: INITIAL_PAIRS }
+  // POST FEES header badges: the deal's fee %s, shown only when non-zero.
+  const feeBadges = [['admin', deal?.adminFee], ['distro', deal?.rthmDistroFee]]
+    .filter(([, v]) => (parseFloat(v) || 0) > 0)
+    .map(([label, value]) => ({ label, value }))
 
   // Hydrate from the session cache when present, else the deal's own persisted
   // state. Without the deal fallback, the first open of a session saw null here,
@@ -229,8 +233,8 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     return { term, rasAdvance, rasRecoup, rate, rthmAdvance, margin }
   }).filter(Boolean)
 
-  // PR Uplift always derives from the Initial Quote (resolved: net-of-3% if present, else plain),
-  // even when a Variable Quote is present.
+  // PR Uplift anchors to the INITIAL QUOTE band (user decision) — deliberately NOT the
+  // postFees working numbers. Mirrored by the server's deal-sheet PR fields.
   const prUpliftRows = showPrUplift ? TERMS_DESC.map(term => {
     const termIdx = TERMS.indexOf(term)
     const [advCol, recoupCol] = resolvedInitial.pairs[termIdx]
@@ -271,8 +275,8 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
       <div className="valuation-body">
 
         <div className="valuation-tables-row">
-          <QuoteTable title="INITIAL QUOTE" percent={resolvedInitial.percent} pairs={resolvedInitial.pairs} data={resolvedInitial.data} />
-          {showVariable && <QuoteTable title="VARIABLE QUOTE" percent={deal.percent} pairs={VQ_PAIRS} data={vq} />}
+          <QuoteTable title="INITIAL QUOTE" pairs={INITIAL_PAIRS} data={initial} />
+          <QuoteTable title="POST FEES" badges={feeBadges} pairs={POST_PAIRS} data={post} />
         </div>
 
         <div className="valuation-section">
