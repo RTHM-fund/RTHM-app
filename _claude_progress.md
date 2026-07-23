@@ -1,89 +1,57 @@
-# Claude Progress — Session Save (2026-07-22, evening)
+# Claude Progress — Session Save (2026-07-22, final)
 
-## ✅ Accomplished
+Huge day. Three major workstreams, all completed, audited, and live.
 
-### NSU Global — full B2B partner onboarding (COMPLETE, max-effort audited)
-New B2B client onboarded app-wide, **zero code changes** (integration is fully data-driven):
+## 1. RPA contract templates — rescission rollout + 12-year family (Templates dirs, OUTSIDE git)
+- **Buyer's Right of Rescission** (from executed Jay Lewis clause 45) added to: RTHM RPA (ops +
+  app, byte-identical, clause 44, plain-Buyer), B2B RPA (clause 45, Designee framing), RTHM RPA
+  (12-year) (clause 43 after buy-out removal). RAS RPAs keep their own breach-remedy instead.
+- **B2B RPA also got**: the 3% sourcing/admin fee covenant item (xi) + LOD zip 19702.
+- **12-year rule enforced: NO buy-out** — removed from RTHM 12-year (7 ¶ + 4 residual phrases).
+- **Created `B2B RPA (12-year)_Template.docx`** (ops): B2B base + the 3 proven 12-year deltas
+  (merged Designee-preserving sale sentence, "Term:" labels, no buy-out).
+- **RTHM x RAS RPA** synced ops→app (pagination-only diff). All templates byte-verified, rendered,
+  eyeballed; rules matrix (buyout/rescission per family) ALL OK. Backups in scratchpad.
 
-**Created (Templates live at `<RTHM App root>\Templates\` — Dropbox-synced, OUTSIDE git):**
-- `Templates\Deal Sheets\NSU Global Deal Sheet_Template.docx` (4.7MB)
-- `Templates\Offer Letters\NSU Global Offer Letter_Template.docx` (4.7MB)
-- `App Files\data\b2b-partners.json` → "NSU Global" entry (committed): Entity **No Switching Up
-  LLC**, Address **1130 Grayson Oaks Drive, Lawrenceville, GA, 30045, USA**, Signer **Kendall
-  Newsome**, Title **Owner**, Website **https://nsu.global** (extracted from the KYB folder docs at
-  `…\1. RTHM Fund\5. Partners\No Switching Up\No Switching Up_KYB\`; user signed off).
-- Logo asset (user-saved): `…\5. Partners\No Switching Up\NSU Logo.png` (3000², transparent).
-- **No RPA file by design** — all B2B partners share `B2B RPA_Template.docx`; NSU's RPA data
-  autofills from the registry (RPAForm.jsx:266 fetch → all 6 registry keys exist verbatim as
-  {{fields}} in the RPA template — verified 6/6).
+## 2. 12-year RPAs wired into the app (code, committed)
+- All three 12-year templates byte-copied into app Templates; **auto-selection live**:
+  `parseInt(deal.lockedDeal.term) === 144` → 12-year variants. `App.jsx` handleNavigateToRPA
+  (entry) + handleNavigateToRAS (RAS leg inherits via `is12` in the handoff payload — the
+  "save both RPAs" pair can never mix terms). `RPAForm.jsx`: `baseFilename` (12-year suffix
+  stripped) drives all filename-keyed behavior; saved agreement types stay base types
+  (linked-state intact); generated docs named "(12-year)". Verified live end-to-end with
+  AJ McQueen (real 144 B2B deal): full chain incl. RAS handoff + Margin Fee auto-calc;
+  84-month + unlocked deals resolve regular (all-87-deals branch proof).
 
-**Design (user-approved):** cloned from the Skyline pair; page background `#CDD1D6` light steel
-(`<w:background>`), full white→ink text flip to `#26282B` (163+12 / 222+1 occurrences — safe
-because the bases have ZERO shaded cells), logo masthead 0.90″ tall aspect-true (header drawing
-extents patched wp:extent+a:ext), embedded odttf brand fonts carried over.
-
-**Build pipeline (repeatable):** scratchpad clone → media swap → XML edits → rezip →
-mechanical QC (field-set diff vs base 32=32; docxtemplater dry-render with the server's exact
-options `delimiters {{ }}` per server/index.js:866; leftover sweep) → LibreOffice→pymupdf render
-→ eyeball EVERY page → install → live wire-check. Scripts in scratchpad (`build_nsu.py` etc.).
-
-**Render loop caught (would have shipped otherwise):** the offer letter's brand text is stylized
-"**$kyline**" (dollar-sign S — invisible to a "Skyline" grep; 15 occurrences → "NSU Global" /
-"NSU Distribution"); two split-run "NSU Capital" artifacts; an orphan space in "Why use NSU
-Global?". Also: default docxtemplater delimiters are single-brace — always test with the server's
-options.
-
-**Final audit (all pass):** installed files SHA==build, zip parts==base, sweep clean, fields 32=32
-via both raw-XML and the server's mammoth endpoint, renderer OK, registry API live-verified,
-sidebar Templates + Valuation B2B modal verified in the LIVE UI (Otega deal; modal cancelled, no
-writes), name round-trip (deal-sheet filename → partner "NSU Global" → offer-letter file exists,
-App.jsx:408), siblings untouched, zero hardcoded partner names in code. NOT exercised (write
-ops, all links proven individually): actual deal-sheet POST, RPA generation from a real NSU deal,
-partner-modal PUT — first real NSU deal exercises them.
-
-### Valuation margin seed: 10% → 11% (committed this session)
-`MARGIN_PCT = 0.11` in BOTH `ValuationPage.jsx` AND server `effectiveRatesFor` (the mirror —
-see memory). Verified live: Bobby Shmurda's unsaved 144mo seed 33.54→33.17 exactly as solved;
-Roykeisha saved rates untouched; margin Δ within 2dp bound. FE/BE constants audited IN SYNC.
-
-### RPA templates synced from ops (late evening — outside git, Templates dir)
-User designated `…\4. Operations\1. Templates\3. Agreements\` copies as canonical. Result:
-- **RTHM RPA_Template.docx** — app copy was ALREADY byte-identical (no action).
-- **RTHM x RAS RPA_Template.docx** — swapped in the ops version (same doc, 4 revisions newer).
-  ONLY difference: pagination cleanup (removed a page break after clause 40 — old p9 was mostly
-  empty; sections 8–10 now flow; signature block clean on p13). Legal text 100% identical —
-  verified per-part hash diff + 14-page render compare of both versions, reflowed pages eyeballed.
-- Verified: installed SHA == ops (both), app's docxtemplater renders both (server options), server
-  fields endpoint returns full sets incl. every RPAForm-hardcoded field, exactly one copy of each
-  RPA template in the app tree. **No restart needed** (field sets identical → cache fine;
-  generation reads the file fresh per request). Scratchpad backup deleted after confirmation
-  (Dropbox version history retains the old file). B2B RPA untouched.
-- Note: there is NO 12-year/144-specific RPA template (user asked; verified inside all 3 RPAs —
-  term is a generic {{Estimated Term}} field; the only "twelve" is a statements-lookback clause).
-
-### Google Sheets "disconnect" — false alarm (diagnosed)
-Token + refresh flow healthy (forced a live refresh — OK; scope spreadsheets.readonly). The
-"disconnected" UI was just the backend being down (dev stack orphans). Restarted → connected=true.
-If it recurs: check the app is running before re-authing.
+## 3. Tracker realignment: INITIAL QUOTE + POST FEES (code + data, committed)
+The Google tracker (hardcoded import source, `RAS_RTHM_TASKS_03.31.26v1` / "Deals" gid 944936958)
+changed layout. App re-plumbed:
+- **Bands**: initialQuote ← K–T ("Initial quotes"); postFees ← AR–BA ("RTHM net offer, before
+  arbitrage"). Letter-keyed storage (cell provenance). variableQuote/grossQuote/percent DEAD.
+- **Sourcing**: postFees = working numbers (RTHM VALUATION, 11% margin seeds, deal-sheet fields),
+  fallback initialQuote. **PR math (PR UPLIFT + deal-sheet PR fields) anchors to INITIAL QUOTE**
+  (user decision) — FE + server mirrored, old FE/BE PR asymmetry eliminated.
+- **Fees**: import captures col F (adminFee) + G (rthmDistroFee), MAX across a deal's account
+  rows (mixed-fee deals warned). POST FEES header badges `admin X.XX%` `distro X.XX%` (non-zero
+  only). RPA ", RTHM" platform-append now keyed on rthmDistroFee > 0 (both prefill paths).
+- **NO re-import** (import ENDPOINT APPENDS — re-import would duplicate deals!): one-time
+  migration of deals.json — initialQuote ← old resolvedInitial (IQ→GQ), postFees ← old working
+  resolution (VQ→IQ→GQ) — **1,720-value penny-identity independently re-derived vs backup**
+  (`scratchpad/BACKUP_deals_20260722-233113.json`); fees backfilled from tracker (86/86 matched).
+- **Audits**: 3 sweeps to zero (caught+fixed a 3rd hasVQ variant in RPAForm's deal-change path +
+  a stale comment); FE/BE pairs string-identical; live UI proof on JayBenz (5%/10% fees: tables
+  differ correctly, badges render, margin = 11% of postFees to the dollar, PR marketing from
+  initial); Roykeisha penny-regression; sheet-rows endpoint serves the 24 new columns.
 
 ## 🧭 Current state
-- **App RUNNING** under harness preview `rthm-app-win` (backend 3001 + Vite 5173). Note the
-  preview server has repeatedly orphaned between turns — if ports are busy but harness says no
-  server, kill PIDs with `*App Files*` cmdline and preview_start again.
-- App Files `master`: this session's 4 commits pushed (registry entry; margin 11%; deals.json now
-  87 deals; progress). Verify `git status` clean except the junk dir.
-- Untracked junk (delete when confirmed): `node_modules (RTHM Fund's conflicted copy 2026-07-03)/`.
-- Earlier today (already pushed): margin-rule rewrite (offsets → margin = % of RAS advance,
-  fe7c823) + its server-mirror fix.
+- App RUNNING with everything live (backend restarted with new code; verified via API + UI).
+  Watch: the dev stack keeps orphaning from the harness — if ports busy but "no preview",
+  kill `*App Files*` node PIDs and preview_start `rthm-app-win`.
+- All committed + pushed this save (verify git status).
+- deals.json: 86 deals, new model, JayBenz valuationState seeded during verification (expected).
 
-## ⏭️ Next / open tasks
-1. **First real NSU Global deal** — exercises deal-sheet generation, RPA autofill, partner modal
-   end-to-end (all pre-verified individually).
-2. **/underwrite integration** — still pending user instructions (skill fully ingested; see
-   2026-07-08 save + memory).
-3. Delete the conflict-copy junk dir when confirmed.
-4. Wording check (user flagged OK to revisit): offer letter "$kyline Capital"→"NSU Global",
-   "$kyline Distribution"→"NSU Distribution" — 2-minute patch if different wording wanted.
-
-Carried over: Tyga/Lil Sheik 0-track parser; container Lifetime spot-check; diligence stage-marker
-e2e; James Avex reconcile gap; startup ~11s module-load (optional).
+## ⏭️ Next / open
+1. **/underwrite integration** — task #4, awaiting user instructions (skill fully ingested).
+2. First real 12-year RPA generation + first fee-bearing deal-sheet export — exercise live.
+3. Carried: Tyga/Lil Sheik parser; container Lifetime spot-check; diligence stage-marker e2e;
+   James Avex reconcile; startup ~11s module load (optional).
