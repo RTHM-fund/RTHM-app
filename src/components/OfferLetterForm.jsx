@@ -143,6 +143,17 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
       const digits = value.replace(/[^0-9]/g, '')
       setRawAmounts(prev => ({ ...prev, [field]: digits }))
       setValues(prev => ({ ...prev, [field]: digits === '' ? '' : parseInt(digits).toLocaleString('en-US') }))
+      // Overriding the auto-filled Advance Amount re-derives the auto-filled Recoup Rate from the
+      // fixed Recoup Amount base (Advance = Recoup Amount × Recoup Rate). Raw keeps full precision;
+      // formatPct is display-only.
+      if (field === 'Advance Amount' && lockedRow) {
+        const recoupBase = parseFloat(rawAmounts['Recoup Amount']) || 0
+        if (recoupBase > 0) {
+          const rate = digits === '' ? '' : String((parseInt(digits) / recoupBase) * 100)
+          setRawAmounts(prev => ({ ...prev, 'Recoup Rate': rate }))
+          setValues(prev => ({ ...prev, 'Recoup Rate': rate === '' ? '' : `${formatPct(rate)}%` }))
+        }
+      }
     } else if (PERCENT_FIELDS.has(field)) {
       // Allow up to 2 decimals; show the raw value live (e.g. "40%", "40.5%"), format to
       // 2dp on blur (renderField onBlur) and at save.
@@ -310,7 +321,11 @@ export default function OfferLetterForm({ template, prefillData, onBack, onSaveC
         if (advanceChanged || legalNameChange) {
           const lockUpdate = { ...lockedRow }
           if (legalNameChange) lockUpdate.legalName = values['Legal Name']
-          if (advanceChanged) lockUpdate.advanceAmount = formAdvance
+          if (advanceChanged) {
+            lockUpdate.advanceAmount = formAdvance
+            // Keep the persisted rate consistent with the overridden advance (Recoup Amount fixed).
+            if (lockedRow.recoupAmount > 0) lockUpdate.recoupRate = (formAdvance / lockedRow.recoupAmount) * 100
+          }
           await fetch(`/api/deals/${saveDealIdx}/lock`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
