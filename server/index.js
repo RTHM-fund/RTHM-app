@@ -1733,10 +1733,53 @@ function computeWorkbookSummary(folder) {
     const mtimeMs = fs.statSync(wbPath).mtimeMs
     const cached = summaryCache.get(wbPath)
     if (cached && cached.mtimeMs === mtimeMs) return cached.summary
-    const summary = computeWorkbookSummaryInner(wbPath, basename)
+    let summary = null
+    // Cache the result even if the parse throws (broken/locked workbook) — otherwise it would be
+    // re-parsed on every call and its row would stay summaryPending forever (endless FE polling).
+    try { summary = computeWorkbookSummaryInner(wbPath, basename) }
+    catch (e) { console.warn('[computeWorkbookSummary:parse]', wbPath, e.message) }
     summaryCache.set(wbPath, { mtimeMs, summary })
     return summary
   } catch (e) { console.warn('[computeWorkbookSummary]', folder, e.message); return null }
+}
+
+// Cache-only lookup for the non-blocking /api/data/folders path. Returns the cached summary when
+// fresh; otherwise flags the folder pending (workbook exists but isn't parsed yet) and leaves the
+// XLSX.readFile to the background warmer. NEVER parses inline — this is what keeps the endpoint
+// (and the whole single-threaded server) from freezing on a cold cache.
+function getSummaryCached(folder) {
+  try {
+    const basename = path.basename(folder)
+    const ddFolder = path.join(folder, `${basename}_Due Diligence`)
+    if (!fs.existsSync(ddFolder)) return { summary: null, pending: false }
+    const wbPath = resolveDiligenceWorkbookPath(ddFolder, basename)
+    if (!wbPath) return { summary: null, pending: false }
+    const mtimeMs = fs.statSync(wbPath).mtimeMs
+    const cached = summaryCache.get(wbPath)
+    if (cached && cached.mtimeMs === mtimeMs) return { summary: cached.summary, pending: false }
+    return { summary: null, pending: true }
+  } catch (e) { console.warn('[getSummaryCached]', folder, e.message); return { summary: null, pending: false } }
+}
+
+// Background warmer for the summary cache. The folders endpoint returns cached-or-null instantly
+// and queues uncached workbooks here; this drains them one parse at a time, yielding the event
+// loop between each so HTTP stays responsive. Deduped via the Set; the single drain loop also
+// picks up folders queued mid-run. Workbooks are READ only, never modified.
+const warmQueue = new Set()
+let warming = false
+async function drainWarmQueue() {
+  warming = true
+  while (warmQueue.size > 0) {
+    const folder = warmQueue.values().next().value
+    warmQueue.delete(folder)
+    try { computeWorkbookSummary(folder) } catch {}
+    await new Promise(r => setImmediate(r))
+  }
+  warming = false
+}
+function queueSummaryWarm(folders) {
+  for (const f of folders) warmQueue.add(f)
+  if (!warming && warmQueue.size > 0) drainWarmQueue()
 }
 // Does a diligence workbook physically exist for this folder? This is the source of truth
 // for the Data Manager "Diligence" ✓ — independent of whether computeWorkbookSummary can
@@ -2010,12 +2053,18 @@ function aggregateSummary(keys, line, trackInfos) {
 // Roll a container's child catalogs up into ONE virtual mega-catalog: sum the per-month series by
 // calendar month and concat every per-track record, then run the SAME aggregation (aggregateSummary)
 // a single catalog uses — so a container's totals can never drift from its catalogs'.
+// Cache-only rollup for a container's catalogs — the non-blocking /api/data/folders path. Sums
+// ONLY already-cached child summaries; if ANY child workbook isn't parsed yet, returns
+// rollup=null + the pending child paths (never a partial/understated rollup — data integrity) so
+// the caller warms them in the background and the row fills in on a later poll. Reads only.
 function computeContainerRollup(childPaths) {
   const monthMap = new Map()
   let allTracks = []
   let contributing = 0
+  const pending = []
   for (const child of childPaths) {
-    const s = computeWorkbookSummary(child)
+    const { summary: s, pending: p } = getSummaryCached(child)
+    if (p) { pending.push(child); continue }
     if (!s || !Array.isArray(s.keys)) continue
     contributing += 1
     for (let i = 0; i < s.keys.length; i++) {
@@ -2023,12 +2072,13 @@ function computeContainerRollup(childPaths) {
     }
     if (Array.isArray(s.trackInfos)) allTracks = allTracks.concat(s.trackInfos)
   }
-  if (contributing === 0) return null
+  if (pending.length) return { rollup: null, pending }
+  if (contributing === 0) return { rollup: null, pending: [] }
 
   // Merged monthly series across children; run it through the SAME aggregation as a single catalog.
   const keys = [...monthMap.keys()].sort((a, b) => a.localeCompare(b))
   const line = keys.map(k => monthMap.get(k))
-  return { line, ...aggregateSummary(keys, line, allTracks) }
+  return { rollup: { line, ...aggregateSummary(keys, line, allTracks) }, pending: [] }
 }
 
 // POST /api/data/open-folder — open a folder in the OS file browser.
@@ -2212,6 +2262,11 @@ app.get('/api/data/folders', (req, res) => {
       return stale
     }
 
+    // Summaries are served cache-only so this endpoint never blocks on XLSX parsing (a cold cache
+    // used to freeze the whole single-threaded server for minutes). Uncached workbooks are flagged
+    // summaryPending and collected here, then warmed in the background; the FE re-fetches until
+    // pending clears so the data columns fill in progressively.
+    const pendingWarm = []
     const folders = entries
       .filter(e => e.isDirectory())
       .map(e => {
@@ -2229,20 +2284,23 @@ app.get('/api/data/folders', (req, res) => {
             if (f.hasQuote) quoteDone += 1
             if (f.hasExtract) extractDone += 1
           }
+          const { rollup, pending } = computeContainerRollup(childPaths)
+          if (pending.length) pendingWarm.push(...pending)
           return {
             name: e.name, displayName: e.name.replace(/^!/, ''), path: fullPath, mtime,
             isContainer: true, childCount: childPaths.length, dilDone, quoteDone, extractDone,
-            summary: computeContainerRollup(childPaths),
+            summary: rollup, summaryPending: pending.length > 0,
           }
         }
         // Regular catalog row (also used for a container's children in the drill-in view).
         const { hasDiligence, hasExtract, hasQuote } = folderSkillFlags(fullPath)
         const staleSkills = staleSkillsFor(e.name)
-        const summary = computeWorkbookSummary(fullPath)
+        const { summary, pending } = getSummaryCached(fullPath)
+        if (pending) pendingWarm.push(fullPath)
         return {
           name: e.name, displayName: e.name, path: fullPath, mtime,
           isContainer: false, hasDiligence, hasExtract, hasQuote, staleSkills,
-          summary: publicSummary(summary),
+          summary: publicSummary(summary), summaryPending: pending,
         }
       })
       .sort((a, b) => {
@@ -2250,6 +2308,7 @@ app.get('/api/data/folders', (req, res) => {
         if (a.isContainer !== b.isContainer) return a.isContainer ? -1 : 1
         return b.mtime.localeCompare(a.mtime)
       })
+    if (pendingWarm.length) queueSummaryWarm(pendingWarm)
     res.json(folders)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -2814,32 +2873,19 @@ app.get('/api/heartbeat', (req, res) => {
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
-  // Pre-warm the Data Manager summary cache so the first /api/data/folders
-  // request doesn't pay the cold-cache XLSX-parse cost. Walks every deal
-  // folder once on a 100ms delay and runs computeWorkbookSummary on each;
-  // the cache (keyed by workbook mtime) is then hot for any subsequent call.
-  // The XLSX parse is synchronous, so we yield the event loop (setImmediate)
-  // after each folder — otherwise the whole walk blocks Node's single thread
-  // and no HTTP request is served until it finishes (the ~70s cold-start
-  // stall). Yielding keeps the API responsive (~1s) while the cache warms in
-  // the background; any folder not yet warmed is computed on demand by its
-  // first request (same mtime-keyed cache, so no double work once warmed).
-  setTimeout(async () => {
+  // Kick off background warming of the Data Manager summary cache at boot so the columns are ready
+  // sooner. Routed through the same queueSummaryWarm drain the /api/data/folders endpoint uses (one
+  // parse at a time, yielding between each). The endpoint no longer blocks on parsing, so this is
+  // just a head start, not on the critical path — a cold first request is served instantly either way.
+  setTimeout(() => {
     try {
       const dir = path.join(DATA_ROOT, '1. Current')
       if (!fs.existsSync(dir)) return
-      const entries = fs.readdirSync(dir, { withFileTypes: true })
-      const t0 = Date.now()
-      let warmed = 0
-      for (const e of entries) {
-        if (!e.isDirectory()) continue
-        try {
-          const summary = computeWorkbookSummary(path.join(dir, e.name))
-          if (summary) warmed += 1
-        } catch {}
-        await new Promise(r => setImmediate(r)) // let queued HTTP requests run between parses
-      }
-      console.log(`[prewarm] data manager summary cache: ${warmed} folders in ${Date.now() - t0}ms`)
+      const folders = fs.readdirSync(dir, { withFileTypes: true })
+        .filter(e => e.isDirectory())
+        .map(e => path.join(dir, e.name))
+      queueSummaryWarm(folders)
+      console.log(`[prewarm] queued ${folders.length} folders for background summary warming`)
     } catch (err) {
       console.warn('[prewarm] failed:', err.message)
     }

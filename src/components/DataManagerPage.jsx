@@ -64,6 +64,15 @@ export default function DataManagerPage({ runningSkills, setRunningSkills, folde
     return () => clearInterval(interval)
   }, [runningSkills.size > 0, drillContainer?.path])
 
+  // On a cold cache the server returns summaries non-blocking (summaryPending rows) and warms them
+  // in the background; re-fetch every 1.5s while any row is still pending so the data columns fill
+  // in progressively. Self-terminates once nothing is pending.
+  useEffect(() => {
+    if (!folders.some(f => f.summaryPending)) return
+    const t = setTimeout(loadFolders, 1500)
+    return () => clearTimeout(t)
+  }, [folders, drillContainer?.path])
+
   function loadFolders() {
     // Drilled into a container → list its child catalogs; otherwise the top-level list.
     const url = drillContainer?.path

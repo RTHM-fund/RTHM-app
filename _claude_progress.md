@@ -1,44 +1,47 @@
 # Claude Progress — Session Save (2026-07-28)
 
-## 1. Offer Letter Form — dynamic Recoup Rate (OfferLetterForm.jsx, committed)
-**Ask:** when the user overrides the auto-filled Advance Amount, the auto-filled Recoup Rate
-must update live.
+## 1. Data Manager load perf — `/api/data/folders` no longer freezes the app (index.js + DataManagerPage.jsx)
+**Root cause:** `App.jsx` fires `/api/data/folders` on every app mount; that endpoint synchronously
+parsed ~98 diligence workbooks (`XLSX.readFile`) in one un-yielded `.map()`. On a cold cache
+(server restart OR the Mac's Dropbox re-sync changing workbook mtimes → the mtime-keyed cache
+invalidates) it blocked the single Node event loop for **2+ minutes**, freezing the whole app.
+(Not Dropbox hydration — 95/98 workbooks are local; pure CPU parsing on the request thread.)
 
-**Fix (2 edits, frontend-only — HMR, no server restart):**
-- `handleChange` (isAmount branch): when the edited field is `Advance Amount` AND a deal row is
-  locked (`lockedRow`) with a Recoup Amount base > 0, re-derive
-  **Recoup Rate = (Advance ÷ Recoup Amount) × 100**, Recoup Amount held fixed. Raw keeps full
-  precision; `formatPct` is display-only. Empty advance → blank rate. This automatically flows to
-  the saved document (save reads `values['Recoup Rate']`).
-- `handleSave` (advanceChanged block): also set `lockUpdate.recoupRate = (formAdvance ÷
-  lockedRow.recoupAmount) × 100` so the persisted `lockedDeal` stays internally consistent.
-  (Note: `lockedDeal.recoupRate` is write-only downstream — RPAForm reads advanceAmount +
-  recoupAmount, never recoupRate — so this is for data cleanliness/auditability.)
+**Fix — non-blocking + background warm + progressive fill:**
+- `getSummaryCached()`: cache-only lookup — returns the cached summary or flags `summaryPending`;
+  NEVER parses inline.
+- `queueSummaryWarm()` / `drainWarmQueue()`: background warmer parses uncached workbooks one at a
+  time, yielding (`setImmediate`) between each so HTTP stays responsive. Deduped `Set`.
+- `computeWorkbookSummary()`: now caches even when the parse THROWS (broken/locked workbook) so a
+  row can't stay `summaryPending` forever (prevents endless FE polling).
+- `computeContainerRollup()`: cache-only, returns `{ rollup, pending }` — never a partial/
+  understated rollup (data integrity); queues pending children.
+- `/api/data/folders`: cache-only per folder, collects pending paths → `queueSummaryWarm`, adds
+  `summaryPending` to each row. Startup prewarm routed through the same warmer.
+- `DataManagerPage.jsx`: re-fetches every 1.5s while any row is `summaryPending`, self-terminating
+  → data columns (sparkline/Lifetime/TTM/Tracks) fill in progressively.
 
-**Canonical relation:** Advance = Recoup Amount × Recoup Rate (deal-sheet tooltip). Inverted here
-to solve for the rate. Recoup Amount is the projection-derived recoupable base and stays fixed.
+**Verified live (cold-boot hammer):** endpoint **~200ms typical** (was 2+ min timeout); `pending`
+89→0 over ~60s background warming; `deals/saved` 8ms + `templates` 4ms DURING warming (app-wide
+responsive); converges `pending=0` (89 summaries; 17 folders no-workbook/unparseable → `—`). Clean
+boot, no console/server errors. Residual: occasional 1–3s blip while a large workbook parses in the
+background (SheetJS is synchronous; fully removing it would need worker threads — out of scope).
 
-**Verified:** clean compile (app loaded, zero console errors); formula proven in-page against the
-920,920 base — 500,000→54.29% (matches the reference screenshot), 600,000→65.15%,
-920,920→100.00%, cleared→blank. Full UI click-through not driven (deep 6-step flow through a
-flaky browser pane); math + wiring + compile confirmed instead.
-
-## 2. Earlier today (already committed + pushed)
-- **B2B RTHM Deal Sheet collision fix** (commit 2d0b36b): B2B deals now emit
-  `RTHM Deal Sheet (B2B)_<name>.docx` so a B2B instance no longer overwrites the same-name
-  Individual instance's deal sheet. type stays 'Deal Sheet', name still startsWith 'RTHM Deal
-  Sheet' → all matchers/readers safe. Go-forward only.
-- **B2B template dropdown labels** tidied (Valuation + Agreements): show just the partner name.
+## 2. Offer Letter dynamic Recoup Rate (committed 1617163, earlier this session)
+Editing the auto-filled Advance Amount now re-derives Recoup Rate = Advance ÷ Recoup Amount
+(Recoup Amount fixed) live + in the saved doc; `lockedDeal.recoupRate` synced on save.
 
 ## 🧭 Current state
-- App running (:3001 backend, :5173 Vite). All changes live. This session committed + pushed.
-- Dev stack still orphans from the harness — if ports busy but "no preview", kill `*App Files*`
-  node PIDs and `preview_start rthm-app-win`.
+- App running (:3001 backend, :5173 Vite) with new code. All changes live.
+- **`data/deals.json` UNCOMMITTED — deliberately.** It's the Mac's live data (83 deals, all
+  `/Users/slif/` paths, synced via Dropbox), not corruption. Not bundled into code commits — your
+  data decision (commit from whichever machine you're actively on).
+- Dev stack orphans from the harness; ports also linger. To restart cleanly: kill the PIDs on
+  ports 3001+5173 (NOT just `*App Files*` — the `node server/index.js` proc has no "App Files" in
+  its cmdline), then `preview_start rthm-app-win`.
 
 ## ⏭️ Next / open
-1. /underwrite integration — task #4, awaiting user instructions (skill fully ingested).
-2. SETTLED (do not re-raise): offer-letter/RPA same-name collision — NOT an auto-collision
-   (Individual "RTHM Offer Letter_" vs B2B's distinct prefix; RPA filename user-editable). Only
-   the auto-derived Deal Sheet name was a silent clash, and that's fixed.
-3. Carried: first real 12-year RPA gen + first fee-bearing deal-sheet export; Tyga/Lil Sheik
-   parser; container Lifetime spot-check; diligence stage-marker e2e; James Avex reconcile.
+1. /underwrite integration — task #4, awaiting instructions.
+2. Data Manager perf (optional): worker-thread XLSX parsing would remove the residual 1–3s
+   warm-window blips. Bigger change; current fix already killed the multi-minute freeze.
+3. SETTLED (do not re-raise): offer-letter/RPA same-name collision is NOT an auto-collision.
