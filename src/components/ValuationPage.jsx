@@ -132,13 +132,10 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
   // initialized from defaults, and the auto-save effect below silently OVERWROTE
   // the saved tuned rates and unlocked the recoup toggle.
   const savedState = valuationState ?? deal?.valuationState ?? null
-  // One commission resolution, shared by the seed solve and the commission state init.
-  const seedCommission = (savedState?.commission ?? parseFloat(deal?.commission)) || 4
 
   // Auto-filled starting recoup per term = the rate that makes Margin = MARGIN_PCT × RAS advance.
   // Exact inverse of the Margin column (same solve as the Margin cell's onBlur):
-  //   B2B:        rthmAdvance = rasAdvance − m
-  //   Individual: rthmAdvance = (rasAdvance − m) / (1 + commission/100)
+  //   rthmAdvance = rasAdvance − m
   //   rate = rthmAdvance / rasRecoup × 100  (2 dp)
   // Only terms with quote data get a default; saved rates win (fill-blanks-only).
   const startDefaults = {}
@@ -147,12 +144,11 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     const adv = parseFloat(source[advCol]), rec = parseFloat(source[recoupCol])
     if (!adv || !rec) return
     const m = adv * MARGIN_PCT
-    const rthmAdvance = dealType === 'B2B' ? adv - m : (adv - m) / (1 + seedCommission / 100)
+    const rthmAdvance = adv - m
     startDefaults[term] = Math.max(0, Math.round(rthmAdvance / rec * 10000) / 100)
   })
 
   const [rates, setRates] = useState({ ...startDefaults, ...(savedState?.rates || {}) })
-  const [commission, setCommission] = useState(seedCommission)
   const [b2bMarginRate, setB2bMarginRate] = useState(savedState?.b2bMarginRate ?? 5)
   const [recoupLocked, setRecoupLocked] = useState(savedState?.recoupLocked || false)
   const [advanceDraft, setAdvanceDraft] = useState({})
@@ -163,11 +159,9 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
   const [b2bTemplates, setB2bTemplates] = useState([])
   const [b2bTemplate, setB2bTemplate] = useState('')
 
-  const marginRate = dealType === 'Individual' ? commission : b2bMarginRate
-
   useEffect(() => {
-    onUpdateValuationState({ rates, commission, b2bMarginRate, recoupLocked })
-  }, [rates, commission, b2bMarginRate, recoupLocked])
+    onUpdateValuationState({ rates, b2bMarginRate, recoupLocked })
+  }, [rates, b2bMarginRate, recoupLocked])
 
   useEffect(() => {
     if (dealType !== 'B2B') return
@@ -193,7 +187,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
       const res = await fetch(`/api/deals/${dealIndex}/create-agreement`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'Deal Sheet', rates, commission, ...extraPayload })
+        body: JSON.stringify({ type: 'Deal Sheet', rates, ...extraPayload })
       })
       const data = await res.json()
       if (!res.ok || data.error) throw new Error(data.error || 'Failed')
@@ -227,9 +221,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     if (term === '144 months' && !rasAdvance && !rasRecoup) return null
     const rate = parseFloat(rates[term]) || 0
     const rthmAdvance = Math.round(rasRecoup * (rate / 100))
-    const margin = dealType === 'B2B'
-      ? Math.round(rasAdvance - rthmAdvance)
-      : Math.round(rasAdvance - rthmAdvance - rthmAdvance * (marginRate / 100))
+    const margin = Math.round(rasAdvance - rthmAdvance)
     return { term, rasAdvance, rasRecoup, rate, rthmAdvance, margin }
   }).filter(Boolean)
 
@@ -250,9 +242,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
     const totalDealValue = advanceAmount + marketingBudget
     const margin1 = rasAdvance * 0.2 * 0.33
     const margin2 = 0.8 * (rasAdvance - rthmAdvance)
-    const margin = dealType === 'B2B'
-      ? Math.round(margin1 + margin2)
-      : Math.round(margin1 + margin2 - (marginRate / 100) * advanceAmount)
+    const margin = Math.round(margin1 + margin2)
     return { term, totalDealValue, advanceAmount, marketingBudget, marketingBudgetRaw, rate, margin, rasAdvance, rthmAdvance }
   }).filter(Boolean) : []
 
@@ -283,8 +273,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
           <div className="valuation-section-header">
             <h3 className="valuation-section-title">RTHM VALUATION</h3>
             <span className="valuation-type-badge">{dealType}</span>
-            {dealType === 'Individual' && <RateInput label="Commission" value={commission} onChange={setCommission} />}
-            {dealType === 'B2B' && <RateInput label="Margin" value={b2bMarginRate} onChange={setB2bMarginRate} />}
+            {dealType === 'B2B' && <RateInput label="B2B Margin" value={b2bMarginRate} onChange={setB2bMarginRate} />}
           </div>
           <table className="valuation-table">
             <thead>
@@ -298,9 +287,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
             </thead>
             <tbody>
               {valuationRows.map(({ term, rasAdvance, rasRecoup, rate, rthmAdvance, margin }) => {
-                const marginTip = dealType === 'B2B'
-                  ? `${fmt(rasAdvance)} − ${fmt(rthmAdvance)}`
-                  : `${fmt(rasAdvance)} − ${fmt(rthmAdvance)} − (${fmt(rthmAdvance)} × ${formatPct(marginRate)}%)`
+                const marginTip = `${fmt(rasAdvance)} − ${fmt(rthmAdvance)}`
                 const advTip = `${fmt(rasRecoup)} × ${formatPct(rate)}%`
                 return (
                   <tr key={term}>
@@ -380,17 +367,13 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
                           }}
                           onBlur={() => {
                             // Inverse-solve for rate so the displayed margin matches the typed value.
-                            // B2B:        margin = rasAdvance − rthmAdvance
-                            //             → rthmAdvance = rasAdvance − margin
-                            // Individual: margin = rasAdvance − rthmAdvance − rthmAdvance × (marginRate/100)
-                            //             → rthmAdvance = (rasAdvance − margin) / (1 + marginRate/100)
+                            //   margin = rasAdvance − rthmAdvance
+                            //   → rthmAdvance = rasAdvance − margin
                             // Then rate = (rthmAdvance / rasRecoup) × 100.
                             const draftVal = marginDraft[term]
                             if (draftVal != null && rasRecoup > 0) {
                               const m = parseInt(draftVal) || 0
-                              const newRthmAdvance = dealType === 'B2B'
-                                ? (rasAdvance - m)
-                                : (rasAdvance - m) / (1 + marginRate / 100)
+                              const newRthmAdvance = rasAdvance - m
                               const newRate = Math.round((newRthmAdvance / rasRecoup) * 10000) / 100
                               setRate(term, String(newRate))
                             }
@@ -436,9 +419,7 @@ export default function ValuationPage({ deal, dealIndex, onBack, onOpenAgreement
             </thead>
             <tbody>
               {prUpliftRows.map(({ term, totalDealValue, advanceAmount, marketingBudget, rate, margin, marketingBudgetRaw, rasAdvance, rthmAdvance }) => {
-                const marginTip = dealType === 'B2B'
-                  ? `(${fmt(rasAdvance)} × 20% × 33%) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)}))`
-                  : `(${fmt(rasAdvance)} × 20% × 33%) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)})) − (${marginRate}% × ${fmt(advanceAmount)})`
+                const marginTip = `(${fmt(rasAdvance)} × 20% × 33%) + (80% × (${fmt(rasAdvance)} − ${fmt(rthmAdvance)}))`
                 const totalTip = `${fmt(advanceAmount)} + ${fmt(marketingBudget)}`
                 const advTip = `${fmt(rthmAdvance)} × 80%`
                 const mktTip = `${fmt(rasAdvance)} × 20% × 67% × 2.5 = ${fmt(Math.round(marketingBudgetRaw))} → round up to ${fmt(marketingBudget)}`

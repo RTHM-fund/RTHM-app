@@ -1,44 +1,67 @@
 # Claude Progress — Session Save (2026-07-28)
 
-## 1. Data Manager load perf — `/api/data/folders` no longer freezes the app (committed)
-**Root cause:** `App.jsx` fires `/api/data/folders` on every app mount; the endpoint synchronously
-parsed ~98 diligence workbooks (`XLSX.readFile`) in one un-yielded loop. On a cold cache (server
-restart OR the Mac's Dropbox re-sync changing workbook mtimes → mtime-keyed cache invalidated) it
-blocked the single Node event loop for **2+ minutes**, freezing the whole app. (Not Dropbox
-hydration — 95/98 workbooks are local; pure CPU parsing on the request thread.)
+## 1. COMMISSION removed entirely (this session's main work)
+Commission no longer exists in the Valuation UI, in ANY valuation math, in the import path, or in
+the Monday sync for Individual deals. **Margin stays 11% of RAS advance**; Individual math is now
+**identical to B2B**.
 
-**Fix (index.js + DataManagerPage.jsx):** endpoint now serves summaries **cache-only** (never parses
-inline); uncached workbooks flagged `summaryPending` and warmed by a background drain
-(`queueSummaryWarm`/`drainWarmQueue`) that yields (`setImmediate`) between each parse.
-`computeWorkbookSummary` caches even on parse-throw (no endless pending). `computeContainerRollup`
-cache-only, returns `{rollup, pending}`, never a partial rollup (data integrity). `DataManagerPage`
-re-fetches every 1.5s while any row is `summaryPending` → columns fill in progressively.
-**Verified:** ~200ms typical (was 2+ min); `deals/saved` 8ms during warming; converges pending=0.
-Residual: occasional 1–3s blip while a big workbook parses (SheetJS sync; worker-thread parsing
-would remove it — optional, out of scope).
+**Math change (Individual only):**
+- was `Margin = RAS adv − RTHM adv − (RTHM adv × commission%)`, seed `RTHM adv = (RAS adv − m)/(1 + comm/100)`
+- now `Margin = RAS adv − RTHM adv`, seed `RTHM adv = 0.89 × RAS adv`
+- Net effect: **new rate = old rate × (1 + comm/100)**. The slice commission used to take now goes
+  into the RTHM advance. Margin still lands on 11%.
 
-## 2. Offer Letter dynamic Recoup Rate (committed 1617163)
-Editing auto-filled Advance Amount re-derives Recoup Rate = Advance ÷ Recoup Amount (Recoup Amount
-fixed), live + in the saved doc; `lockedDeal.recoupRate` synced on save.
+**Files:** `ValuationPage.jsx` (Commission input deleted; seed, margin, PR margin, both tooltips and
+the Margin-cell inverse solve all unbranched; `marginRate` + `commission` state removed),
+`AgreementsPage.jsx` (2 payloads), `ImportModal.jsx` (state, canImport guard, 3 payloads —
+there was never a commission INPUT; it silently stamped `'4'`), `server/index.js`
+(`effectiveRatesFor` dropped BOTH `seedCommission` and `dealType` params → `(source, pairs,
+savedRates)`; both call sites; import + edit-deal stop writing `deal.commission`; monday/create-deal
+stops writing the column; valuation-state PATCH push is now **B2B-only**).
 
-## 3. deals.json — committed as current truth (commit ecd312d)
-Git HEAD had a stale 2026-07-22 snapshot (86 deals); the working copy was the Mac's live
-Dropbox-synced data. Per user ("current PC state is truth"), committed the current file (84 deals
-at commit time — it's live, count drifts as the Mac adds deals). Git now matches the PC.
-**Note:** this file is live-synced; it'll show modified again as the Mac works. Only ever commit it
-on the user's explicit say-so (their data decision) — never auto-commit, never `git restore` it
-(that would revert to the stale snapshot and destroy current data).
+**Kept deliberately:** `MARGIN_PCT` 0.11 · `MONDAY_COMMISSION_COL` + `updateMondayCommission` (B2B
+margin still writes there) · `b2bMarginRate` / the "B2B Margin" input (partner margin — a DIFFERENT
+concept) · `.commission-inline` / `.commission-label` CSS (shared RateInput, used by B2B).
+
+**Verified across all 86 real deals (read-only script):** B2B regression 126 term-rows **0 drift**;
+Individual 234/234 rows match `× (1 + comm/100)`; margin == 11% of RAS advance **0 violations**;
+FE↔BE seed lines byte-identical; syntax OK on all 4 files. Known row (RAS adv 31,255 / recoup
+62,225 / 4%): 42.98%→**44.70%**, adv 26,744→**27,815**, margin 3,441→3,440 (11% = 3,438).
+
+**⚠️ Expected behavior — ALL 86 deals carry saved rates, and saved rates always win (decision 2A):**
+existing deals keep their rate + RTHM advance (exports do NOT drift), but their **Margin column
+displays higher** by `RTHM adv × old comm%` and will not read 11% (e.g. that row shows ~4,511, not
+3,441). The new 11% seed only applies to **newly imported deals** / terms with no saved rate.
+There is NO re-seed path. If existing deals should be re-seeded, that's an unbuilt follow-up
+(would overwrite tuned rates — destructive, needs explicit approval).
+
+**Monday.com:** Individual deals no longer write to the Commission column at all (not at import,
+not on recoup-lock). B2B still writes its margin on recoup-lock.
+
+**deals.json:** old `commission` / `valuationState.commission` values left inert — no migration.
+`valuationState.commission` drops organically on the next valuation save (FE replaces the object).
+
+## 2. Also this session
+- **"B2B Margin" label** — the B2B rate input on the Valuation header now reads "B2B Margin".
+- **Offer Letter dynamic Recoup Rate** (1617163): editing the auto-filled Advance Amount re-derives
+  Recoup Rate = Advance ÷ Recoup Amount (Recoup Amount fixed), live + in the saved doc;
+  `lockedDeal.recoupRate` synced on save.
+- **B2B RTHM Deal Sheet collision fix** (2d0b36b): B2B deals emit `RTHM Deal Sheet (B2B)_<name>.docx`
+  so they can't overwrite the same-name Individual instance's sheet.
+- **Data Manager load perf** (4dd80ad): `/api/data/folders` is now non-blocking (cache-only +
+  background warmer that yields); was freezing the whole app 2+ min on a cold cache. ~200ms typical.
+- **deals.json committed as truth** (ecd312d) — git had a stale 2026-07-22 snapshot.
 
 ## 🧭 Current state
-- All code committed + pushed (latest: ecd312d). Working tree clean except live deals.json drift.
-- **Server stability:** the harness-managed dev stack orphaned/died repeatedly this session, and
-  port-kills (clearing EADDRINUSE) collided with the running server — that's what caused the
-  "app broke" scare (backend was simply down; perf code verified stable through warming +
-  navigation). **User is taking over server startup.** Claude should NOT start/kill the dev server
-  or touch ports 3001/5173 unless asked. Durable fix if it recurs: run the server as a standing
-  process independent of the harness.
+- **User runs the dev server** — Claude must NOT start/stop it or touch ports 3001/5173.
+  Backend was down at save time; the next start picks up the new server code automatically.
+- All work committed + pushed this save.
+- `deals.json` is live Dropbox-synced from the Mac (86 deals at save time, was 84 earlier today) —
+  it drifts on its own. Only ever commit it on explicit say-so; NEVER `git restore` it (that would
+  revert to a stale snapshot and destroy current data).
 
 ## ⏭️ Next / open
 1. /underwrite integration — task #4, awaiting instructions.
-2. Data Manager perf (optional): worker-thread XLSX parsing removes the residual 1–3s warm blips.
-3. SETTLED (do not re-raise): offer-letter/RPA same-name collision is NOT an auto-collision.
+2. Optional: re-seed path for existing deals' rates (see the 2A note above).
+3. Optional: worker-thread XLSX parsing to remove the residual 1–3s Data Manager warm blips.
+4. SETTLED (do not re-raise): offer-letter/RPA same-name collision is NOT an auto-collision.

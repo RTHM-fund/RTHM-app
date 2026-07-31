@@ -49,7 +49,6 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
   const [step, setStep] = useState(1)
   const [dealType, setDealType] = useState(editDeal?.dealType || '')
   const [royaltyType, setRoyaltyType] = useState(editDeal?.royaltyType || 'Distribution')
-  const [commission, setCommission] = useState(editDeal?.commission || '4')
   const [importing, setImporting] = useState(false)
 
   useEffect(() => {
@@ -122,7 +121,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
 
   const selectedNames = new Set([...selected].map(i => rows[i]?.['A']?.trim()))
   const canProceed = selected.size > 0 && selectedNames.size === 1
-  const canImport = dealType && royaltyType && (dealType !== 'Individual' || commission)
+  const canImport = dealType && royaltyType
 
   async function handleImport() {
     if (!canImport) return
@@ -131,7 +130,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
     try {
       const selectedRows = [...selected].map(i => rows[i])
       const dealName = selectedRows[0]?.['A']?.trim() || 'Untitled Deal'
-      const body = JSON.stringify({ rows: selectedRows, dealType, royaltyType, commission })
+      const body = JSON.stringify({ rows: selectedRows, dealType, royaltyType })
 
       if (isEdit) {
         const res = await fetch(`/api/deals/${editIndex}`, {
@@ -146,7 +145,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
         const mondayRes = await fetch('/api/monday/create-deal', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: dealName, type: dealType, commission })
+          body: JSON.stringify({ name: dealName, type: dealType })
         })
         const mondayData = await mondayRes.json()
         if (!mondayRes.ok || mondayData.error) throw new Error('Monday: ' + (mondayData.error || 'Failed'))
@@ -154,7 +153,7 @@ export default function ImportModal({ onClose, onImported, editDeal = null, edit
         const importRes = await fetch('/api/deals/import', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rows: selectedRows, dealType, royaltyType, commission, mondayItemId: mondayData.id })
+          body: JSON.stringify({ rows: selectedRows, dealType, royaltyType, mondayItemId: mondayData.id })
         })
         const importData = await importRes.json()
         if (!importRes.ok || importData.error) throw new Error(importData.error || 'Import failed')

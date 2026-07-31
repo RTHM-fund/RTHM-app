@@ -4890,11 +4890,11 @@
     "rthmDistroFee": 10,
     "valuationState": {
       "rates": {
-        "12 months": 78.61,
-        "36 months": 65.64,
-        "60 months": 56.33,
-        "84 months": 49.71,
-        "144 months": 39.52
+        "12 months": "79.01",
+        "36 months": "65.97",
+        "60 months": "56.61",
+        "84 months": "49.95",
+        "144 months": "39.72"
       },
       "commission": 4,
       "b2bMarginRate": 5,
@@ -4912,7 +4912,13 @@
         "type": "NSU Global Deal Sheet",
         "fileName": "NSU Global Deal Sheet_JayBenz.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\NSU Global Deal Sheet_JayBenz.docx",
-        "createdAt": "2026-07-23T16:32:36.131Z"
+        "createdAt": "2026-07-31T18:31:52.866Z"
+      },
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet (B2B)_JayBenz.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet (B2B)_JayBenz.docx",
+        "createdAt": "2026-07-31T18:31:52.866Z"
       }
     ]
   },
@@ -4953,11 +4959,11 @@
     "rthmDistroFee": 10,
     "valuationState": {
       "rates": {
-        "12 months": 76.29,
-        "36 months": 65.33,
-        "60 months": 59.09,
-        "84 months": 54.82,
-        "144 months": 50.69
+        "12 months": "76.67",
+        "36 months": "65.66",
+        "60 months": "59.39",
+        "84 months": "55.1",
+        "144 months": "50.94"
       },
       "commission": 4,
       "b2bMarginRate": 5,
@@ -4975,7 +4981,13 @@
         "type": "NSU Global Deal Sheet",
         "fileName": "NSU Global Deal Sheet_Deyon Agoi.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\NSU Global Deal Sheet_Deyon Agoi.docx",
-        "createdAt": "2026-07-23T16:32:54.445Z"
+        "createdAt": "2026-07-31T18:28:46.262Z"
+      },
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet (B2B)_Deyon Agoi.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet (B2B)_Deyon Agoi.docx",
+        "createdAt": "2026-07-31T18:28:46.262Z"
       }
     ]
   },
@@ -5239,6 +5251,118 @@
         "fileName": "TopValley Deal Sheet_Avo.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\TopValley Deal Sheet_Avo.docx",
         "createdAt": "2026-07-29T00:52:43.309Z"
+      }
+    ]
+  },
+  {
+    "name": "Lil Eddie",
+    "platform": "BMI",
+    "initialQuote": {
+      "K": 11600,
+      "L": 13600,
+      "M": 23900,
+      "N": 33200,
+      "O": 29100,
+      "P": 46200,
+      "Q": 31300,
+      "R": 54700,
+      "S": 32900,
+      "T": 65500
+    },
+    "postFees": {
+      "AR": 11020,
+      "AS": 12920,
+      "AT": 22705,
+      "AU": 31540,
+      "AV": 27645,
+      "AW": 43890,
+      "AX": 29735,
+      "AY": 51965,
+      "AZ": 31255,
+      "BA": 62225
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 0,
+    "dealType": "Individual",
+    "royaltyType": "Publishing",
+    "commission": "4",
+    "mondayItemId": "12685722042",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-31T18:38:08.946Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 72.99,
+        "36 months": 61.61,
+        "60 months": 53.9,
+        "84 months": 48.97,
+        "144 months": 42.98
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Lil Eddie.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Lil Eddie.docx",
+        "createdAt": "2026-07-31T18:38:17.670Z"
+      }
+    ]
+  },
+  {
+    "name": "Ir Sais",
+    "platform": "TuneCore, Orchard, Sony, Sony ATV, Sound Exchange",
+    "initialQuote": {
+      "K": 67200,
+      "L": 74900,
+      "M": 128200,
+      "N": 167700,
+      "O": 152300,
+      "P": 611400,
+      "Q": 163250,
+      "R": 267000,
+      "S": 171500,
+      "T": 329500
+    },
+    "postFees": {
+      "AR": 63840,
+      "AS": 71155,
+      "AT": 121790,
+      "AU": 159315,
+      "AV": 144685,
+      "AW": 580830,
+      "AX": 155088,
+      "AY": 253650,
+      "AZ": 162925,
+      "BA": 313025
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 0,
+    "dealType": "Individual",
+    "royaltyType": "Both",
+    "commission": "4",
+    "mondayItemId": "12685759142",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-07-31T18:41:33.764Z",
+    "valuationState": {
+      "rates": {
+        "12 months": 76.78,
+        "36 months": 65.42,
+        "60 months": 21.32,
+        "84 months": 52.32,
+        "144 months": 44.54
+      },
+      "commission": 4,
+      "b2bMarginRate": 5,
+      "recoupLocked": true
+    },
+    "agreements": [
+      {
+        "type": "Deal Sheet",
+        "fileName": "RTHM Deal Sheet_Ir Sais.docx",
+        "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\RTHM Deal Sheet_Ir Sais.docx",
+        "createdAt": "2026-07-31T18:41:44.422Z"
       }
     ]
   }

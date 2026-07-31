@@ -75,7 +75,7 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
     try {
       const vs = deal.valuationState || {}
       const payload = type === 'RTHM Deal Sheet'
-        ? { type: 'Deal Sheet', rates: vs.rates, commission: vs.commission }
+        ? { type: 'Deal Sheet', rates: vs.rates }
         : { type }
       const res = await fetch(`/api/deals/${dealIndex}/create-agreement`, {
         method: 'POST',
@@ -115,7 +115,6 @@ export default function AgreementsPage({ deal, dealIndex, onBack, onNavigateToOf
           b2bTemplate,
           margin: vs.b2bMarginRate ?? 5,
           rates: vs.rates,
-          commission: vs.commission,
           b2bOnly: true
         })
       })

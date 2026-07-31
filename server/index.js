@@ -234,10 +234,10 @@ function resolveQuoteSource(deal) {
 
 // Per-term effective recoup rate: the saved rate if present, else the auto-fill
 // (the rate that makes Margin = MARGIN_PCT × RAS advance — the exact inverse of the
-// Margin column: B2B rthmAdvance = adv − m; Individual rthmAdvance = (adv − m)/(1 +
-// commission/100); rate = rthmAdvance/rec × 100, 2 dp, clamped ≥ 0). Mirrors
-// ValuationPage so the exported rate equals the on-screen rate. Fills blanks only.
-function effectiveRatesFor(source, pairs, savedRates, dealType, seedCommission) {
+// Margin column: rthmAdvance = adv − m; rate = rthmAdvance/rec × 100, 2 dp, clamped
+// ≥ 0). Mirrors ValuationPage so the exported rate equals the on-screen rate.
+// Fills blanks only.
+function effectiveRatesFor(source, pairs, savedRates) {
   const saved = savedRates || {}
   const out = {}
   TERMS_ALL.forEach(term => {
@@ -246,7 +246,7 @@ function effectiveRatesFor(source, pairs, savedRates, dealType, seedCommission) 
     const adv = parseFloat(source[advCol]), rec = parseFloat(source[recoupCol])
     if (!adv || !rec) return
     const m = adv * MARGIN_PCT
-    const rthmAdvance = dealType === 'B2B' ? adv - m : (adv - m) / (1 + seedCommission / 100)
+    const rthmAdvance = adv - m
     out[term] = Math.max(0, Math.round(rthmAdvance / rec * 10000) / 100)
   })
   return out
@@ -579,9 +579,9 @@ app.get('/api/deals/sheet-rows', async (req, res) => {
 // POST /api/deals/import — merge selected rows and append to deals.json
 app.post('/api/deals/import', (req, res) => {
   try {
-    const { rows, dealType, royaltyType, commission, mondayItemId } = req.body
+    const { rows, dealType, royaltyType, mondayItemId } = req.body
     const newDeals = buildDealData(rows).map(d => ({
-      ...d, dealType: dealType || '', royaltyType: royaltyType || '', commission: commission || '',
+      ...d, dealType: dealType || '', royaltyType: royaltyType || '',
       mondayItemId: mondayItemId || null, mondayBoardId: mondayItemId ? MONDAY_BOARD_ID : null,
       importedAt: new Date().toISOString()
     }))
@@ -597,10 +597,9 @@ app.post('/api/deals/import', (req, res) => {
 // POST /api/monday/create-deal — create item in Monday Current group
 app.post('/api/monday/create-deal', async (req, res) => {
   try {
-    const { name, type, commission } = req.body
+    const { name, type } = req.body
     const colVals = {}
     if (type) colVals[MONDAY_TYPE_COL] = { label: type }
-    if (commission !== '' && commission !== null) colVals[MONDAY_COMMISSION_COL] = String(commission)
 
     const mutation = `mutation {
       create_item(
@@ -693,11 +692,11 @@ app.post('/api/deals/:index/open-folder', (req, res) => {
 app.put('/api/deals/:index', (req, res) => {
   try {
     const idx = parseInt(req.params.index)
-    const { rows, dealType, royaltyType, commission } = req.body
+    const { rows, dealType, royaltyType } = req.body
     const existing = readDeals()
     if (idx < 0 || idx >= existing.length) return res.status(404).json({ error: 'Deal not found' })
     const [dealData] = buildDealData(rows)
-    existing[idx] = { ...existing[idx], ...dealData, dealType: dealType || '', royaltyType: royaltyType || '', commission: commission || '' }
+    existing[idx] = { ...existing[idx], ...dealData, dealType: dealType || '', royaltyType: royaltyType || '' }
     writeDeals(existing)
     res.json({ ok: true })
   } catch (err) {
@@ -780,10 +779,8 @@ app.get('/api/deals/:index/deal-sheet-tables', (req, res) => {
 
     const { source, pairs } = resolveQuoteSource(deal)
     const vs = deal.valuationState || {}
-    // Same commission resolution as ValuationPage's seedCommission (server has no session
-    // cache, so the deal's persisted valuationState IS the savedState here).
-    const effectiveRates = effectiveRatesFor(source, pairs, vs.rates, dealType,
-      (vs.commission ?? parseFloat(deal.commission)) || 4)
+    // The deal's persisted valuationState IS the savedState here (server has no session cache).
+    const effectiveRates = effectiveRatesFor(source, pairs, vs.rates)
 
     const initial = deal.initialQuote || {}
     const structuredRows = []
@@ -892,7 +889,7 @@ function createDoc(templateFile, fields, outputDir, fileName) {
 app.post('/api/deals/:index/create-agreement', async (req, res) => {
   try {
     const idx = parseInt(req.params.index)
-    const { type, b2bTemplate, margin, rates, commission, b2bOnly } = req.body
+    const { type, b2bTemplate, margin, rates, b2bOnly } = req.body
     const deals = readDeals()
     if (idx < 0 || idx >= deals.length) return res.status(404).json({ error: 'Deal not found' })
     const deal = deals[idx]
@@ -908,10 +905,9 @@ app.post('/api/deals/:index/create-agreement', async (req, res) => {
     const showPR = deal.royaltyType !== 'Publishing'
 
     const { source, pairs } = resolveQuoteSource(deal)
-    // Same commission resolution as ValuationPage's seedCommission — the FE always sends a
-    // complete rates object, so this fallback only fires for terms it had no seed for either.
-    const effectiveRates = effectiveRatesFor(source, pairs, rates, dealType,
-      ((deal.valuationState?.commission) ?? parseFloat(deal.commission)) || 4)
+    // The FE always sends a complete rates object, so the seed only fires for terms it had
+    // no rate for either.
+    const effectiveRates = effectiveRatesFor(source, pairs, rates)
 
     function fmtMoney(n) { return Math.round(n).toLocaleString('en-US') }  // no currency symbol (app-wide, incl. exports)
     function fmtPct(n) { return Number(n).toFixed(2) + '%' }  // percentages to 2 decimals (e.g. 40 → 40.00%)
@@ -1111,9 +1107,9 @@ app.patch('/api/deals/:index/valuation-state', (req, res) => {
     if (idx < 0 || idx >= deals.length) return res.status(404).json({ error: 'Deal not found' })
     deals[idx].valuationState = req.body
     writeDeals(deals)
-    if (req.body.recoupLocked && deals[idx].mondayItemId) {
-      const value = deals[idx].dealType === 'B2B' ? req.body.b2bMarginRate : req.body.commission
-      if (value != null) updateMondayCommission(deals[idx].mondayItemId, value).catch(() => {})
+    // B2B only — Individual deals no longer carry a commission, so nothing is pushed for them.
+    if (req.body.recoupLocked && deals[idx].mondayItemId && deals[idx].dealType === 'B2B') {
+      if (req.body.b2bMarginRate != null) updateMondayCommission(deals[idx].mondayItemId, req.body.b2bMarginRate).catch(() => {})
     }
     res.json({ ok: true })
   } catch (err) {
