@@ -1758,9 +1758,15 @@ function getSummaryCached(folder) {
 }
 
 // Background warmer for the summary cache. The folders endpoint returns cached-or-null instantly
-// and queues uncached workbooks here; this drains them one parse at a time, yielding the event
-// loop between each so HTTP stays responsive. Deduped via the Set; the single drain loop also
-// picks up folders queued mid-run. Workbooks are READ only, never modified.
+// and queues uncached workbooks here; this drains them one parse at a time. Deduped via the Set;
+// the single drain loop also picks up folders queued mid-run. Workbooks are READ only.
+//
+// The pause between parses is a real timer, NOT setImmediate: XLSX.readFile is synchronous and
+// some workbooks are multi-MB, so back-to-back parses monopolize Node's single thread. A
+// setImmediate yield is too short for work that needs sustained loop time — it starved the
+// Google Sheets import (multi round-trip HTTPS + large JSON) into timing out. 75ms gives other
+// requests real breathing room; it only costs a few extra seconds across a full warm.
+const WARM_YIELD_MS = 75
 const warmQueue = new Set()
 let warming = false
 async function drainWarmQueue() {
@@ -1769,7 +1775,7 @@ async function drainWarmQueue() {
     const folder = warmQueue.values().next().value
     warmQueue.delete(folder)
     try { computeWorkbookSummary(folder) } catch {}
-    await new Promise(r => setImmediate(r))
+    await new Promise(r => setTimeout(r, WARM_YIELD_MS))
   }
   warming = false
 }
@@ -2869,21 +2875,4 @@ app.get('/api/heartbeat', (req, res) => {
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
-  // Kick off background warming of the Data Manager summary cache at boot so the columns are ready
-  // sooner. Routed through the same queueSummaryWarm drain the /api/data/folders endpoint uses (one
-  // parse at a time, yielding between each). The endpoint no longer blocks on parsing, so this is
-  // just a head start, not on the critical path — a cold first request is served instantly either way.
-  setTimeout(() => {
-    try {
-      const dir = path.join(DATA_ROOT, '1. Current')
-      if (!fs.existsSync(dir)) return
-      const folders = fs.readdirSync(dir, { withFileTypes: true })
-        .filter(e => e.isDirectory())
-        .map(e => path.join(dir, e.name))
-      queueSummaryWarm(folders)
-      console.log(`[prewarm] queued ${folders.length} folders for background summary warming`)
-    } catch (err) {
-      console.warn('[prewarm] failed:', err.message)
-    }
-  }, 100)
 })

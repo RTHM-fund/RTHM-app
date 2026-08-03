@@ -1,67 +1,65 @@
-# Claude Progress — Session Save (2026-07-28)
+# Claude Progress — Session Save (2026-07-31)
 
-## 1. COMMISSION removed entirely (this session's main work)
-Commission no longer exists in the Valuation UI, in ANY valuation math, in the import path, or in
-the Monday sync for Individual deals. **Margin stays 11% of RAS advance**; Individual math is now
-**identical to B2B**.
+## 1. Sheets import failing — FIXED (server/index.js)
+**Symptom:** "app not working, sheets data not importing."
 
-**Math change (Individual only):**
-- was `Margin = RAS adv − RTHM adv − (RTHM adv × commission%)`, seed `RTHM adv = (RAS adv − m)/(1 + comm/100)`
-- now `Margin = RAS adv − RTHM adv`, seed `RTHM adv = 0.89 × RAS adv`
-- Net effect: **new rate = old rate × (1 + comm/100)**. The slice commission used to take now goes
-  into the RTHM advance. Margin still lands on 11%.
+**Root cause (measured, not guessed):** on every server start the Data Manager pre-warmed ~98
+diligence workbooks. `XLSX.readFile` is SYNCHRONOUS and several workbooks are multi-MB, so the
+back-to-back parses monopolized Node's single thread for ~75s. Fast local endpoints squeezed
+through (`/api/deals/saved` 8ms) but the Google Sheets call — multi round-trip HTTPS + large JSON —
+got starved and timed out. Proof: `sheet-rows` FAILED >30s during the warm, then returned
+**1,912ms / 463 rows** the moment the warm finished. Google itself was never the problem (token
+refreshes fine; standalone probe: spreadsheet 1.6s, 471 rows in 309ms).
+NOT caused by the commission removal, NOT auth, NOT a crash.
 
-**Files:** `ValuationPage.jsx` (Commission input deleted; seed, margin, PR margin, both tooltips and
-the Margin-cell inverse solve all unbranched; `marginRate` + `commission` state removed),
-`AgreementsPage.jsx` (2 payloads), `ImportModal.jsx` (state, canImport guard, 3 payloads —
-there was never a commission INPUT; it silently stamped `'4'`), `server/index.js`
-(`effectiveRatesFor` dropped BOTH `seedCommission` and `dealType` params → `(source, pairs,
-savedRates)`; both call sites; import + edit-deal stop writing `deal.commission`; monday/create-deal
-stops writing the column; valuation-state PATCH push is now **B2B-only**).
+**Fix (easy path — user explicitly declined the worker-thread "real fix"):**
+1. **Boot prewarm REMOVED entirely** from `app.listen`. Nothing parses at startup, so the server is
+   usable immediately. The warm now only runs when `/api/data/folders` is actually called (i.e. the
+   Data Manager page is opened), and the progressive column-fill already built covers that.
+2. **Warm drain throttled**: `WARM_YIELD_MS = 75` real timer between parses instead of
+   `setImmediate` (a setImmediate yield is too short for work needing sustained loop time).
 
-**Kept deliberately:** `MARGIN_PCT` 0.11 · `MONDAY_COMMISSION_COL` + `updateMondayCommission` (B2B
-margin still writes there) · `b2bMarginRate` / the "B2B Margin" input (partner margin — a DIFFERENT
-concept) · `.commission-inline` / `.commission-label` CSS (shared RateInput, used by B2B).
+**Verified:** cold-start import **PASS** (3.3s, 464 rows — was a >30s timeout); columns still warm
+to completion (91 summaries, pending→0).
 
-**Verified across all 86 real deals (read-only script):** B2B regression 126 term-rows **0 drift**;
-Individual 234/234 rows match `× (1 + comm/100)`; margin == 11% of RAS advance **0 violations**;
-FE↔BE seed lines byte-identical; syntax OK on all 4 files. Known row (RAS adv 31,255 / recoup
-62,225 / 4%): 42.98%→**44.70%**, adv 26,744→**27,815**, margin 3,441→3,440 (11% = 3,438).
+**⚠️ KNOWN RESIDUAL (not fixed):** if the Data Manager page is opened (starting the warm) and an
+import runs within the next few minutes, it can STILL time out — 1 of 3 probes during warming
+failed. One 5.5MB workbook parse blocks long enough to starve a request. Full warm also now takes
+~190s (was ~75s) — background/progressive, not a freeze.
+**Offered but NOT built** (user hasn't answered): gate the drain on server idle — stamp each
+incoming request, only parse after ~500ms of no traffic (~10 lines, no workers). That would remove
+the residual. The permanent fix is worker-thread XLSX parsing — explicitly declined for now.
 
-**⚠️ Expected behavior — ALL 86 deals carry saved rates, and saved rates always win (decision 2A):**
-existing deals keep their rate + RTHM advance (exports do NOT drift), but their **Margin column
-displays higher** by `RTHM adv × old comm%` and will not read 11% (e.g. that row shows ~4,511, not
-3,441). The new 11% seed only applies to **newly imported deals** / terms with no saved rate.
-There is NO re-seed path. If existing deals should be re-seeded, that's an unbuilt follow-up
-(would overwrite tuned rates — destructive, needs explicit approval).
+## 2. Discovered: the server auto-shuts-down (not a crash)
+`maybeShutdown()` calls `process.exit(0)` once the last UI connection closes and no skill is
+running (index.js ~2850). This explains the repeated "server is down" throughout the session —
+closing the browser tab stops the backend BY DESIGN. Not a bug, not a crash.
 
-**Monday.com:** Individual deals no longer write to the Commission column at all (not at import,
-not on recoup-lock). B2B still writes its margin on recoup-lock.
-
-**deals.json:** old `commission` / `valuationState.commission` values left inert — no migration.
-`valuationState.commission` drops organically on the next valuation save (FE replaces the object).
-
-## 2. Also this session
-- **"B2B Margin" label** — the B2B rate input on the Valuation header now reads "B2B Margin".
-- **Offer Letter dynamic Recoup Rate** (1617163): editing the auto-filled Advance Amount re-derives
-  Recoup Rate = Advance ÷ Recoup Amount (Recoup Amount fixed), live + in the saved doc;
-  `lockedDeal.recoupRate` synced on save.
-- **B2B RTHM Deal Sheet collision fix** (2d0b36b): B2B deals emit `RTHM Deal Sheet (B2B)_<name>.docx`
-  so they can't overwrite the same-name Individual instance's sheet.
-- **Data Manager load perf** (4dd80ad): `/api/data/folders` is now non-blocking (cache-only +
-  background warmer that yields); was freezing the whole app 2+ min on a cold cache. ~200ms typical.
-- **deals.json committed as truth** (ecd312d) — git had a stale 2026-07-22 snapshot.
+## 3. Earlier today (all committed)
+- **COMMISSION removed entirely** (e93f31c) — gone from Valuation UI, all valuation math, the import
+  path, and the Individual Monday sync. Margin still 11% of RAS advance; Individual math now
+  identical to B2B (`Margin = RAS adv − RTHM adv`, seed `0.89 × RAS adv`). Net: new rate = old rate
+  × (1 + comm/100). Verified across all 86 deals: B2B 126 rows 0 drift; Individual 234/234 match;
+  margin == 11% 0 violations. **All 86 deals carry saved rates and saved rates win — existing deals
+  keep their rate/advance but their Margin column now displays higher and won't read 11%. Only new
+  imports get the new seed. No re-seed path exists (would be destructive; needs approval).**
+  Monday: Individual deals no longer write the Commission column at all; B2B still writes margin.
+- **"B2B Margin"** label on the Valuation header (was "Margin").
+- **Offer Letter dynamic Recoup Rate** (1617163) — editing Advance Amount re-derives
+  Recoup Rate = Advance ÷ Recoup Amount; `lockedDeal.recoupRate` synced on save.
+- **B2B deal-sheet collision fix** (2d0b36b) — B2B emits `RTHM Deal Sheet (B2B)_<name>.docx`.
+- **Data Manager load perf** (4dd80ad) — `/api/data/folders` non-blocking (cache-only + background
+  warmer). Fixed page-load freeze but NOT the starvation root cause — see item 1.
 
 ## 🧭 Current state
-- **User runs the dev server** — Claude must NOT start/stop it or touch ports 3001/5173.
-  Backend was down at save time; the next start picks up the new server code automatically.
+- **User runs the dev server.** Claude must NOT start/stop it or touch ports 3001/5173 unprompted.
+  (Diagnostic runs this session were started and stopped explicitly; nothing left running.)
 - All work committed + pushed this save.
-- `deals.json` is live Dropbox-synced from the Mac (86 deals at save time, was 84 earlier today) —
-  it drifts on its own. Only ever commit it on explicit say-so; NEVER `git restore` it (that would
-  revert to a stale snapshot and destroy current data).
+- `data/deals.json` is live Dropbox-synced from the Mac and drifts on its own. Only commit it on
+  explicit say-so; NEVER `git restore` it (would revert to a stale snapshot and destroy live data).
 
 ## ⏭️ Next / open
-1. /underwrite integration — task #4, awaiting instructions.
-2. Optional: re-seed path for existing deals' rates (see the 2A note above).
-3. Optional: worker-thread XLSX parsing to remove the residual 1–3s Data Manager warm blips.
+1. **Decide on the idle-gate follow-up** for the warm-window import residual (item 1).
+2. /underwrite integration — task #4, awaiting instructions.
+3. Optional: re-seed path for existing deals' rates (see commission note above).
 4. SETTLED (do not re-raise): offer-letter/RPA same-name collision is NOT an auto-collision.
