@@ -49,11 +49,24 @@ const HOSTNAME = os.hostname().replace(/[^a-zA-Z0-9-]/g, '-')
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const TERMS_ALL = ['12 months', '36 months', '60 months', '84 months', '144 months']
-// Quote sources, by tracker band. Each pair = [advance col, RAS recoup col], indexed by TERMS_ALL.
-// `initialQuote` = the tracker's "Initial quotes" band (K–T); `postFees` = the "RTHM net offer,
-// before arbitrage" band (AR–BA) — the working numbers. Keys are sheet column letters (provenance).
+// Quote sources, by tracker band. Each pair = [advance key, RAS recoup key], indexed by TERMS_ALL.
+// `initialQuote` = the tracker's "Initial quotes" band; `postFees` = the "RTHM net offer, before
+// arbitrage" band — the working numbers.
+//
+// These are STORAGE KEYS, frozen. They started life as sheet column letters, but the tracker's
+// columns move: in 2026-08 a "Quote file" column was inserted at F, shifting every band one column
+// right. Re-keying would have to rewrite every stored deal, so instead the storage keys stay put
+// and only the SHEET_* mapping below is repointed. Mirrored in ValuationPage.jsx — edit both.
 const INITIAL_PAIRS = [['K','L'], ['M','N'], ['O','P'], ['Q','R'], ['S','T']]
 const POST_PAIRS = [['AR','AS'], ['AT','AU'], ['AV','AW'], ['AX','AY'], ['AZ','BA']]
+
+// LIVE tracker columns, positionally mapped onto the storage keys above (INITIAL_COLS/POST_COLS).
+// Verified against the sheet 2026-08-13: row 7 headers alternate "Initial quote" / "RAS Recoup"
+// under the row-6 term labels. If the tracker shifts again, ONLY these five lines change.
+const SHEET_INITIAL_COLS = ['L','M','N','O','P','Q','R','S','T','U']
+const SHEET_POST_COLS = ['AS','AT','AU','AV','AW','AX','AY','AZ','BA','BB']
+const SHEET_ADMIN_FEE_COL = 'G'   // "RTHM Admin Fee"            (was F before the insert)
+const SHEET_DISTRO_FEE_COL = 'H'  // "RTHM Distro fee (go-forward)" (was G before the insert)
 // Auto-filled starting recoup: each term's Recoup Rate is solved so the RTHM Valuation MARGIN
 // defaults to exactly this fraction of that term's RAS advance. See effectiveRatesFor.
 const MARGIN_PCT = 0.11
@@ -173,8 +186,9 @@ function resolveAgreementPath(ag) {
   return null
 }
 
-// A = deal, C = distributor/PRO, F = RTHM Admin Fee %, G = RTHM Distro fee (go-forward) %.
-const WANTED_COLS = ['A','C','F','G','K','L','M','N','O','P','Q','R','S','T','AR','AS','AT','AU','AV','AW','AX','AY','AZ','BA']
+// Sheet columns pulled for the import modal. A = deal, C = distributor/PRO, plus the fee and
+// quote-band columns resolved above. These are LIVE SHEET letters, not storage keys.
+const WANTED_COLS = ['A', 'C', SHEET_ADMIN_FEE_COL, SHEET_DISTRO_FEE_COL, ...SHEET_INITIAL_COLS, ...SHEET_POST_COLS]
 
 const INITIAL_COLS = INITIAL_PAIRS.flat()
 const POST_COLS = POST_PAIRS.flat()
@@ -194,19 +208,20 @@ function buildDealData(rows) {
       const nums = groupRows.map(r => parseFloat((r[col] || '').replace(/[^0-9.-]/g, ''))).filter(n => !isNaN(n))
       return nums.length > 0 ? nums.reduce((a, b) => a + b, 0) : null
     }
+    // Read the LIVE sheet column, store under the frozen storage key at the same position.
     const initialQuote = {}
-    INITIAL_COLS.forEach(col => { initialQuote[col] = sumCol(col) })
+    INITIAL_COLS.forEach((key, i) => { initialQuote[key] = sumCol(SHEET_INITIAL_COLS[i]) })
     const postFees = {}
-    POST_COLS.forEach(col => { postFees[col] = sumCol(col) })
+    POST_COLS.forEach((key, i) => { postFees[key] = sumCol(SHEET_POST_COLS[i]) })
     // Deal-level fee %s: MAX across the deal's account rows (a deal is RTHM-distro if ANY
     // account is). Mixed values across rows are legal but worth a loud note in the log.
     const feeOf = col => {
       const vals = groupRows.map(r => parseFloat((r[col] || '').replace(/[^0-9.-]/g, ''))).filter(n => !isNaN(n))
-      if (new Set(vals).size > 1) console.warn(`[import] ${name}: mixed ${col === 'F' ? 'admin' : 'distro'} fees across rows: ${[...new Set(vals)].join('/')} — using max`)
+      if (new Set(vals).size > 1) console.warn(`[import] ${name}: mixed ${col === SHEET_ADMIN_FEE_COL ? 'admin' : 'distro'} fees across rows: ${[...new Set(vals)].join('/')} — using max`)
       return vals.length ? Math.max(...vals) : null
     }
-    const adminFee = feeOf('F')
-    const rthmDistroFee = feeOf('G')
+    const adminFee = feeOf(SHEET_ADMIN_FEE_COL)
+    const rthmDistroFee = feeOf(SHEET_DISTRO_FEE_COL)
     return { name, platform, initialQuote, postFees, adminFee, rthmDistroFee }
   })
 }

@@ -4658,7 +4658,6 @@
         "84 months": 49.32,
         "144 months": 42.09
       },
-      "commission": 4,
       "b2bMarginRate": 5,
       "recoupLocked": true
     },
@@ -5235,7 +5234,7 @@
         "144 months": 55.23
       },
       "commission": 4,
-      "b2bMarginRate": 10,
+      "b2bMarginRate": 0,
       "recoupLocked": true
     },
     "b2bPartner": "TopValley",
@@ -5251,8 +5250,35 @@
         "fileName": "TopValley Deal Sheet_Avo.docx",
         "filePath": "C:\\Users\\richa\\RTHM Dropbox\\RTHM Fund\\RTHM\\1. RTHM Fund\\2. Offers\\Temp Agreements\\TopValley Deal Sheet_Avo.docx",
         "createdAt": "2026-07-29T00:52:43.309Z"
+      },
+      {
+        "type": "TopValley Offer Letter",
+        "fileName": "TopValley Offer Letter_Avo.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/TopValley Offer Letter_Avo.docx",
+        "createdAt": "2026-08-10T19:43:18.664Z"
+      },
+      {
+        "type": "B2B RPA",
+        "fileName": "B2B RPA_Avo.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/B2B RPA_Avo.docx",
+        "createdAt": "2026-08-10T19:57:15.309Z"
+      },
+      {
+        "type": "RTHM x RAS RPA",
+        "fileName": "RTHM x RAS RPA_Avo.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM x RAS RPA_Avo.docx",
+        "createdAt": "2026-08-10T19:59:12.901Z"
+      },
+      {
+        "type": "RTHM RPA",
+        "fileName": "RTHM RPA_Avo.docx",
+        "filePath": "/Users/slif/Library/CloudStorage/Dropbox-RTHM/RTHM Fund/RTHM/1. RTHM Fund/2. Offers/Temp Agreements/RTHM RPA_Avo.docx",
+        "createdAt": "2026-08-10T19:59:13.041Z"
       }
-    ]
+    ],
+    "lockedDeal": {
+      "transactionId": "RTHM-RPA-35"
+    }
   },
   {
     "name": "Lil Eddie",
@@ -5365,5 +5391,51 @@
         "createdAt": "2026-07-31T21:17:28.295Z"
       }
     ]
+  },
+  {
+    "name": "Khalfani Records",
+    "platform": "Zojak Worldwide",
+    "initialQuote": {
+      "K": 6000,
+      "L": 7100,
+      "M": 13400,
+      "N": 18800,
+      "O": 17100,
+      "P": 28000,
+      "Q": 19000,
+      "R": 35200,
+      "S": 20800,
+      "T": 47100
+    },
+    "postFees": {
+      "AR": 5700,
+      "AS": 6745,
+      "AT": 12730,
+      "AU": 17860,
+      "AV": 16245,
+      "AW": 26600,
+      "AX": 18050,
+      "AY": 33440,
+      "AZ": 19760,
+      "BA": 44745
+    },
+    "adminFee": 5,
+    "rthmDistroFee": 0,
+    "dealType": "Individual",
+    "royaltyType": "Distribution",
+    "mondayItemId": "12790839704",
+    "mondayBoardId": 18397562279,
+    "importedAt": "2026-08-13T03:03:38.047Z",
+    "valuationState": {
+      "b2bMarginRate": 5,
+      "recoupLocked": false,
+      "rates": {
+        "12 months": 75.21,
+        "36 months": 63.44,
+        "60 months": 54.35,
+        "84 months": 48.04,
+        "144 months": 39.3
+      }
+    }
   }
 ]
